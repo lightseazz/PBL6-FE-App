@@ -1,26 +1,22 @@
-import { Text, View,TextInput, Button, TouchableHighlight } from 'react-native';
-import { cssLogin, touchProps } from '../../css/authPage/css_Login';
+import { Text, View } from 'react-native';
+import {Button, TextInput} from 'react-native-paper'
+import { cssLogin} from '../../css/authPage/css_Login';
 
- function SignUp( {navigation}){
+export default function SignUp( {navigation}){
     return(
         <View style={cssLogin.mainView}> 
-            <Text> Slock </Text>
-            <TextInput style={cssLogin.textInput} placeholder='gmail'  /> 
-            <TextInput style={cssLogin.textInput} placeholder='username'  /> 
-            <TextInput style={cssLogin.textInput} placeholder='password'  /> 
-            <TextInput style={cssLogin.textInput} placeholder='password again'  /> 
-            <View style={cssLogin.button}  >
-                <Button title='Sign Up' onPress={() => navigation.navigate("Verify")} />
+            <TextInput  style={{width: '80%', marginBottom: 20}} placeholder='gmail'  /> 
+            <TextInput  style={{width: '80%', marginBottom: 20}} placeholder='username'  /> 
+            <TextInput  style={{width: '80%', marginBottom: 20}} placeholder='password'  /> 
+            <TextInput  style={{width: '80%', marginBottom: 30}} placeholder='password again'  /> 
+            <Button mode="elevated" onPress={() => navigation.navigate("Verify")}>Sign up</Button>
+            <View style={{flexDirection: 'row', alignItems:'center', marginTop: 10}}>
+                <Text>Already have an account ? </Text>
+                <Button onPress={(() => navigation.navigate('Login'))}>Login</Button>
             </View>
-            <TouchableHighlight onPress={() => navigation.navigate("Login")} {...touchProps}>
-                <View style={cssLogin.text}>
-                    <Text>Login</Text>
-                </View>
-            </TouchableHighlight>
         </View>
     )
  
 }
 
-export {SignUp}
 

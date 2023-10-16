@@ -1,18 +1,15 @@
-import { Text, View,TextInput, Button, TouchableHighlight } from 'react-native';
-import { cssLogin, touchProps } from '../../css/authPage/css_Login';
+import { Text, View } from 'react-native';
+import { TextInput, Button } from 'react-native-paper';
+import { cssLogin } from '../../css/authPage/css_Login';
 
- function Verify({ navigation }){
+export default function Verify({ navigation }){
     return(
         <View style={cssLogin.mainView}> 
-            <Text> We have sent OTP to gmail: sdf@gmail.com</Text>
-            <TextInput style={cssLogin.textInput} placeholder='OTP input'  /> 
-            <View style={cssLogin.button}  >
-                <Button title='Verify' />
-            </View>
+            <Text style= {{marginBottom: 30}}> We have sent OTP to gmail: sdf@gmail.com</Text>
+            <TextInput mode="outlined" style={{width: '80%', marginBottom: 30}} placeholder='OTP input'  /> 
+            <Button mode="elevated">Verify</Button>
         </View>
     )
  
 }
-
-export {Verify}
 

@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-
 export const cssLogin = StyleSheet.create({
     mainView: {
       flex: 1,
@@ -22,7 +21,7 @@ export const cssLogin = StyleSheet.create({
     }
   });
 
-export const touchProps = {
+export const css_TouchOpacity = {
   activeOpacity: 0.6,
   underlayColor: '#c0c4c4',           
   style: {

@@ -1,19 +1,17 @@
-import { Text, View,TextInput, Button, TouchableHighlight } from 'react-native';
-import { cssLogin, touchProps } from '../../css/authPage/css_Login';
+import { Text, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
+import { cssLogin} from '../../css/authPage/css_Login';
 
- function ChangePass({ navigation }){
+export default function  ChangePass({ navigation }){
     return(
         <View style={cssLogin.mainView}> 
-            <Text> Slock </Text>
-            <TextInput style={cssLogin.textInput} placeholder='old Password'  /> 
-            <TextInput style={cssLogin.textInput} placeholder='new Password'  /> 
-            <View style={cssLogin.button}  >
-                <Button title='Change Password' />
-            </View>
+            <TextInput mode="outlined"  placeholder='old Password' style={{width: '80%', marginBottom: 30}}  /> 
+            <TextInput mode="outlined"  placeholder='new Password' style={{width: '80%', marginBottom: 30}} /> 
+            <TextInput mode="outlined"   placeholder='new Password Again' style={{width: '80%', marginBottom: 30}} />
+            <Button mode="elevated">Change Password</Button>
         </View>
     )
  
 }
 
-export {ChangePass}
 
