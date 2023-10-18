@@ -1,10 +1,15 @@
-import { StyleSheet } from "react-native";
-export const cssLogin = StyleSheet.create({
-    mainView: {
+import { StyleSheet,StatusBar } from "react-native";
+export const layout = StyleSheet.create({
+    container: {
       flex: 1,
       backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    containerWithOutStatusBar: {
+      flex: 1,
+      paddingTop: StatusBar.currentHeight,
+      padding: '5%',
     },
     textInput: {
       borderWidth: 1,
