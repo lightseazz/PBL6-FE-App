@@ -33,6 +33,16 @@ export default function BottomTab() {
         }}
       />
       <Tab.Screen
+        name="TabNotification"
+        component={WorkspaceManager}
+        options={{
+          tabBarLabel: "Notifications",
+          tabBarIcon: () => (
+            <Ionicons name="notifications-outline" size={24} color="black" />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="UserSetting"
         component={WorkspaceManager}
         options={{
