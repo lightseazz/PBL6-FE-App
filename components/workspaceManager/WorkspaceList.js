@@ -1,5 +1,5 @@
 import { View, FlatList } from "react-native";
-import { Button, Card, FAB, Avatar, Text } from "react-native-paper";
+import { Button, Card, FAB, Avatar } from "react-native-paper";
 import { layout } from "../../css/general/layout";
 
 export default function WorkspaceList({ navigation }) {
@@ -11,13 +11,11 @@ export default function WorkspaceList({ navigation }) {
   ];
   return (
     <View style={layout.containerWithOutStatusBar}>
-      <Text variant="titleLarge" style={{ alignSelf: "center", margin: 20 }}>
-        Workspace List
-      </Text>
-
       <FlatList
         data={DATA}
-        renderItem={({ item }) => <WorkspaceCard title={item.title} />}
+        renderItem={({ item }) => (
+          <WorkspaceCard title={item.title} navigation={navigation} />
+        )}
         keyExtractor={(item) => item.id}
       />
       <FAB
@@ -37,7 +35,7 @@ export default function WorkspaceList({ navigation }) {
 
 const LeftContent = (props) => <Avatar.Icon {...props} icon="folder" />;
 
-function WorkspaceCard({ title }) {
+function WorkspaceCard({ title, navigation }) {
   return (
     <View
       style={{
@@ -47,7 +45,7 @@ function WorkspaceCard({ title }) {
       <Card>
         <Card.Title title={title} left={LeftContent} />
         <Card.Actions>
-          <Button>Open</Button>
+          <Button onPress={() => navigation.navigate("Chat")}>Open</Button>
         </Card.Actions>
       </Card>
     </View>

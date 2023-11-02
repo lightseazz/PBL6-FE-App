@@ -1,4 +1,4 @@
-import { FlatList, StatusBar, KeyboardAvoidingView } from "react-native";
+import { FlatList, StatusBar, View } from "react-native";
 import { useRef } from "react";
 import { useState } from "react";
 
@@ -45,6 +45,7 @@ export default function ChatChannel() {
   return (
     <>
       <FlatList
+        initialNumToRender={5}
         inverted
         style={{
           marginTop: StatusBar.currentHeight,
@@ -70,16 +71,19 @@ export default function ChatChannel() {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
-      <RichToolbar
-        editor={richText}
-        actions={[actions.setBold, actions.setItalic, actions.code]}
-      />
-      <RichEditor
-        ref={richText}
-        onChange={(descriptionText) => {
-          console.log("descriptionText:", descriptionText);
-        }}
-      />
+      <View>
+        <RichToolbar
+          editor={richText}
+          actions={[actions.setBold, actions.setItalic, actions.code]}
+        />
+        <RichEditor
+          androidLayerType="software"
+          ref={richText}
+          onChange={(descriptionText) => {
+            console.log("descriptionText:", descriptionText);
+          }}
+        />
+      </View>
     </>
   );
 }

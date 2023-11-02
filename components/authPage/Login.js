@@ -32,11 +32,7 @@ export default function Login({ navigation }) {
           Forgot your password
         </Button>
       </View>
-      <Button
-        onPress={() => navigation.navigate("BottomTab")}
-        mode="elevated"
-        style={{ marginTop: 10 }}
-      >
+      <Button mode="elevated" style={{ marginTop: 10 }}>
         Login
       </Button>
       <View

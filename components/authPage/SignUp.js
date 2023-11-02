@@ -34,6 +34,13 @@ export default function SignUp({ navigation }) {
         <Text>Already have an account ? </Text>
         <Button onPress={() => navigation.navigate("Login")}>Login</Button>
       </View>
+      <Button
+        mode="contained"
+        icon="google"
+        style={{ marginTop: 30, width: "80%" }}
+      >
+        Sign Up with Google
+      </Button>
     </View>
   );
 }

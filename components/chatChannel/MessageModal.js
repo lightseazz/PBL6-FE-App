@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 export default function MessageModal({ modalVisible, setModalVisible }) {
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={modalVisible["message"]}
       onRequestClose={() =>
@@ -58,6 +58,7 @@ export default function MessageModal({ modalVisible, setModalVisible }) {
 
 const styles = StyleSheet.create({
   bottomedView: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     flexDirection: "column-reverse",
     flex: 1,
   },
