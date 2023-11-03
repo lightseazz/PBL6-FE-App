@@ -21,6 +21,7 @@ export default function Login({ navigation }) {
           style={{ marginBottom: 30 }}
         />
         <TextInput
+          secureTextEntry
           label="password"
           mode="outlined"
           style={{ marginBottom: 10 }}

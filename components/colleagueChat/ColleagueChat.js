@@ -12,7 +12,8 @@ for (let i = 1; i <= 5; i++) {
     id: i,
     avatar: avatar,
     username: "John David",
-    time: "24/10",
+    time: "24/10 12:00 PM",
+    previewText: "to day is good day ...",
   });
 }
 export default function ColleagueChat({ navigation }) {
@@ -41,6 +42,7 @@ export default function ColleagueChat({ navigation }) {
             avatar={item.avatar}
             username={item.username}
             time={item.time}
+            previewText={item.previewText}
           />
         )}
       />

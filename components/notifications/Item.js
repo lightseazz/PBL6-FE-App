@@ -2,27 +2,30 @@ import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
 
-export default function Colleague({
-  username,
-  avatar,
+export default function Item({
+  icon,
+  type,
   time,
-  navigation,
   previewText,
+  previewTitle,
+  navigation,
 }) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate("Chat")}
+      onPress={() => navigation.navigate("ItemDetail")}
     >
       <View style={styles.secondContainer}>
         <Avatar.Image
+          style={{ borderRadius: 10 }}
           size={40}
           source={{
-            uri: avatar,
+            uri: icon,
           }}
         />
         <View style={styles.leftContainer}>
-          <Text style={styles.usernameText}>{username}</Text>
+          <Text style={styles.typeText}>{type}</Text>
+          <Text style={styles.previewTitle}>{previewTitle}</Text>
           <Text>{previewText}</Text>
         </View>
         <View style={styles.timeContainer}>
@@ -47,9 +50,12 @@ const styles = StyleSheet.create({
   leftContainer: {
     marginLeft: 10,
   },
-  usernameText: {
+  typeText: {
     fontWeight: "bold",
-    fontSize: 15,
+    fontSize: 17,
+  },
+  previewTitle: {
+    color: "#1a69a6",
   },
   timeText: { fontSize: 12, alignSelf: "flex-end" },
 });

@@ -16,11 +16,13 @@ export default function SignUp({ navigation }) {
         label="username"
       />
       <TextInput
+        secureTextEntry
         mode="outlined"
         style={{ width: "80%", marginBottom: 20 }}
         label="password"
       />
       <TextInput
+        secureTextEntry
         mode="outlined"
         style={{ width: "80%", marginBottom: 30 }}
         label="password again"
