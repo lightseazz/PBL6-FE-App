@@ -1,10 +1,12 @@
 import { Text, View, Image } from "react-native";
-import { layout } from "../../css/general/layout";
-import { TextInput, Button } from "react-native-paper";
+import { general } from "../../styles/styles";
+import { Button } from "react-native-paper";
+import TxtInput from "../../components/TxtInput";
+import SecureInput from "../../components/SecureInput";
 
 export default function Login({ navigation }) {
   return (
-    <View style={layout.container}>
+    <View style={general.centerView}>
       <Image
         style={{
           width: "50%",
@@ -14,25 +16,14 @@ export default function Login({ navigation }) {
         }}
         source={require("../../assets/slack.png")}
       />
-      <View style={{ width: "80%" }}>
-        <TextInput
-          label="username"
-          mode="outlined"
-          style={{ marginBottom: 30 }}
-        />
-        <TextInput
-          secureTextEntry
-          label="password"
-          mode="outlined"
-          style={{ marginBottom: 10 }}
-        />
-        <Button
-          onPress={() => navigation.navigate("ChangePass")}
-          style={{ alignSelf: "flex-end" }}
-        >
-          Forgot your password
-        </Button>
-      </View>
+      <TxtInput label="username" />
+      <SecureInput label="password" />
+      <Button
+        onPress={() => navigation.navigate("ChangePass")}
+        style={{ alignSelf: "flex-end", marginRight: 30 }}
+      >
+        Forgot your password
+      </Button>
       <Button mode="elevated" style={{ marginTop: 10 }}>
         Login
       </Button>

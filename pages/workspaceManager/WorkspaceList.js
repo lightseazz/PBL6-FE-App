@@ -1,6 +1,6 @@
 import { View, FlatList } from "react-native";
 import { Button, Card, FAB, Avatar, Text } from "react-native-paper";
-import { layout } from "../../css/general/layout";
+import { layout } from "../../styles/styles";
 
 export default function WorkspaceList({ navigation }) {
   const DATA = [

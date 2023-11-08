@@ -18,7 +18,7 @@ export default function WorkspaceManager({ navigation }) {
       <Stack.Screen
         name="WorkspaceCreate"
         component={WorkspaceCreate}
-        options={header({ title: "Create Workspace", navigation })}
+        options={header({ title: "Create Workspace" })}
       />
       <Stack.Screen name="WorkspaceChat" component={ChatChannel} />
     </Stack.Navigator>

@@ -60,11 +60,13 @@ export default function MyAccount() {
         <Divider style={styles.divider} />
         <Text style={styles.headerText}>Password</Text>
         <TextInput
+          secureTextEntry
           label="Curent Password"
           mode="outlined"
           style={{ marginBottom: 20 }}
         />
         <TextInput
+          secureTextEntry
           label="New Password"
           mode="outlined"
           style={{ marginBottom: 20 }}
@@ -79,6 +81,7 @@ export default function MyAccount() {
           <Text style={{ fontWeight: "bold" }}>haidangltv@gmail.com</Text>
         </Text>
         <TextInput
+          secureTextEntry
           label="Curent Password"
           mode="outlined"
           style={{ marginBottom: 20 }}

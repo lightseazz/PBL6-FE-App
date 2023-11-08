@@ -49,7 +49,6 @@ export default function ChatChannel() {
         inverted
         style={{
           marginTop: StatusBar.currentHeight,
-          backgroundColor: "#e7d8e8",
         }}
         data={tempData}
         renderItem={({ item }) => (

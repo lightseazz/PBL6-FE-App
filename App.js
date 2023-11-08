@@ -1,16 +1,17 @@
-import Auth from "./components/authPage/Auth";
-import bottomTab from "./components/bottomTab/BottomTab";
-import WorkspaceCreate from "./components/workspaceManager/WorkspaceCreate";
-import ChatChannel from "./components/chatChannel/ChatChannel";
-import ItemDetail from "./components/notifications/ItemDetail";
+import "react-native-gesture-handler";
+import Auth from "./pages/auth/Auth";
+import bottomTab from "./pages/bottomTab/BottomTab";
+import WorkspaceCreate from "./pages/workspaceManager/WorkspaceCreate";
+import ChatChannel from "./pages/chatChannel/ChatChannel";
+import ItemDetail from "./pages/notifications/ItemDetail";
 import { header } from "./utils/common";
-import MyAccount from "./components/userSetting/MyAccount";
+import MyAccount from "./pages/userSetting/MyAccount";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { PaperProvider } from "react-native-paper";
 
-const isSignedIn = false;
+const isSignedIn = true;
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
@@ -30,7 +31,11 @@ export default function App() {
                 component={WorkspaceCreate}
                 options={header({ title: "Create Workspace" })}
               />
-              <Stack.Screen name="Chat" component={ChatChannel} />
+              <Stack.Screen
+                name="Chat"
+                component={ChatChannel}
+                options={header({ title: "Chat" })}
+              />
 
               <Stack.Screen
                 name="ItemDetail"
