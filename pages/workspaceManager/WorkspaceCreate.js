@@ -1,4 +1,4 @@
-import { layout } from "../../styles/styles";
+import { general } from "../../styles/styles";
 import { useState } from "react";
 
 import {
@@ -30,7 +30,7 @@ export default function WorkspaceCreate() {
     }
   };
   return (
-    <View style={layout.container}>
+    <View style={general.centerView}>
       <View
         style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
       >

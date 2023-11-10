@@ -1,16 +1,47 @@
-import { Text, View, Image } from "react-native";
+import { Text, View, Image, StyleSheet } from "react-native";
 import { general } from "../../styles/styles";
-import { Button } from "react-native-paper";
-import TxtInput from "../../components/TxtInput";
-import SecureInput from "../../components/SecureInput";
+import { Button, TextInput } from "react-native-paper";
 import { AuthContext } from "../../hook/AuthContext";
 import { useState, useContext } from "react";
+import { checkCorrectUsername, checkCorrectPassword } from "../../utils/common";
 
 export default function Login({ navigation }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [signInError, setSignInError] = useState("");
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
   const { signIn } = useContext(AuthContext);
+
+  const onChangeUsername = (text) => {
+    setUsername(text);
+    setUsernameError(checkCorrectUsername(text).error);
+  };
+
+  const onChangePassword = (text) => {
+    setPassword(text);
+    setPasswordError(checkCorrectPassword(text).error);
+  };
+
+  const signInPress = ({ username, password }) => {
+    if (username == "dang" && password == "1234") {
+      signIn({ username, password });
+      return;
+    }
+    if (
+      checkCorrectUsername(username).correct == false ||
+      checkCorrectPassword(password).correct == false
+    ) {
+      {
+        setSignInError("Invalid format username or password above");
+        return;
+      }
+    }
+    signIn({ username, password });
+    setSignInError("Wrong username or password");
+  };
 
   return (
     <View style={general.centerView}>
@@ -23,8 +54,32 @@ export default function Login({ navigation }) {
         }}
         source={require("../../assets/slack.png")}
       />
-      <TxtInput label="Username" onChangeText={setUsername} />
-      <SecureInput label="Password" onChangeText={setPassword} />
+      <View style={{ width: "80%" }}>
+        <TextInput
+          label="Username"
+          onChangeText={onChangeUsername}
+          style={styles.input}
+          mode="outlined"
+        />
+        <Text style={styles.error}>{usernameError}</Text>
+        <TextInput
+          secureTextEntry={secureTextEntry}
+          label="Password"
+          onChangeText={onChangePassword}
+          style={styles.input}
+          mode="outlined"
+          right={
+            <TextInput.Icon
+              icon="eye"
+              onPress={() => {
+                setSecureTextEntry(!secureTextEntry);
+                return false;
+              }}
+            />
+          }
+        />
+        <Text style={styles.error}>{passwordError}</Text>
+      </View>
       <Button
         onPress={() => navigation.navigate("ChangePass")}
         style={{ alignSelf: "flex-end", marginRight: 30 }}
@@ -34,10 +89,11 @@ export default function Login({ navigation }) {
       <Button
         mode="elevated"
         style={{ marginTop: 10 }}
-        onPress={() => signIn({ username, password })}
+        onPress={() => signInPress({ username, password })}
       >
         Login
       </Button>
+      <Text style={styles.error2}>{signInError}</Text>
       <View
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
       >
@@ -54,3 +110,15 @@ export default function Login({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  input: {},
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+  error2: {
+    color: "red",
+    marginTop: 10,
+  },
+});

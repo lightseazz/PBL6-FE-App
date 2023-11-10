@@ -30,6 +30,7 @@ export default function App() {
         case "SIGN_IN":
           return {
             ...prevState,
+            isLoading: false,
             isSignout: false,
             userToken: action.token,
           };
@@ -37,6 +38,11 @@ export default function App() {
           return {
             ...prevState,
             isSignout: true,
+            userToken: null,
+          };
+        case "LOADING":
+          return {
+            isLoading: true,
             userToken: null,
           };
       }
@@ -91,6 +97,7 @@ export default function App() {
           body: raw,
           redirect: "follow",
         };
+        dispatch({ type: "LOADING" });
 
         const result = await fetch(
           "https://api.firar.live/api/Auth/signin",
@@ -99,7 +106,7 @@ export default function App() {
           .then((response) => response.json())
           .catch((error) => error.json());
 
-        console.log(result.token);
+        console.log(result.token.substring(0, 5));
 
         dispatch({ type: "SIGN_IN", token: result.token });
       },

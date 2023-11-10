@@ -12,7 +12,7 @@ const Stack = createNativeStackNavigator();
 export default function Auth() {
   return (
     <>
-      <Stack.Screen name="Login" component={Login} />
+      {/* <Stack.Screen name="Login" component={Login} /> */}
       <Stack.Screen
         name="SignUp"
         component={SignUp}

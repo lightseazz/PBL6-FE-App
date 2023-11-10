@@ -10,7 +10,9 @@ export function checkCorrectPassword(password) {
     correct: false,
     error: "",
   };
-  state = checkCorrectInput(password, "password");
+  state = checkCorrectInput(password, "Password");
+  if (state.correct == false) return state;
+
   if (password.length < 4) {
     state.error = "Password must be at least 4 characters";
     state.correct = false;
@@ -37,6 +39,24 @@ export function checkCorrectUsername(username) {
   return state;
 }
 
+export function checkCorrectEmail(email) {
+  let state = {
+    correct: false,
+    error: "",
+  };
+  state = checkCorrectInput(email, "Email");
+  if (state.correct == false) return state;
+
+  if (validateEmail(email) == false) {
+    state.correct = false;
+    state.error = "Email incorrect format";
+    return state;
+  }
+  if (state.error == "") state.correct = true;
+
+  return state;
+}
+
 const hasWhiteSpace = (s) => {
   return s.indexOf(" ") >= 0;
 };
@@ -46,13 +66,12 @@ function checkCorrectInput(inputText, typeInput) {
     correct: false,
     error: "",
   };
-  if (hasWhiteSpace(inputText)) {
-    state.error = typeInput + " has white space";
-    return state;
-  }
-
   if (inputText == "" || inputText == null) {
     state.error = typeInput + " is empty";
+    return state;
+  }
+  if (hasWhiteSpace(inputText)) {
+    state.error = typeInput + " has white space";
     return state;
   }
 
@@ -68,4 +87,9 @@ function validatePassword(password) {
     /[0-9]/.test(password) &&
     /[^A-Za-z0-9]/.test(password)
   );
+}
+
+function validateEmail(email) {
+  let format = /\S+@\S+\.\S+/;
+  return format.test(email);
 }
