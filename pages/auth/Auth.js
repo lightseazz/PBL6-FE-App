@@ -4,6 +4,7 @@ import Verify from "./Verify";
 import ChangePass from "./ChangePass";
 import BottomTab from "../bottomTab/BottomTab";
 import { header } from "../../utils/common";
+import SuccessPage from "../SuccessPage";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -12,7 +13,7 @@ const Stack = createNativeStackNavigator();
 export default function Auth() {
   return (
     <>
-      {/* <Stack.Screen name="Login" component={Login} /> */}
+      <Stack.Screen name="Login" component={Login} />
       <Stack.Screen
         name="SignUp"
         component={SignUp}
@@ -22,6 +23,11 @@ export default function Auth() {
         name="Verify"
         component={Verify}
         options={header({ title: "Verify" })}
+      />
+      <Stack.Screen
+        name="SuccessPage"
+        component={SuccessPage}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ChangePass"

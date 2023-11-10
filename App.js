@@ -105,7 +105,7 @@ export default function App() {
           requestOptions
         )
           .then((response) => response.json())
-          .catch((error) => error.json());
+          .catch((error) => error);
         ///////////////////////////////////////////////////////////////
 
         console.log(result.token.substring(0, 5));

@@ -43,23 +43,23 @@ export default function SignUp({ navigation }) {
 
   async function signUpPress({ email, username, password, passwordAgain }) {
     setClicked(true);
-    // if (
-    //   checkCorrectEmail(email).correct == false ||
-    //   checkCorrectUsername(username).correct == false ||
-    //   checkCorrectPassword(password).correct == false ||
-    //   checkCorrectPassword(passwordAgain).correct == false
-    // ) {
-    //   {
-    //     setClicked(false);
-    //     setSignUpError("Invalid format entry above");
-    //     return;
-    //   }
-    // }
-    // if (password != passwordAgain) {
-    //   setClicked(false);
-    //   setSignUpError("please type the same password");
-    //   return;
-    // }
+    if (
+      checkCorrectEmail(email).correct == false ||
+      checkCorrectUsername(username).correct == false ||
+      checkCorrectPassword(password).correct == false ||
+      checkCorrectPassword(passwordAgain).correct == false
+    ) {
+      {
+        setClicked(false);
+        setSignUpError("Invalid format entry above");
+        return;
+      }
+    }
+    if (password != passwordAgain) {
+      setClicked(false);
+      setSignUpError("please type the same password");
+      return;
+    }
     ////////////////////////////////////////////////////////////////////////////////
     var myHeaders = new Headers();
     myHeaders.append("accept", "application/json");
@@ -67,9 +67,9 @@ export default function SignUp({ navigation }) {
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
-      Email: "test@gmail.com",
-      Username: "string",
-      Password: "string",
+      Email: email,
+      Username: username,
+      Password: password,
       FirstName: "string",
       LastName: "string",
       Phone: "3",
@@ -92,7 +92,7 @@ export default function SignUp({ navigation }) {
         return response.json();
       })
       .catch(function (error) {
-        return error.json();
+        return error;
       });
     if (result.Token == null) {
       setSignUpError(result.title);
@@ -103,6 +103,7 @@ export default function SignUp({ navigation }) {
     ////////////////////////////////////////////////////////////////////////////////
     navigation.navigate("Verify", {
       Token: result.Token,
+      email: email,
     });
     setClicked(false);
   }
@@ -184,6 +185,11 @@ export default function SignUp({ navigation }) {
         mode="contained"
         icon="google"
         style={{ marginTop: 30, width: "80%" }}
+        onPress={() => {
+          navigation.navigate("SuccessPage", {
+            text: "You Sign Up successfully, Now you can Sign In",
+          });
+        }}
       >
         Sign Up with Google
       </Button>
