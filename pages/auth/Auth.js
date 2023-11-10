@@ -3,6 +3,7 @@ import SignUp from "./SignUp";
 import Verify from "./Verify";
 import ChangePass from "./ChangePass";
 import BottomTab from "../bottomTab/BottomTab";
+import EnterEmail from "./EnterEmail";
 import { header } from "../../utils/common";
 import SuccessPage from "../SuccessPage";
 
@@ -28,6 +29,11 @@ export default function Auth() {
         name="SuccessPage"
         component={SuccessPage}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EnterEmail"
+        component={EnterEmail}
+        options={header({ title: "Enter Email" })}
       />
       <Stack.Screen
         name="ChangePass"

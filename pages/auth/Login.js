@@ -86,8 +86,8 @@ export default function Login({ navigation }) {
         <Text style={styles.error}>{passwordError}</Text>
       </View>
       <Button
-        onPress={() => navigation.navigate("ChangePass")}
         style={{ alignSelf: "flex-end", marginRight: 30 }}
+        onPress={() => navigation.navigate("EnterEmail")}
       >
         Forgot your password
       </Button>
