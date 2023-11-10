@@ -6,9 +6,8 @@ import SecureInput from "../../components/SecureInput";
 export default function ChangePass({ navigation }) {
   return (
     <View style={general.centerView}>
-      <SecureInput label="old Password" />
-      <SecureInput label="new Password" />
-      <SecureInput label="Type new Password Again" />
+      <SecureInput label="Enter New Password" />
+      <SecureInput label="Enter new Password Again" />
       <Button mode="elevated">Change Password</Button>
     </View>
   );

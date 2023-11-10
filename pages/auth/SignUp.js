@@ -7,10 +7,10 @@ import SecureInput from "../../components/SecureInput";
 export default function SignUp({ navigation }) {
   return (
     <View style={general.centerView}>
-      <TxtInput label="gmail" />
-      <TxtInput label="username" />
-      <SecureInput label="password" />
-      <SecureInput label="password again" />
+      <TxtInput label="Email" />
+      <TxtInput label="Username" />
+      <SecureInput label="Password" />
+      <SecureInput label="Enter password again" />
       <Button mode="elevated" onPress={() => navigation.navigate("Verify")}>
         Sign up
       </Button>

@@ -26,7 +26,7 @@ export default function Auth() {
       <Stack.Screen
         name="ChangePass"
         component={ChangePass}
-        options={header({ title: "Create Workspace" })}
+        options={header({ title: "Forget Password" })}
       />
     </>
   );

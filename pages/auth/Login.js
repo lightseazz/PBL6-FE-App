@@ -3,8 +3,15 @@ import { general } from "../../styles/styles";
 import { Button } from "react-native-paper";
 import TxtInput from "../../components/TxtInput";
 import SecureInput from "../../components/SecureInput";
+import { AuthContext } from "../../hook/AuthContext";
+import { useState, useContext } from "react";
 
 export default function Login({ navigation }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { signIn } = useContext(AuthContext);
+
   return (
     <View style={general.centerView}>
       <Image
@@ -16,15 +23,19 @@ export default function Login({ navigation }) {
         }}
         source={require("../../assets/slack.png")}
       />
-      <TxtInput label="username" />
-      <SecureInput label="password" />
+      <TxtInput label="Username" onChangeText={setUsername} />
+      <SecureInput label="Password" onChangeText={setPassword} />
       <Button
         onPress={() => navigation.navigate("ChangePass")}
         style={{ alignSelf: "flex-end", marginRight: 30 }}
       >
         Forgot your password
       </Button>
-      <Button mode="elevated" style={{ marginTop: 10 }}>
+      <Button
+        mode="elevated"
+        style={{ marginTop: 10 }}
+        onPress={() => signIn({ username, password })}
+      >
         Login
       </Button>
       <View

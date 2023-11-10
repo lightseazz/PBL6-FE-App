@@ -1,6 +1,6 @@
 import { View, FlatList } from "react-native";
 import { Button, Card, FAB, Avatar, Text } from "react-native-paper";
-import { layout } from "../../styles/styles";
+import { general } from "../../styles/styles";
 
 export default function WorkspaceList({ navigation }) {
   const DATA = [
@@ -10,7 +10,7 @@ export default function WorkspaceList({ navigation }) {
     { id: "4", title: "Workspace 4", member: 7 },
   ];
   return (
-    <View style={layout.containerWithOutStatusBar}>
+    <View style={general.containerWithOutStatusBar}>
       <FlatList
         data={DATA}
         renderItem={({ item }) => (
