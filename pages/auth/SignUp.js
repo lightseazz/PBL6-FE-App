@@ -19,6 +19,7 @@ export default function SignUp({ navigation }) {
   const [passwordError, setPasswordError] = useState("");
   const [passwordAgainError, setPasswordAgainError] = useState("");
   const [signUpError, setSignUpError] = useState("");
+  const [clicked, setClicked] = useState(false);
 
   const onChangeEmail = (text) => {
     setEmail(text);
@@ -40,23 +41,71 @@ export default function SignUp({ navigation }) {
     setPasswordAgainError(checkCorrectPassword(text).error);
   };
 
-  const signUpPress = ({ email, username, password, passwordAgain }) => {
-    if (
-      checkCorrectEmail(email).correct == false ||
-      checkCorrectUsername(username).correct == false ||
-      checkCorrectPassword(password).correct == false ||
-      checkCorrectPassword(passwordAgain).correct == false
-    ) {
-      {
-        setSignUpError("Invalid format entry above");
-        return;
-      }
-    }
-    if (password != passwordAgain) {
-      setSignUpError("please type the same password");
+  async function signUpPress({ email, username, password, passwordAgain }) {
+    setClicked(true);
+    // if (
+    //   checkCorrectEmail(email).correct == false ||
+    //   checkCorrectUsername(username).correct == false ||
+    //   checkCorrectPassword(password).correct == false ||
+    //   checkCorrectPassword(passwordAgain).correct == false
+    // ) {
+    //   {
+    //     setClicked(false);
+    //     setSignUpError("Invalid format entry above");
+    //     return;
+    //   }
+    // }
+    // if (password != passwordAgain) {
+    //   setClicked(false);
+    //   setSignUpError("please type the same password");
+    //   return;
+    // }
+    ////////////////////////////////////////////////////////////////////////////////
+    var myHeaders = new Headers();
+    myHeaders.append("accept", "application/json");
+    myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({
+      Email: "test@gmail.com",
+      Username: "string",
+      Password: "string",
+      FirstName: "string",
+      LastName: "string",
+      Phone: "3",
+      Gender: true,
+      BirthDay: "2023-11-08T07:36:16.447Z",
+    });
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    const result = await fetch(
+      "https://api.firar.live/api/Auth/signup",
+      requestOptions
+    )
+      .then(function (response) {
+        return response.json();
+      })
+      .catch(function (error) {
+        return error.json();
+      });
+    if (result.Token == null) {
+      setSignUpError(result.title);
+      setClicked(false);
       return;
     }
-  };
+
+    ////////////////////////////////////////////////////////////////////////////////
+    navigation.navigate("Verify", {
+      Token: result.Token,
+    });
+    setClicked(false);
+  }
   return (
     <View style={general.centerView}>
       <View style={{ width: "80%" }}>
@@ -116,6 +165,7 @@ export default function SignUp({ navigation }) {
         <Text style={styles.error}>{passwordAgainError}</Text>
       </View>
       <Button
+        disabled={clicked}
         mode="elevated"
         onPress={() =>
           signUpPress({ email, username, password, passwordAgain })

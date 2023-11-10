@@ -12,6 +12,7 @@ export default function Login({ navigation }) {
   const [passwordError, setPasswordError] = useState("");
   const [signInError, setSignInError] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [clicked, setClicked] = useState(false);
 
   const { signIn } = useContext(AuthContext);
 
@@ -26,7 +27,9 @@ export default function Login({ navigation }) {
   };
 
   const signInPress = ({ username, password }) => {
+    setClicked(true);
     if (username == "dang" && password == "1234") {
+      setClicked(false);
       signIn({ username, password });
       return;
     }
@@ -35,11 +38,13 @@ export default function Login({ navigation }) {
       checkCorrectPassword(password).correct == false
     ) {
       {
+        setClicked(false);
         setSignInError("Invalid format username or password above");
         return;
       }
     }
     signIn({ username, password });
+    setClicked(false);
     setSignInError("Wrong username or password");
   };
 
@@ -87,6 +92,7 @@ export default function Login({ navigation }) {
         Forgot your password
       </Button>
       <Button
+        disabled={clicked}
         mode="elevated"
         style={{ marginTop: 10 }}
         onPress={() => signInPress({ username, password })}

@@ -82,6 +82,7 @@ export default function App() {
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
         // In the example, we'll use a dummy token
+        ///////////////////////////////////////////////////////////////
         var myHeaders = new Headers();
         myHeaders.append("accept", "application/json");
         myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
@@ -105,6 +106,7 @@ export default function App() {
         )
           .then((response) => response.json())
           .catch((error) => error.json());
+        ///////////////////////////////////////////////////////////////
 
         console.log(result.token.substring(0, 5));
 
