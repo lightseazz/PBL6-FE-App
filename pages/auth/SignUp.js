@@ -2,6 +2,7 @@ import { Text, View, StyleSheet } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { general } from "../../styles/styles";
 import { useState } from "react";
+import signUpApi from "../../api/signUp.api";
 import {
   checkCorrectUsername,
   checkCorrectPassword,
@@ -60,49 +61,15 @@ export default function SignUp({ navigation }) {
       setSignUpError("please type the same password");
       return;
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    var myHeaders = new Headers();
-    myHeaders.append("accept", "application/json");
-    myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      Email: email,
-      Username: username,
-      Password: password,
-      FirstName: "string",
-      LastName: "string",
-      Phone: "3",
-      Gender: true,
-      BirthDay: "2023-11-08T07:36:16.447Z",
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    const result = await fetch(
-      "https://api.firar.live/api/Auth/signup",
-      requestOptions
-    )
-      .then(function (response) {
-        return response.json();
-      })
-      .catch(function (error) {
-        return error;
-      });
-    if (result.Token == null) {
-      setSignUpError(result.title);
+    const response = await signUpApi(email, username, password);
+    if (!response.token) {
+      setSignUpError(response.title);
       setClicked(false);
       return;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
     navigation.navigate("Verify", {
-      Token: result.Token,
+      Token: response.token,
       email: email,
     });
     setClicked(false);

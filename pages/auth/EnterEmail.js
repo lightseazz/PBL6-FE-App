@@ -4,6 +4,7 @@ import { general } from "../../styles/styles";
 import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
 import { checkCorrectEmail } from "../../utils/common";
+import enterEmailApi from "../../api/enterEmail.api";
 
 export default function EnterEmail({ navigation }) {
   const [email, setEmail] = useState("");
@@ -24,36 +25,12 @@ export default function EnterEmail({ navigation }) {
         return;
       }
     }
-    /////////////////////////////////////////////////////////////////////////
-    var myHeaders = new Headers();
-    myHeaders.append("accept", "application/json");
-    myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
-    myHeaders.append("Content-Type", "application/json");
 
-    var raw = JSON.stringify({
-      otpType: 3,
-      email: email,
-    });
+    const response = await enterEmailApi(email);
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    const result = await fetch(
-      "https://api.firar.live/api/Auth/get-otp",
-      requestOptions
-    )
-      .then((response) => response)
-      .catch((error) => error);
-
-    //////////////////////////////////////////////////////////////////////////
-
-    if (result.status != 200) {
+    if (response.status != 200) {
       setClicked(false);
-      setError("invalid email");
+      setError(response.title);
       return;
     }
 
@@ -68,7 +45,7 @@ export default function EnterEmail({ navigation }) {
     <View style={general.centerView}>
       <Text>Enter your email: </Text>
       <TxtInput label="Email" onChangeText={onChangeEmail} />
-      <Text style={{ color: "red" }}>{error}</Text>
+      <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
       <Button mode="elevated" onPress={onPressOK} disabled={clicked}>
         OK
       </Button>

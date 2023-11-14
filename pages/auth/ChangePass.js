@@ -4,6 +4,7 @@ import { general } from "../../styles/styles";
 import { TextInput } from "react-native-paper";
 import { useState } from "react";
 import { checkCorrectPassword } from "../../utils/common";
+import changePassApi from "../../api/changePass.api";
 
 export default function ChangePass({ navigation, route }) {
   const { email } = route.params;
@@ -44,38 +45,11 @@ export default function ChangePass({ navigation, route }) {
       return;
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    var myHeaders = new Headers();
-    myHeaders.append("accept", "application/json");
-    myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
-    myHeaders.append("Content-Type", "application/json");
+    const response = await changePassApi(email, password, otp);
 
-    var raw = JSON.stringify({
-      email: email,
-      newPassword: password,
-      otp: otp,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    const result = await fetch(
-      "https://api.firar.live/api/Auth/forgot-password",
-      requestOptions
-    )
-      .then((response) => response)
-      .catch((error) => error);
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    console.log(result.title, result.status);
-    if (result.status != 200) {
+    if (response.status != 200) {
       setClicked(false);
-      setPressError(result.title);
+      setPressError(response.title);
       return;
     }
     navigation.navigate("SuccessPage", {

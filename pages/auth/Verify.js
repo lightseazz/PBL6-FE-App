@@ -3,41 +3,16 @@ import { Button } from "react-native-paper";
 import { general } from "../../styles/styles";
 import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
+import verifyApi from "../../api/verify.api";
 
 export default function Verify({ navigation, route }) {
   const { Token, email } = route.params;
   const [verify, setVerify] = useState("");
   const [verifyError, setVerifyError] = useState("");
   async function verifyPress() {
-    console.log(Token);
-    ///////////////////////////////////////////////////////////////
-    var myHeaders = new Headers();
-    myHeaders.append("accept", "application/json");
-    myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("authorization", "Bearer " + Token);
-
-    var raw = JSON.stringify({
-      Otp: verify,
-    });
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    const result = await fetch(
-      "https://api.firar.live/api/Auth/verify-register",
-      requestOptions
-    )
-      .then((response) => response)
-      .catch((error) => error);
-    /////////////////////////////////////////////////////////////
-
-    console.log(result.title, result.status);
-    if (result.status != 200) {
-      setVerifyError(result.title);
+    const respone = await verifyApi(Token, verify);
+    if (respone.status != 200) {
+      setVerifyError(respone.title);
       return;
     }
 

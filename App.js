@@ -6,7 +6,7 @@ import ChatChannel from "./pages/chatChannel/ChatChannel";
 import ItemDetail from "./pages/notifications/ItemDetail";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
-
+import signInApi from "./api/signIn.api";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { PaperProvider } from "react-native-paper";
@@ -38,6 +38,7 @@ export default function App() {
           return {
             ...prevState,
             isSignout: true,
+            isLoading: false,
             userToken: null,
           };
         case "LOADING":
@@ -82,35 +83,18 @@ export default function App() {
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
         // In the example, we'll use a dummy token
-        ///////////////////////////////////////////////////////////////
-        var myHeaders = new Headers();
-        myHeaders.append("accept", "application/json");
-        myHeaders.append("x-apikey", "5J0jCR1dAkvDt3YVoahpux0eawahkQB9");
-        myHeaders.append("Content-Type", "application/json");
-
-        var raw = JSON.stringify({
-          username: username,
-          password: password,
-        });
-        var requestOptions = {
-          method: "POST",
-          headers: myHeaders,
-          body: raw,
-          redirect: "follow",
-        };
         dispatch({ type: "LOADING" });
 
-        const result = await fetch(
-          "https://api.firar.live/api/Auth/signin",
-          requestOptions
-        )
-          .then((response) => response.json())
-          .catch((error) => error);
-        ///////////////////////////////////////////////////////////////
+        const response = await signInApi(username, password);
 
-        console.log(result.token.substring(0, 5));
+        // handle error respones
+        if (!response.token) {
+          dispatch({ type: "SIGN_OUT" });
+          alert("Username or Password is incorrect");
+          return;
+        }
 
-        dispatch({ type: "SIGN_IN", token: result.token });
+        dispatch({ type: "SIGN_IN", token: response.token });
       },
       signOut: () => dispatch({ type: "SIGN_OUT" }),
       signUp: async (data) => {
