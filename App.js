@@ -6,62 +6,26 @@ import ChatChannel from "./pages/chatChannel/ChatChannel";
 import ItemDetail from "./pages/notifications/ItemDetail";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
-import signInApi from "./api/signIn.api";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { PaperProvider } from "react-native-paper";
 import LoadingPage from "./pages/LoadingPage";
 import { useReducer, useEffect, useMemo } from "react";
-import { AuthContext } from "./hook/AuthContext";
+import { AuthContext, authFunctions } from "./hook/AuthContext";
+import { authReducer, initialAuthState } from "./hook/authReducer";
+import * as SecureStore from "expo-secure-store";
 
 const isSignedIn = true;
 
 const Stack = createNativeStackNavigator();
 export default function App() {
-  const [state, dispatch] = useReducer(
-    (prevState, action) => {
-      switch (action.type) {
-        case "RESTORE_TOKEN":
-          return {
-            ...prevState,
-            userToken: action.token,
-            isLoading: false,
-          };
-        case "SIGN_IN":
-          return {
-            ...prevState,
-            isLoading: false,
-            isSignout: false,
-            userToken: action.token,
-          };
-        case "SIGN_OUT":
-          return {
-            ...prevState,
-            isSignout: true,
-            isLoading: false,
-            userToken: null,
-          };
-        case "LOADING":
-          return {
-            isLoading: true,
-            userToken: null,
-          };
-      }
-    },
-    {
-      isLoading: true,
-      isSignout: false,
-      userToken: null,
-    }
-  );
+  const [state, dispatch] = useReducer(authReducer, initialAuthState);
   useEffect(() => {
-    // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
       let userToken;
 
       try {
-        // Restore token stored in `SecureStore` or any other encrypted storage
-        // userToken = await SecureStore.getItemAsync('userToken');
+        userToken = await SecureStore.getItemAsync("userToken");
       } catch (e) {
         // Restoring token failed
       }
@@ -76,41 +40,10 @@ export default function App() {
     bootstrapAsync();
   }, []);
 
-  const authContext = useMemo(
-    () => ({
-      signIn: async ({ username, password }) => {
-        // In a production app, we need to send some data (usually username, password) to server and get a token
-        // We will also need to handle errors if sign in failed
-        // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
-        // In the example, we'll use a dummy token
-        dispatch({ type: "LOADING" });
-
-        const response = await signInApi(username, password);
-
-        // handle error respones
-        if (!response.token) {
-          dispatch({ type: "SIGN_OUT" });
-          alert("Username or Password is incorrect");
-          return;
-        }
-
-        dispatch({ type: "SIGN_IN", token: response.token });
-      },
-      signOut: () => dispatch({ type: "SIGN_OUT" }),
-      signUp: async (data) => {
-        // In a production app, we need to send user data to server and get a token
-        // We will also need to handle errors if sign up failed
-        // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
-        // In the example, we'll use a dummy token
-
-        dispatch({ type: "SIGN_IN", token: "dummy-auth-token" });
-      },
-    }),
-    []
-  );
+  const authContextFunctions = useMemo(authFunctions(dispatch), []);
   return (
     <PaperProvider>
-      <AuthContext.Provider value={authContext}>
+      <AuthContext.Provider value={authContextFunctions}>
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName={isSignedIn ? "Login" : "WorkspaceList"}
