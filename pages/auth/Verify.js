@@ -3,7 +3,7 @@ import { Button } from "react-native-paper";
 import { general } from "../../styles/styles";
 import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
-import verifyApi from "../../api/verify.api";
+import verifyApi from "../../api/authApi/verify.api";
 
 export default function Verify({ navigation, route }) {
   const { Token, email } = route.params;

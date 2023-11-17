@@ -30,7 +30,7 @@ export default function UserSetting({ navigation }) {
         }}
       >
         <Button
-          style={{ width: "80%", borderRadius: 8 }}
+          style={{ width: "80%", borderRadius: 8, backgroundColor: "#cc0000" }}
           mode="contained"
           onPress={signOut}
         >

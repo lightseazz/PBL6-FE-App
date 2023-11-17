@@ -1,22 +1,46 @@
-import { View, FlatList } from "react-native";
-import { Button, Card, FAB, Avatar, Text } from "react-native-paper";
+import { View, FlatList, Image, TouchableOpacity } from "react-native";
+import { FAB, Text } from "react-native-paper";
 import { general } from "../../styles/styles";
+import getAllWpApi from "../../api/workspaceApi/getAllWp.api";
+import { useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 
 export default function WorkspaceList({ navigation }) {
-  const DATA = [
-    { id: "1", title: "Workspace 1", member: 3 },
-    { id: "2", title: "Workspace 2", member: 4 },
-    { id: "3", title: "Workspace 3", member: 1 },
-    { id: "4", title: "Workspace 4", member: 7 },
-  ];
+  const [workspaceList, setWorkspaceList] = useState([]);
+  const isFocused = useIsFocused();
+
+  useEffect(
+    function () {
+      if (isFocused) {
+        async function renderWorkspaceList() {
+          const userToken = await SecureStore.getItemAsync("userToken");
+          const response = await getAllWpApi(userToken);
+          setWorkspaceList(
+            response.map((workspace) => ({
+              id: workspace.id,
+              name: workspace.name,
+              avatarUrl: workspace.avatarUrl,
+              numberOfMembers: workspace.members.length,
+            }))
+          );
+        }
+        renderWorkspaceList();
+        console.log("check if rerender");
+      }
+    },
+    [isFocused]
+  );
   return (
     <View style={general.containerWithOutStatusBar}>
       <FlatList
-        data={DATA}
+        data={workspaceList}
         renderItem={({ item }) => (
           <WorkspaceCard
-            title={item.title}
-            member={item.member}
+            id={item.id}
+            name={item.name}
+            avatarUrl={item.avatarUrl}
+            numberOfMembers={item.numberOfMembers}
             navigation={navigation}
           />
         )}
@@ -37,24 +61,27 @@ export default function WorkspaceList({ navigation }) {
   );
 }
 
-const LeftContent = (props) => <Avatar.Icon {...props} icon="folder" />;
-
-function WorkspaceCard({ title, navigation, member }) {
+function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers }) {
   return (
-    <View
-      style={{
-        marginBottom: 30,
-      }}
-    >
-      <Card>
-        <Card.Title title={title} left={LeftContent} />
-        <Card.Content>
-          <Text variant="bodyMedium">{member} members</Text>
-        </Card.Content>
-        <Card.Actions>
-          <Button onPress={() => navigation.navigate("Chat")}>Open</Button>
-        </Card.Actions>
-      </Card>
-    </View>
+    <TouchableOpacity onPress={() => navigation.navigate("Drawer")}>
+      <View
+        style={{
+          marginBottom: 30,
+          borderWidth: 1.5,
+          borderRadius: 10,
+          padding: 20,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Image
+            source={{ uri: avatarUrl }}
+            style={{ width: "20%", aspectRatio: 1, borderRadius: 10 }}
+          />
+          <Text style={{ marginLeft: 10, fontSize: 15 }}>{name}</Text>
+        </View>
+
+        <Text style={{ marginTop: 10 }}>{numberOfMembers} members</Text>
+      </View>
+    </TouchableOpacity>
   );
 }

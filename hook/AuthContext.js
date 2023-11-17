@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import signInApi from "../api/signIn.api";
+import signInApi from "../api/authApi/signIn.api";
 import * as SecureStore from "expo-secure-store";
 
 export const AuthContext = createContext();
@@ -11,7 +11,6 @@ export function authFunctions(dispatch) {
 
       const response = await signInApi(username, password);
 
-      // handle error respones
       if (!response.token) {
         dispatch({ type: "SIGN_OUT" });
         alert("Username or Password is incorrect");

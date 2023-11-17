@@ -2,8 +2,10 @@ import "react-native-gesture-handler";
 import Auth from "./pages/auth/Auth";
 import bottomTab from "./pages/bottomTab/BottomTab";
 import WorkspaceCreate from "./pages/workspaceManager/WorkspaceCreate";
-import ChatChannel from "./pages/chatChannel/ChatChannel";
+import Drawer from "./pages/workspace/Drawer";
 import ItemDetail from "./pages/notifications/ItemDetail";
+import LeftDrawerContent from "./pages/workspace/LeftDrawerContent";
+import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
@@ -14,8 +16,6 @@ import { useReducer, useEffect, useMemo } from "react";
 import { AuthContext, authFunctions } from "./hook/AuthContext";
 import { authReducer, initialAuthState } from "./hook/authReducer";
 import * as SecureStore from "expo-secure-store";
-
-const isSignedIn = true;
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -46,7 +46,7 @@ export default function App() {
       <AuthContext.Provider value={authContextFunctions}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName={isSignedIn ? "Login" : "WorkspaceList"}
+            initialRouteName={state.userToken ? "WorkspaceList" : "Login"}
             screenOptions={{ headerShown: false }}
           >
             {state.isLoading ? (
@@ -61,12 +61,16 @@ export default function App() {
                   component={WorkspaceCreate}
                   options={header({ title: "Create Workspace" })}
                 />
+                <Stack.Screen name="Drawer" component={Drawer} />
                 <Stack.Screen
-                  name="Chat"
-                  component={ChatChannel}
-                  options={header({ title: "Chat" })}
+                  name="LeftDrawerContent"
+                  component={LeftDrawerContent}
                 />
-
+                <Stack.Screen
+                  name="WorkspaceSetting"
+                  component={WorkspaceSetting}
+                  options={header({ title: "Workspace Setting" })}
+                />
                 <Stack.Screen
                   name="ItemDetail"
                   component={ItemDetail}

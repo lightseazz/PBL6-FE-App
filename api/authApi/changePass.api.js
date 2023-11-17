@@ -1,16 +1,17 @@
-import { apiKey, baseUrl } from "./constant.api";
+import { apiKey, baseUrl } from "../constant.api";
 
-export default async (Token, otp) => {
+export default async (email, password, otp) => {
   try {
-    const response = await fetch(baseUrl + "Auth/verify-register", {
+    const response = await fetch(baseUrl + "Auth/forgot-password", {
       method: "POST",
       headers: {
         "x-apikey": apiKey,
         "content-type": "application/json",
         accept: "application/json",
-        authorization: "Bearer " + Token,
       },
       body: JSON.stringify({
+        email: email,
+        newPassword: password,
         otp: otp,
       }),
     });

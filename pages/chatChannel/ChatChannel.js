@@ -1,7 +1,6 @@
-import { FlatList, StatusBar, View } from "react-native";
-import { useRef } from "react";
-import { useState } from "react";
-
+import { FlatList, StatusBar, View, TouchableOpacity } from "react-native";
+import { useRef, useState } from "react";
+import Icon from "react-native-vector-icons/SimpleLineIcons";
 import {
   RichToolbar,
   RichEditor,
@@ -36,32 +35,64 @@ for (let i = 1; i <= 12; i++) {
     time: "24/10/2023  12:20 AM",
   });
 }
-export default function ChatChannel() {
+export default function ChatChannel({ navigation }) {
   const [modalVisible, setModalVisible] = useState({
     message: false,
     emoji: false,
   });
   const richText = useRef();
   return (
-    <>
-      <FlatList
-        initialNumToRender={5}
-        inverted
+    <View style={{ flex: 1 }}>
+      <View
         style={{
+          height: 60,
           marginTop: StatusBar.currentHeight,
+          borderBottomWidth: 1,
+          alignItems: "center",
+          paddingLeft: 10,
+          paddingRight: 12,
+          flexDirection: "row",
         }}
-        data={tempData}
-        renderItem={({ item }) => (
-          <Message
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            text={item.text}
-            avatar={item.avatar}
-            username={item.username}
-            time={item.time}
-          />
-        )}
-      />
+      >
+        <TouchableOpacity
+          onPress={() => navigation.getParent("LeftDrawer").openDrawer()}
+        >
+          <Icon name="menu" size={28} />
+        </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: "row-reverse",
+            flex: 1,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.getParent("RightDrawer").openDrawer()}
+          >
+            <Icon name="people" size={28} />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View
+        style={{
+          flex: 1,
+        }}
+      >
+        <FlatList
+          initialNumToRender={5}
+          inverted
+          data={tempData}
+          renderItem={({ item }) => (
+            <Message
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              text={item.text}
+              avatar={item.avatar}
+              username={item.username}
+              time={item.time}
+            />
+          )}
+        />
+      </View>
       <MessageModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -70,7 +101,7 @@ export default function ChatChannel() {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
-      <View>
+      <View style={{ height: 90 }}>
         <RichToolbar
           editor={richText}
           actions={[actions.setBold, actions.setItalic, actions.code]}
@@ -83,6 +114,6 @@ export default function ChatChannel() {
           }}
         />
       </View>
-    </>
+    </View>
   );
 }

@@ -2,7 +2,7 @@ import { Text, View, StyleSheet } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { general } from "../../styles/styles";
 import { useState } from "react";
-import signUpApi from "../../api/signUp.api";
+import signUpApi from "../../api/authApi/signUp.api";
 import {
   checkCorrectUsername,
   checkCorrectPassword,

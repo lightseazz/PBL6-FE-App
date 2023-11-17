@@ -4,7 +4,7 @@ import { general } from "../../styles/styles";
 import { TextInput } from "react-native-paper";
 import { useState } from "react";
 import { checkCorrectPassword } from "../../utils/common";
-import changePassApi from "../../api/changePass.api";
+import changePassApi from "../../api/authApi/changePass.api";
 
 export default function ChangePass({ navigation, route }) {
   const { email } = route.params;

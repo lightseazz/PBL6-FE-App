@@ -4,7 +4,7 @@ import { general } from "../../styles/styles";
 import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
 import { checkCorrectEmail } from "../../utils/common";
-import enterEmailApi from "../../api/enterEmail.api";
+import enterEmailApi from "../../api/authApi/enterEmail.api";
 
 export default function EnterEmail({ navigation }) {
   const [email, setEmail] = useState("");

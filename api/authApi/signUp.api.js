@@ -1,4 +1,4 @@
-import { apiKey, baseUrl } from "./constant.api";
+import { apiKey, baseUrl } from "../constant.api";
 
 export default async (email, username, password) => {
   try {
