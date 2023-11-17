@@ -26,7 +26,6 @@ export default function WorkspaceList({ navigation }) {
           );
         }
         renderWorkspaceList();
-        console.log("check if rerender");
       }
     },
     [isFocused]
@@ -63,7 +62,13 @@ export default function WorkspaceList({ navigation }) {
 
 function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers }) {
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("Drawer")}>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("Drawer", {
+          workspaceId: id,
+        })
+      }
+    >
       <View
         style={{
           marginBottom: 30,

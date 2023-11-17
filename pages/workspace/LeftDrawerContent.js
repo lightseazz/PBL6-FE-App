@@ -1,8 +1,11 @@
 import { View, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { WorkspaceIdContext } from "../../hook/WorkspaceContext";
+import { useContext } from "react";
 
 export default function LeftDrawerContent({ navigation }) {
+  const workspaceId = useContext(WorkspaceIdContext);
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <View style={{ flex: 3, marginTop: 50, width: "80%" }}>
@@ -40,7 +43,11 @@ export default function LeftDrawerContent({ navigation }) {
           mode="contained-tonal"
           icon="cog-outline"
           style={{ marginBottom: 20 }}
-          onPress={() => navigation.navigate("WorkspaceSetting")}
+          onPress={() =>
+            navigation.navigate("WorkspaceSetting", {
+              workspaceId: workspaceId,
+            })
+          }
         >
           Setting
         </Button>

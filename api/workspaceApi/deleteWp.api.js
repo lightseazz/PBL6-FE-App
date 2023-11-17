@@ -1,10 +1,10 @@
 import { apiKey, baseUrl } from "../constant.api";
 import * as SecureStore from "expo-secure-store";
 
-export default async (id) => {
+export default async (workspaceId) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-    const response = await fetch(baseUrl + "Workspace?workspaceId=" + id, {
+    const response = await fetch(baseUrl + "Workspace/" + workspaceId, {
       method: "DELETE",
       headers: {
         "x-apikey": apiKey,
@@ -13,8 +13,7 @@ export default async (id) => {
         authorization: "Bearer " + userToken,
       },
     });
-    if (response.ok) return response;
-    return response.json();
+    return response;
   } catch (error) {
     return error;
   }

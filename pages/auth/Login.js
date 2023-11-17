@@ -1,4 +1,4 @@
-import { Text, View, Image, StyleSheet } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { general } from "../../styles/styles";
 import { Button, TextInput } from "react-native-paper";
 import { AuthContext } from "../../hook/AuthContext";
@@ -50,16 +50,17 @@ export default function Login({ navigation }) {
 
   return (
     <View style={general.centerView}>
-      <Image
-        style={{
-          width: "50%",
-          aspectRatio: 1,
-          marginBottom: 20,
-          borderRadius: 10,
-        }}
-        source={require("../../assets/slack.png")}
-      />
       <View style={{ width: "80%" }}>
+        <Text
+          style={{
+            fontWeight: "bold",
+            fontSize: 22,
+            alignSelf: "flex-start",
+            marginBottom: 20,
+          }}
+        >
+          Let sign you in
+        </Text>
         <TextInput
           label="Username"
           onChangeText={onChangeUsername}

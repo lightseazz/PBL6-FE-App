@@ -1,9 +1,19 @@
 import { View } from "react-native";
 import { Button } from "react-native-paper";
 import ConfirmAlert from "../ConfirmAlert";
+import deleteWpApi from "../../api/workspaceApi/deleteWp.api";
+import { Alert } from "react-native";
 
-export default function WorkspaceSetting() {
-  async function onPressDelete() {}
+export default function WorkspaceSetting({ route, navigation }) {
+  const { workspaceId } = route.params;
+  async function onPressDelete() {
+    const response = await deleteWpApi(workspaceId);
+    if (response.status != 200) {
+      Alert.alert("delete workspace failed");
+      return;
+    }
+    navigation.navigate("WorkspaceList");
+  }
   return (
     <View style={{ flex: 1, alignItems: "center", padding: 20 }}>
       <View
@@ -12,7 +22,16 @@ export default function WorkspaceSetting() {
           flex: 1,
         }}
       >
-        <Button mode="elevated">Workspace Overview</Button>
+        <Button
+          mode="elevated"
+          onPress={() =>
+            navigation.navigate("WorkspaceOverview", {
+              workspaceId: workspaceId,
+            })
+          }
+        >
+          Workspace Overview
+        </Button>
       </View>
       <View
         style={{

@@ -6,6 +6,7 @@ import Drawer from "./pages/workspace/Drawer";
 import ItemDetail from "./pages/notifications/ItemDetail";
 import LeftDrawerContent from "./pages/workspace/LeftDrawerContent";
 import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
+import WorkspaceOverview from "./pages/workspace/WorkspaceOverview";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
@@ -70,6 +71,11 @@ export default function App() {
                   name="WorkspaceSetting"
                   component={WorkspaceSetting}
                   options={header({ title: "Workspace Setting" })}
+                />
+                <Stack.Screen
+                  name="WorkspaceOverview"
+                  component={WorkspaceOverview}
+                  options={header({ title: "Workspace Overview" })}
                 />
                 <Stack.Screen
                   name="ItemDetail"

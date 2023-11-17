@@ -76,7 +76,7 @@ export default function SignUp({ navigation }) {
   }
   return (
     <View style={general.centerView}>
-      <View style={{ width: "80%" }}>
+      <View style={{ width: "80%", marginTop: 40 }}>
         <TextInput
           label="Email"
           mode="outlined"

@@ -1,7 +1,8 @@
 import { general } from "../../styles/styles";
 import { useState } from "react";
 import { Alert, ActivityIndicator } from "react-native";
-import createWpApi from "../../api/workspaceApi/createWp.api";
+import updateWpApi from "../../api/workspaceApi/updateWp.api";
+import updateWpAvatarApi from "../../api/workspaceApi/updateWpAvatar.api";
 
 import {
   View,
@@ -13,14 +14,17 @@ import {
 } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
+import getWpbyIdApi from "../../api/workspaceApi/getWpbyId.api";
+import { useEffect } from "react";
 
-export default function WorkspaceCreate({ navigation }) {
+export default function WorkspaceOverview({ navigation, route }) {
+  const { workspaceId } = route.params;
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [nameError, setNameError] = useState("");
+  const [error, SetError] = useState("");
+  const [successText, setSuccessText] = useState("");
   const [clicked, setClicked] = useState(false);
-
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -34,7 +38,19 @@ export default function WorkspaceCreate({ navigation }) {
       setImage(result.assets[0].uri);
     }
   };
-
+  useEffect(function () {
+    try {
+      const getWorkspace = async () => {
+        const workspace = await getWpbyIdApi(workspaceId);
+        setImage(workspace.avatarUrl);
+        setName(workspace.name);
+        setDescription(workspace.description);
+      };
+      getWorkspace();
+    } catch (error) {
+      Alert.alert("get existed workspace data failed");
+    }
+  }, []);
   const onChangeName = (text) => {
     setName(text);
   };
@@ -43,20 +59,29 @@ export default function WorkspaceCreate({ navigation }) {
     setDescription(text);
   };
 
-  async function onPressCreate() {
-    setClicked(true);
-    if (name == "") {
-      setNameError("Workspace name is empty");
+  async function onPressUpdate() {
+    setSuccessText("");
+    SetError("");
+    try {
+      setClicked(true);
+      if (name == "") {
+        SetError("Workspace name is empty");
+        setClicked(false);
+        return;
+      }
+      const responseNotImg = await updateWpApi(workspaceId, name, description);
+      const responseImg = await updateWpAvatarApi(workspaceId, image);
+      if (responseImg.status != 200 && responseNotImg != 200) {
+        SetError("update failed");
+        setClicked(false);
+        return;
+      }
+      setSuccessText("Workspace successful updated");
       setClicked(false);
-      return;
-    }
-    const response = await createWpApi(name, description, image);
-    if (response.status != 200) {
-      Alert.alert("create workspace failed");
+    } catch (error) {
+      SetError("update failed");
       setClicked(false);
     }
-    navigation.navigate("WorkspaceList");
-    setClicked(false);
   }
 
   return (
@@ -79,6 +104,7 @@ export default function WorkspaceCreate({ navigation }) {
         mode="outlined"
         style={{ marginBottom: 30, width: "80%" }}
         onChangeText={onChangeName}
+        value={name}
       />
       <TextInput
         label="description"
@@ -87,8 +113,10 @@ export default function WorkspaceCreate({ navigation }) {
         multiline={true}
         numberOfLines={8}
         onChangeText={onChangeDescription}
+        value={description}
       />
-      <Text style={{ color: "red", marginBottom: 20 }}>{nameError}</Text>
+      <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
+      <Text style={{ color: "green", marginBottom: 20 }}>{successText}</Text>
       <View
         style={{
           flexDirection: "row",
@@ -107,7 +135,7 @@ export default function WorkspaceCreate({ navigation }) {
         <Button
           mode="contained"
           style={{ marginLeft: 20, marginRight: 10, width: "30" }}
-          onPress={onPressCreate}
+          onPress={onPressUpdate}
           disabled={clicked}
         >
           Ok
@@ -128,6 +156,7 @@ const styles = StyleSheet.create({
   imageTouchable: {
     marginLeft: 50,
     borderWidth: 1,
+    padding: 3,
     borderRadius: 5,
     borderStyle: "dashed",
   },

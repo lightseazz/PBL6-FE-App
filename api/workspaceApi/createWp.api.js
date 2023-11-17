@@ -23,7 +23,6 @@ export default async (name, description, imageUri) => {
       },
       body: formData,
     });
-    console.log(response.status);
     return response;
   } catch (error) {
     return error;
