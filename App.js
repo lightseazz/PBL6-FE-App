@@ -5,17 +5,22 @@ import WorkspaceCreate from "./pages/workspaceManager/WorkspaceCreate";
 import Drawer from "./pages/workspace/Drawer";
 import ItemDetail from "./pages/notifications/ItemDetail";
 import LeftDrawerContent from "./pages/workspace/LeftDrawerContent";
+import RightDrawerContent from "./pages/workspace/RightDrawerContent";
 import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
 import WorkspaceOverview from "./pages/workspace/WorkspaceOverview";
+import CreateChannel from "./pages/channel/CreateChannel";
+import ChannelSetting from "./pages/channel/ChannelSetting";
+import ChannelOverview from "./pages/channel/ChannelOverview";
+import ChangePassword from "./pages/userSetting/ChangePassword";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { PaperProvider } from "react-native-paper";
 import LoadingPage from "./pages/LoadingPage";
 import { useReducer, useEffect, useMemo } from "react";
 import { AuthContext, authFunctions } from "./hook/AuthContext";
 import { authReducer, initialAuthState } from "./hook/authReducer";
+import { PaperProvider } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 
 const Stack = createNativeStackNavigator();
@@ -68,6 +73,10 @@ export default function App() {
                   component={LeftDrawerContent}
                 />
                 <Stack.Screen
+                  name="RightDrawerContent"
+                  component={RightDrawerContent}
+                />
+                <Stack.Screen
                   name="WorkspaceSetting"
                   component={WorkspaceSetting}
                   options={header({ title: "Workspace Setting" })}
@@ -76,6 +85,26 @@ export default function App() {
                   name="WorkspaceOverview"
                   component={WorkspaceOverview}
                   options={header({ title: "Workspace Overview" })}
+                />
+                <Stack.Screen
+                  name="ChannelOverview"
+                  component={ChannelOverview}
+                  options={header({ title: "Channel Overview" })}
+                />
+                <Stack.Screen
+                  name="CreateChannel"
+                  component={CreateChannel}
+                  options={header({ title: "Create Channel" })}
+                />
+                <Stack.Screen
+                  name="ChannelSetting"
+                  component={ChannelSetting}
+                  options={header({ title: "Channel Setting" })}
+                />
+                <Stack.Screen
+                  name="ChangePassword"
+                  component={ChangePassword}
+                  options={header({ title: "Change Password" })}
                 />
                 <Stack.Screen
                   name="ItemDetail"

@@ -1,9 +1,13 @@
 import { Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
 import { general } from "../../styles/styles";
-import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
 import verifyApi from "../../api/authApi/verify.api";
+import {
+  buttonColor,
+  linkColor,
+  textInputColor,
+} from "../../styles/colorScheme";
 
 export default function Verify({ navigation, route }) {
   const { Token, email } = route.params;
@@ -28,8 +32,15 @@ export default function Verify({ navigation, route }) {
         <Text style={{ color: "blue" }}>{email}</Text>
       </Text>
       <Text style={{ color: "red" }}>{verifyError}</Text>
-      <TxtInput label="OTP input" onChangeText={setVerify} />
-      <Button mode="elevated" onPress={verifyPress}>
+      <TextInput
+        mode="outlined"
+        secureTextEntry
+        label="OTP input"
+        onChangeText={setVerify}
+        style={{ backgroundColor: "white", width: "80%" }}
+        {...text}
+      />
+      <Button mode="elevated" onPress={verifyPress} {...buttonColor}>
         Verify
       </Button>
     </View>

@@ -4,6 +4,11 @@ import { Button, TextInput } from "react-native-paper";
 import { AuthContext } from "../../hook/AuthContext";
 import { useState, useContext } from "react";
 import { checkCorrectUsername, checkCorrectPassword } from "../../utils/common";
+import {
+  buttonColor,
+  linkColor,
+  textInputColor,
+} from "../../styles/colorScheme";
 
 export default function Login({ navigation }) {
   const [username, setUsername] = useState("");
@@ -62,6 +67,7 @@ export default function Login({ navigation }) {
           Let sign you in
         </Text>
         <TextInput
+          {...textInputColor}
           label="Username"
           onChangeText={onChangeUsername}
           style={styles.input}
@@ -69,6 +75,7 @@ export default function Login({ navigation }) {
         />
         <Text style={styles.error}>{usernameError}</Text>
         <TextInput
+          {...textInputColor}
           secureTextEntry={secureTextEntry}
           label="Password"
           onChangeText={onChangePassword}
@@ -89,6 +96,7 @@ export default function Login({ navigation }) {
       <Button
         style={{ alignSelf: "flex-end", marginRight: 30 }}
         onPress={() => navigation.navigate("EnterEmail")}
+        {...linkColor}
       >
         Forgot your password
       </Button>
@@ -97,6 +105,7 @@ export default function Login({ navigation }) {
         mode="elevated"
         style={{ marginTop: 10 }}
         onPress={() => signInPress({ username, password })}
+        {...buttonColor}
       >
         Login
       </Button>
@@ -105,9 +114,12 @@ export default function Login({ navigation }) {
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
       >
         <Text>Don't have account</Text>
-        <Button onPress={() => navigation.navigate("SignUp")}>Sign Up</Button>
+        <Button onPress={() => navigation.navigate("SignUp")} {...linkColor}>
+          Sign Up
+        </Button>
       </View>
       <Button
+        {...buttonColor}
         mode="contained"
         icon="google"
         style={{ marginTop: 30, width: "80%" }}
@@ -119,7 +131,7 @@ export default function Login({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  input: {},
+  input: { backgroundColor: "white" },
   error: {
     color: "red",
     marginBottom: 10,

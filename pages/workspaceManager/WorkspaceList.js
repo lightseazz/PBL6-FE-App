@@ -4,8 +4,6 @@ import { general } from "../../styles/styles";
 import getAllWpApi from "../../api/workspaceApi/getAllWp.api";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import * as SecureStore from "expo-secure-store";
-
 export default function WorkspaceList({ navigation }) {
   const [workspaceList, setWorkspaceList] = useState([]);
   const isFocused = useIsFocused();
@@ -14,8 +12,7 @@ export default function WorkspaceList({ navigation }) {
     function () {
       if (isFocused) {
         async function renderWorkspaceList() {
-          const userToken = await SecureStore.getItemAsync("userToken");
-          const response = await getAllWpApi(userToken);
+          const response = await getAllWpApi();
           setWorkspaceList(
             response.map((workspace) => ({
               id: workspace.id,
@@ -46,6 +43,7 @@ export default function WorkspaceList({ navigation }) {
         keyExtractor={(item) => item.id}
       />
       <FAB
+        color="white"
         label="create Workspace"
         icon="plus"
         style={{
@@ -53,6 +51,7 @@ export default function WorkspaceList({ navigation }) {
           margin: 16,
           left: 0,
           bottom: 0,
+          backgroundColor: "black",
         }}
         onPress={() => navigation.navigate("WorkspaceCreate")}
       />
@@ -85,7 +84,9 @@ function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers }) {
           <Text style={{ marginLeft: 10, fontSize: 15 }}>{name}</Text>
         </View>
 
-        <Text style={{ marginTop: 10 }}>{numberOfMembers} members</Text>
+        <Text style={{ marginTop: 10, color: "grey" }}>
+          {numberOfMembers} members
+        </Text>
       </View>
     </TouchableOpacity>
   );

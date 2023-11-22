@@ -1,4 +1,10 @@
-import { FlatList, StatusBar, View, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { useRef, useState } from "react";
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import {
@@ -6,9 +12,12 @@ import {
   RichEditor,
   actions,
 } from "react-native-pell-rich-editor";
+import { useContext, useEffect } from "react";
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
+import { currentChannelIdContext } from "../../hook/ChannelContext";
+import getChannelByIdApi from "../../api/channelApi/getChannelById.api";
 
 const tempText = {
   html: `
@@ -36,11 +45,27 @@ for (let i = 1; i <= 12; i++) {
   });
 }
 export default function ChatChannel({ navigation }) {
+  const { currentChannelId } = useContext(currentChannelIdContext);
+  const [nameChannel, setNameChannel] = useState("");
   const [modalVisible, setModalVisible] = useState({
     message: false,
     emoji: false,
   });
   const richText = useRef();
+  useEffect(
+    function () {
+      if (currentChannelId != "") {
+        try {
+          const renderChannelName = async () => {
+            const channel = await getChannelByIdApi(currentChannelId);
+            setNameChannel(channel.name);
+          };
+          renderChannelName();
+        } catch (error) {}
+      }
+    },
+    [currentChannelId]
+  );
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -59,6 +84,7 @@ export default function ChatChannel({ navigation }) {
         >
           <Icon name="menu" size={28} />
         </TouchableOpacity>
+        <Text style={{ marginLeft: 30, fontSize: 20 }}># {nameChannel}</Text>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -68,7 +94,7 @@ export default function ChatChannel({ navigation }) {
           <TouchableOpacity
             onPress={() => navigation.getParent("RightDrawer").openDrawer()}
           >
-            <Icon name="people" size={28} />
+            <Icon name="options-vertical" size={20} />
           </TouchableOpacity>
         </View>
       </View>

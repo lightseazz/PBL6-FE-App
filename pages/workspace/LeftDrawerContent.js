@@ -1,35 +1,95 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { WorkspaceIdContext } from "../../hook/WorkspaceContext";
-import { useContext } from "react";
+import { currentChannelIdContext } from "../../hook/ChannelContext";
+import { useContext, useEffect, useState } from "react";
+import { Text, FlatList } from "react-native";
+import getWpbyIdAPi from "../../api/workspaceApi/getWpbyId.api";
+import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
+import { useIsFocused } from "@react-navigation/native";
+import { buttonColor } from "../../styles/colorScheme";
 
 export default function LeftDrawerContent({ navigation }) {
+  const isFocused = useIsFocused();
   const workspaceId = useContext(WorkspaceIdContext);
+  const { currentChannelId, setCurrentChannelId } = useContext(
+    currentChannelIdContext
+  );
+  const [channels, setChannels] = useState([]);
+  const [workspaceName, setWorkspaceName] = useState("");
+  useEffect(
+    function () {
+      if (isFocused) {
+        try {
+          const getWp = async () => {
+            const workspace = await getWpbyIdAPi(workspaceId);
+            setWorkspaceName(workspace.name);
+          };
+          const renderChannels = async () => {
+            const response = await getAllChannelApi(workspaceId);
+            setChannels(
+              response.map((channel) => ({
+                id: channel.id,
+                name: channel.name,
+              }))
+            );
+            if (response.length > 0) {
+              setCurrentChannelId(response[0].id);
+            }
+          };
+          getWp();
+          renderChannels();
+        } catch (error) {}
+      }
+    },
+    [isFocused]
+  );
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <View style={{ flex: 3, marginTop: 50, width: "80%" }}>
-        <TouchableOpacity onPress={() => navigation.navigate("WorkspaceList")}>
-          <Icon
-            name="keyboard-backspace"
-            size={24}
-            style={{ marginBottom: 20 }}
-          ></Icon>
-        </TouchableOpacity>
-        <Button
-          mode="contained-tonal"
-          icon="pound"
-          style={{ marginBottom: 20 }}
+      <View style={{ flex: 7, marginTop: 50, width: "80%" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            marginBottom: 20,
+            alignItems: "center",
+            borderBottomWidth: 0.5,
+          }}
         >
-          Channel 1
-        </Button>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("WorkspaceList")}
+          >
+            <Icon name="keyboard-backspace" size={24}></Icon>
+          </TouchableOpacity>
+          <Text style={{ marginLeft: 10, fontSize: 20 }}>{workspaceName}</Text>
+        </View>
         <Button
-          mode="contained-tonal"
-          icon="pound"
+          {...buttonColor}
+          mode="contained"
+          icon="plus"
           style={{ marginBottom: 20 }}
+          onPress={() =>
+            navigation.navigate("CreateChannel", {
+              workspaceId: workspaceId,
+            })
+          }
         >
-          Channel 2
+          Create new channel
         </Button>
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={channels}
+            renderItem={({ item }) => (
+              <Channel
+                id={item.id}
+                name={item.name}
+                currentChannelId={currentChannelId}
+                setCurrentChannelId={setCurrentChannelId}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
       </View>
       <View
         style={{
@@ -40,7 +100,8 @@ export default function LeftDrawerContent({ navigation }) {
         }}
       >
         <Button
-          mode="contained-tonal"
+          {...buttonColor}
+          mode="contained"
           icon="cog-outline"
           style={{ marginBottom: 20 }}
           onPress={() =>
@@ -53,5 +114,21 @@ export default function LeftDrawerContent({ navigation }) {
         </Button>
       </View>
     </View>
+  );
+}
+
+function Channel({ id, name, currentChannelId, setCurrentChannelId }) {
+  return (
+    <Button
+      textColor="black"
+      buttonColor={id == currentChannelId ? "#D0D0D0" : "white"}
+      mode={id == currentChannelId ? "contained-tonal" : "text"}
+      icon="pound"
+      style={{ marginBottom: 20 }}
+      contentStyle={{ justifyContent: "flex-start" }}
+      onPress={() => setCurrentChannelId(id)}
+    >
+      {name}
+    </Button>
   );
 }

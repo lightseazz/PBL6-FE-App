@@ -1,6 +1,6 @@
 import { Modal, View, StyleSheet, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { TextInput, Button } from "react-native-paper";
+import { Searchbar, Button } from "react-native-paper";
 
 export default function AddModal({ modalVisible, setModalVisible }) {
   return (
@@ -18,11 +18,10 @@ export default function AddModal({ modalVisible, setModalVisible }) {
           >
             <Icon size={30} name="minus-thick" style={styles.close} />
           </Pressable>
-          <TextInput
-            mode="outlined"
+          <Searchbar
+            mode="bar"
             style={styles.searchInput}
-            label="Find"
-            left={<TextInput.Icon icon="magnify" />}
+            placeholder="please enter email or username"
           />
         </View>
       </View>
@@ -55,5 +54,7 @@ const styles = StyleSheet.create({
   searchInput: {
     width: "90%",
     alignSelf: "center",
+    borderWidth: 1,
+    backgroundColor: "white",
   },
 });

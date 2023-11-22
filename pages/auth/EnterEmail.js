@@ -1,10 +1,14 @@
 import { Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
 import { general } from "../../styles/styles";
-import TxtInput from "../../components/TxtInput";
 import { useState } from "react";
 import { checkCorrectEmail } from "../../utils/common";
 import enterEmailApi from "../../api/authApi/enterEmail.api";
+import {
+  buttonColor,
+  linkColor,
+  textInputColor,
+} from "../../styles/colorScheme";
 
 export default function EnterEmail({ navigation }) {
   const [email, setEmail] = useState("");
@@ -17,6 +21,7 @@ export default function EnterEmail({ navigation }) {
   };
 
   async function onPressOK() {
+    console.log("hello");
     setClicked(true);
     if (checkCorrectEmail(email).correct == false) {
       {
@@ -44,9 +49,21 @@ export default function EnterEmail({ navigation }) {
   return (
     <View style={general.centerView}>
       <Text>Enter your email: </Text>
-      <TxtInput label="Email" onChangeText={onChangeEmail} />
+      <TextInput
+        mode="outlined"
+        label="Email"
+        onChangeText={onChangeEmail}
+        style={{ backgroundColor: "white", width: "80%" }}
+        {...textInputColor}
+      />
       <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
-      <Button mode="elevated" onPress={onPressOK} disabled={clicked}>
+      <Button
+        mode="elevated"
+        onPress={onPressOK}
+        disabled={clicked}
+        loading={clicked}
+        {...buttonColor}
+      >
         OK
       </Button>
     </View>

@@ -1,43 +1,21 @@
 import { general } from "../../styles/styles";
 import { useState } from "react";
-import createWpApi from "../../api/workspaceApi/createWp.api";
+import createChannelApi from "../../api/channelApi/createChannel.api";
 
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  Image,
-  Text,
-} from "react-native";
+import { View, StyleSheet, StatusBar, Text } from "react-native";
 import { TextInput, Button } from "react-native-paper";
-import * as ImagePicker from "expo-image-picker";
 import {
   buttonColor,
-  cancelButtonColor,
   textInputColor,
+  cancelButtonColor,
 } from "../../styles/colorScheme";
 
-export default function WorkspaceCreate({ navigation }) {
-  const [image, setImage] = useState(null);
+export default function CreateChannel({ navigation, route }) {
+  const { workspaceId } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [clicked, setClicked] = useState(false);
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
 
   const onChangeName = (text) => {
     setName(text);
@@ -51,23 +29,21 @@ export default function WorkspaceCreate({ navigation }) {
     try {
       setClicked(true);
       if (name == "") {
-        setError("Workspace name is empty");
+        setError("Channel name is empty");
         setClicked(false);
         return;
       }
-      const response = await createWpApi(name, description, image);
+      const response = await createChannelApi(name, description, workspaceId);
       if (response.status != 200) {
-        setError("create Workspace failed");
+        setError("create channel failed");
         setClicked(false);
         return;
       }
-      navigation.navigate("WorkspaceList");
+      navigation.goBack();
       setClicked(false);
     } catch (error) {
       console.log(error);
-      setError("create Workspace failed");
-      setClicked(false);
-      return;
+      setError("create channel failed");
     }
   }
 
@@ -75,20 +51,10 @@ export default function WorkspaceCreate({ navigation }) {
     <View style={general.centerView}>
       <View
         style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
-          <Image
-            source={
-              image ? { uri: image } : require("../../assets/imageholder.png")
-            }
-            style={{ width: 150, height: 150 }}
-          />
-        </TouchableOpacity>
-        <View style={{ flex: 1, alignItems: "center" }}></View>
-      </View>
+      ></View>
       <TextInput
         {...textInputColor}
-        label="workspace name"
+        label="Channel name"
         mode="outlined"
         style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
         onChangeText={onChangeName}
@@ -141,13 +107,6 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 0,
   },
-  imageTouchable: {
-    marginLeft: 50,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderStyle: "dashed",
-  },
-  saveImage: { width: "60%", borderRadius: 8 },
   divider: {
     marginTop: 20,
     marginBottom: 20,

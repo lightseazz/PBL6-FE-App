@@ -1,44 +1,38 @@
 import { general } from "../../styles/styles";
 import { useState } from "react";
-import createWpApi from "../../api/workspaceApi/createWp.api";
+import { Alert } from "react-native";
+import updateChannelApi from "../../api/channelApi/updateChannel.api";
 
-import {
-  View,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  Image,
-  Text,
-} from "react-native";
+import { View, StyleSheet, StatusBar, Text } from "react-native";
 import { TextInput, Button } from "react-native-paper";
-import * as ImagePicker from "expo-image-picker";
+import getChannelById from "../../api/channelApi/getChannelById.api";
+import { useEffect } from "react";
 import {
   buttonColor,
-  cancelButtonColor,
   textInputColor,
+  cancelButtonColor,
 } from "../../styles/colorScheme";
 
-export default function WorkspaceCreate({ navigation }) {
-  const [image, setImage] = useState(null);
+export default function ChannelOverview({ navigation, route }) {
+  const { channelId } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [error, SetError] = useState("");
+  const [successText, setSuccessText] = useState("");
   const [clicked, setClicked] = useState(false);
 
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+  useEffect(function () {
+    try {
+      const getWorkspace = async () => {
+        const channel = await getChannelById(channelId);
+        setName(channel.name);
+        setDescription(channel.description);
+      };
+      getWorkspace();
+    } catch (error) {
+      Alert.alert("get existed workspace data failed");
     }
-  };
-
+  }, []);
   const onChangeName = (text) => {
     setName(text);
   };
@@ -47,27 +41,27 @@ export default function WorkspaceCreate({ navigation }) {
     setDescription(text);
   };
 
-  async function onPressCreate() {
+  async function onPressUpdate() {
+    setSuccessText("");
+    SetError("");
     try {
       setClicked(true);
       if (name == "") {
-        setError("Workspace name is empty");
+        SetError("Channel name is empty");
         setClicked(false);
         return;
       }
-      const response = await createWpApi(name, description, image);
+      const response = await updateChannelApi(channelId, name, description);
       if (response.status != 200) {
-        setError("create Workspace failed");
+        SetError("update failed");
         setClicked(false);
         return;
       }
-      navigation.navigate("WorkspaceList");
+      setSuccessText("Channel successful updated");
       setClicked(false);
     } catch (error) {
-      console.log(error);
-      setError("create Workspace failed");
+      SetError("update failed");
       setClicked(false);
-      return;
     }
   }
 
@@ -76,22 +70,15 @@ export default function WorkspaceCreate({ navigation }) {
       <View
         style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
       >
-        <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
-          <Image
-            source={
-              image ? { uri: image } : require("../../assets/imageholder.png")
-            }
-            style={{ width: 150, height: 150 }}
-          />
-        </TouchableOpacity>
         <View style={{ flex: 1, alignItems: "center" }}></View>
       </View>
       <TextInput
         {...textInputColor}
-        label="workspace name"
+        label="channel name"
         mode="outlined"
         style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
         onChangeText={onChangeName}
+        value={name}
       />
       <TextInput
         {...textInputColor}
@@ -101,8 +88,10 @@ export default function WorkspaceCreate({ navigation }) {
         multiline={true}
         numberOfLines={8}
         onChangeText={onChangeDescription}
+        value={description}
       />
       <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
+      <Text style={{ color: "green", marginBottom: 20 }}>{successText}</Text>
       <View
         style={{
           flexDirection: "row",
@@ -123,7 +112,7 @@ export default function WorkspaceCreate({ navigation }) {
           {...buttonColor}
           mode="contained"
           style={{ marginLeft: 20, marginRight: 10, width: "30" }}
-          onPress={onPressCreate}
+          onPress={onPressUpdate}
           disabled={clicked}
           loading={clicked}
         >
@@ -144,6 +133,7 @@ const styles = StyleSheet.create({
   imageTouchable: {
     marginLeft: 50,
     borderWidth: 1,
+    padding: 3,
     borderRadius: 5,
     borderStyle: "dashed",
   },

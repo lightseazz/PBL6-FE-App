@@ -5,7 +5,7 @@ import { ActivityIndicator } from "react-native-paper";
 export default function LoadingPage() {
   return (
     <View style={general.centerView}>
-      <ActivityIndicator animating={true} size={100} />
+      <ActivityIndicator animating={true} size={100} color="black" />
       <Text>Loading ...</Text>
     </View>
   );

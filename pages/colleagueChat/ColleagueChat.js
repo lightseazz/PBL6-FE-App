@@ -1,8 +1,9 @@
-import { View, StatusBar, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet } from "react-native";
 import Colleague from "./Colleague";
-import { TextInput, Button } from "react-native-paper";
+import { Button, Searchbar } from "react-native-paper";
 import { useState } from "react";
 import AddModal from "./AddModal";
+import { buttonColor, textInputColor } from "../../styles/colorScheme";
 
 const avatar =
   "https://images.unsplash.com/photo-1529397938791-2aba4681454f?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -20,13 +21,14 @@ export default function ColleagueChat({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
-      <TextInput
-        mode="outlined"
+      <Searchbar
+        {...textInputColor}
+        mode="bar"
         style={styles.searchInput}
-        label="Search User"
-        left={<TextInput.Icon icon="magnify" />}
+        placeholder="Search User"
       />
       <Button
+        {...buttonColor}
         icon="plus"
         mode="contained-tonal"
         style={styles.addButton}
@@ -53,12 +55,15 @@ export default function ColleagueChat({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: StatusBar.currentHeight + 10,
     padding: 15,
+    backgroundColor: "white",
+    flex: 1,
   },
   searchInput: {
     width: "100%",
     alignSelf: "center",
+    backgroundColor: "white",
+    borderWidth: 1,
   },
   addButton: {
     width: "30%",

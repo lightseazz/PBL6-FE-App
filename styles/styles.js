@@ -14,6 +14,7 @@ export const general = StyleSheet.create({
     flex: 1,
     paddingTop: StatusBar.currentHeight,
     padding: "5%",
+    backgroundColor: "white",
   },
 
   button: {
@@ -23,11 +24,3 @@ export const general = StyleSheet.create({
     margin: 20,
   },
 });
-
-// export const css_TouchOpacity = {
-//   activeOpacity: 0.6,
-//   underlayColor: "#c0c4c4",
-//   style: {
-//     borderRadius: 10,
-//   },
-// };

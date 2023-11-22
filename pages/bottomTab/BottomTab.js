@@ -9,18 +9,24 @@ const Tab = createBottomTabNavigator();
 
 export default function BottomTab() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: true }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: true,
+        tabBarActiveTintColor: "black",
+        tabBarInactiveTintColor: "grey",
+      }}
+    >
       <Tab.Screen
         name="WorkspaceList"
         component={WorkspaceList}
         options={{
           headerTitle: "Workspace List",
           tabBarLabel: "Workspace",
-          tabBarIcon: () => (
+          tabBarIcon: ({ color }) => (
             <Ionicons
               name="file-tray-stacked-outline"
               size={24}
-              color="black"
+              color={color}
             />
           ),
         }}
@@ -31,8 +37,8 @@ export default function BottomTab() {
         options={{
           headerTitle: "Colleague Chat",
           tabBarLabel: "Colleague Chat",
-          tabBarIcon: () => (
-            <Ionicons name="people-outline" size={24} color="black" />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="people-outline" size={24} color={color} />
           ),
         }}
       />
@@ -41,8 +47,8 @@ export default function BottomTab() {
         component={Notifacations}
         options={{
           tabBarLabel: "Notifications",
-          tabBarIcon: () => (
-            <Ionicons name="notifications-outline" size={24} color="black" />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="notifications-outline" size={24} color={color} />
           ),
         }}
       />
@@ -52,8 +58,8 @@ export default function BottomTab() {
         options={{
           headerTitle: "User Setting",
           tabBarLabel: "User Setting",
-          tabBarIcon: () => (
-            <Ionicons name="md-settings-outline" size={24} color="black" />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="md-settings-outline" size={24} color={color} />
           ),
         }}
       />

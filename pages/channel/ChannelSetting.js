@@ -1,22 +1,30 @@
 import { View } from "react-native";
 import { Button } from "react-native-paper";
 import ConfirmAlert from "../ConfirmAlert";
-import deleteWpApi from "../../api/workspaceApi/deleteWp.api";
+import deleteChannelApi from "../../api/channelApi/deleteChannel.api";
 import { Alert } from "react-native";
 import { buttonColor } from "../../styles/colorScheme";
 
-export default function WorkspaceSetting({ route, navigation }) {
-  const { workspaceId } = route.params;
+export default function ChannelSetting({ route, navigation }) {
+  const { channelId } = route.params;
   async function onPressDelete() {
-    const response = await deleteWpApi(workspaceId);
+    const response = await deleteChannelApi(channelId);
+    console.log(response.status);
     if (response.status != 200) {
-      Alert.alert("delete workspace failed");
+      Alert.alert("delete channel failed");
       return;
     }
-    navigation.navigate("WorkspaceList");
+    navigation.goBack();
   }
   return (
-    <View style={{ flex: 1, alignItems: "center", padding: 20 }}>
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        padding: 20,
+        backgroundColor: "white",
+      }}
+    >
       <View
         style={{
           width: "80%",
@@ -27,12 +35,12 @@ export default function WorkspaceSetting({ route, navigation }) {
           {...buttonColor}
           mode="elevated"
           onPress={() =>
-            navigation.navigate("WorkspaceOverview", {
-              workspaceId: workspaceId,
+            navigation.navigate("ChannelOverview", {
+              channelId: channelId,
             })
           }
         >
-          Workspace Overview
+          Channel Overview
         </Button>
       </View>
       <View
@@ -47,12 +55,12 @@ export default function WorkspaceSetting({ route, navigation }) {
           style={{ backgroundColor: "#cc0000" }}
           onPress={ConfirmAlert({
             title: "Confirm Deletion",
-            message: "are you sure want to delete this Workspace",
+            message: "are you sure want to delete this Channel",
             OKText: "Delete",
             onPressOK: onPressDelete,
           })}
         >
-          Delete Workspace
+          Delete Channel
         </Button>
       </View>
     </View>

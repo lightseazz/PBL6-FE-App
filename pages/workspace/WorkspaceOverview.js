@@ -1,6 +1,6 @@
 import { general } from "../../styles/styles";
 import { useState } from "react";
-import { Alert, ActivityIndicator } from "react-native";
+import { Alert } from "react-native";
 import updateWpApi from "../../api/workspaceApi/updateWp.api";
 import updateWpAvatarApi from "../../api/workspaceApi/updateWpAvatar.api";
 
@@ -16,6 +16,11 @@ import { TextInput, Button } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import getWpbyIdApi from "../../api/workspaceApi/getWpbyId.api";
 import { useEffect } from "react";
+import {
+  buttonColor,
+  cancelButtonColor,
+  textInputColor,
+} from "../../styles/colorScheme";
 
 export default function WorkspaceOverview({ navigation, route }) {
   const { workspaceId } = route.params;
@@ -100,16 +105,18 @@ export default function WorkspaceOverview({ navigation, route }) {
         <View style={{ flex: 1, alignItems: "center" }}></View>
       </View>
       <TextInput
+        {...textInputColor}
         label="workspace name"
         mode="outlined"
-        style={{ marginBottom: 30, width: "80%" }}
+        style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
         onChangeText={onChangeName}
         value={name}
       />
       <TextInput
+        {...textInputColor}
         label="description"
         mode="outlined"
-        style={{ marginBottom: 20, width: "80%" }}
+        style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
         multiline={true}
         numberOfLines={8}
         onChangeText={onChangeDescription}
@@ -125,6 +132,7 @@ export default function WorkspaceOverview({ navigation, route }) {
         }}
       >
         <Button
+          {...cancelButtonColor}
           mode="contained"
           style={{ width: "30" }}
           onPress={() => navigation.goBack()}
@@ -133,14 +141,15 @@ export default function WorkspaceOverview({ navigation, route }) {
           Cancel
         </Button>
         <Button
+          {...buttonColor}
           mode="contained"
           style={{ marginLeft: 20, marginRight: 10, width: "30" }}
           onPress={onPressUpdate}
           disabled={clicked}
+          loading={clicked}
         >
           Ok
         </Button>
-        {clicked ? <ActivityIndicator /> : <></>}
       </View>
     </View>
   );

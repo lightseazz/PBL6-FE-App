@@ -11,10 +11,10 @@ import {
   textInputColor,
 } from "../../styles/colorScheme";
 
-export default function ChangePass({ navigation, route }) {
-  const { email } = route.params;
-  const [password, setPassword] = useState("");
-  const [passwordAgain, setPasswordAgain] = useState("");
+export default function ChangePassword({ navigation, route }) {
+  //   const { email } = route.params;
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordAgainError, setPasswordAgainError] = useState("");
   const [otp, setOtp] = useState("");
@@ -23,20 +23,20 @@ export default function ChangePass({ navigation, route }) {
   const [clicked, setClicked] = useState(false);
 
   const onChangePassword = (text) => {
-    setPassword(text);
+    setCurrentPassword(text);
     setPasswordError(checkCorrectPassword(text).error);
   };
 
   const onChangePasswordAgain = (text) => {
-    setPasswordAgain(text);
+    setNewPassword(text);
     setPasswordAgainError(checkCorrectPassword(text).error);
   };
 
   async function onChangePass() {
     setClicked(true);
     if (
-      checkCorrectPassword(password).correct == false ||
-      checkCorrectPassword(passwordAgain).correct == false
+      checkCorrectPassword(currentPassword).correct == false ||
+      checkCorrectPassword(newPassword).correct == false
     ) {
       {
         setClicked(false);
@@ -44,13 +44,13 @@ export default function ChangePass({ navigation, route }) {
         return;
       }
     }
-    if (password != passwordAgain) {
+    if (currentPassword != newPassword) {
       setClicked(false);
       setSignUpError("please type the same password");
       return;
     }
 
-    const response = await changePassApi(email, password, otp);
+    const response = await changePassApi(email, currentPassword, otp);
 
     if (response.status != 200) {
       setClicked(false);
@@ -69,7 +69,7 @@ export default function ChangePass({ navigation, route }) {
           {...textInputColor}
           style={{ backgroundColor: "white" }}
           secureTextEntry={secureTextEntry[0]}
-          label="Enter New Password"
+          label="Enter current password"
           onChangeText={onChangePassword}
           mode="outlined"
           right={
@@ -89,7 +89,7 @@ export default function ChangePass({ navigation, route }) {
           {...textInputColor}
           style={{ backgroundColor: "white" }}
           secureTextEntry={secureTextEntry[1]}
-          label="Enter new Password Again"
+          label="Enter new password"
           onChangeText={onChangePasswordAgain}
           mode="outlined"
           right={

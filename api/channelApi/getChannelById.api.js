@@ -1,11 +1,10 @@
 import { apiKey, baseUrl } from "../constant.api";
 import * as SecureStore from "expo-secure-store";
 
-export default async () => {
+export default async (channelId) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-
-    const response = await fetch(baseUrl + "Workspace", {
+    const response = await fetch(baseUrl + "Channel/" + channelId, {
       method: "GET",
       headers: {
         "x-apikey": apiKey,

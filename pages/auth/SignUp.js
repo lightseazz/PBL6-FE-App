@@ -8,6 +8,11 @@ import {
   checkCorrectPassword,
   checkCorrectEmail,
 } from "../../utils/common";
+import {
+  buttonColor,
+  linkColor,
+  textInputColor,
+} from "../../styles/colorScheme";
 
 export default function SignUp({ navigation }) {
   const [secureTextEntry, setSecureTextEntry] = useState([true, true]);
@@ -78,6 +83,7 @@ export default function SignUp({ navigation }) {
     <View style={general.centerView}>
       <View style={{ width: "80%", marginTop: 40 }}>
         <TextInput
+          {...textInputColor}
           label="Email"
           mode="outlined"
           style={styles.input}
@@ -87,6 +93,7 @@ export default function SignUp({ navigation }) {
       </View>
       <View style={{ width: "80%" }}>
         <TextInput
+          {...textInputColor}
           label="Username"
           mode="outlined"
           style={styles.input}
@@ -96,6 +103,7 @@ export default function SignUp({ navigation }) {
       </View>
       <View style={{ width: "80%" }}>
         <TextInput
+          {...textInputColor}
           secureTextEntry={secureTextEntry[0]}
           label="Password"
           mode="outlined"
@@ -115,6 +123,7 @@ export default function SignUp({ navigation }) {
       </View>
       <View style={{ width: "80%" }}>
         <TextInput
+          {...textInputColor}
           secureTextEntry={secureTextEntry[1]}
           label="Enter password again"
           mode="outlined"
@@ -133,6 +142,7 @@ export default function SignUp({ navigation }) {
         <Text style={styles.error}>{passwordAgainError}</Text>
       </View>
       <Button
+        {...buttonColor}
         disabled={clicked}
         mode="elevated"
         onPress={() =>
@@ -146,9 +156,12 @@ export default function SignUp({ navigation }) {
         style={{ flexDirection: "row", alignItems: "center", marginTop: 10 }}
       >
         <Text>Already have an account ? </Text>
-        <Button onPress={() => navigation.navigate("Login")}>Login</Button>
+        <Button onPress={() => navigation.navigate("Login")} {...linkColor}>
+          Login
+        </Button>
       </View>
       <Button
+        {...buttonColor}
         mode="contained"
         icon="google"
         style={{ marginTop: 30, width: "80%" }}
@@ -165,7 +178,9 @@ export default function SignUp({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  input: {},
+  input: {
+    backgroundColor: "white",
+  },
   error: {
     color: "red",
   },
