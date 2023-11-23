@@ -2,8 +2,8 @@ import "react-native-gesture-handler";
 import Auth from "./pages/auth/Auth";
 import bottomTab from "./pages/bottomTab/BottomTab";
 import WorkspaceCreate from "./pages/workspaceManager/WorkspaceCreate";
-import Drawer from "./pages/workspace/Drawer";
 import ItemDetail from "./pages/notifications/ItemDetail";
+import LeftDrawerScreen from "./pages/workspace/LeftDrawerScreen";
 import LeftDrawerContent from "./pages/workspace/LeftDrawerContent";
 import RightDrawerContent from "./pages/workspace/RightDrawerContent";
 import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
@@ -67,7 +67,10 @@ export default function App() {
                   component={WorkspaceCreate}
                   options={header({ title: "Create Workspace" })}
                 />
-                <Stack.Screen name="Drawer" component={Drawer} />
+                <Stack.Screen
+                  name="LeftDrawerScreen"
+                  component={LeftDrawerScreen}
+                />
                 <Stack.Screen
                   name="LeftDrawerContent"
                   component={LeftDrawerContent}

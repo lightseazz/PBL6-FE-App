@@ -63,7 +63,7 @@ function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers }) {
   return (
     <TouchableOpacity
       onPress={() =>
-        navigation.navigate("Drawer", {
+        navigation.navigate("LeftDrawerScreen", {
           workspaceId: id,
         })
       }

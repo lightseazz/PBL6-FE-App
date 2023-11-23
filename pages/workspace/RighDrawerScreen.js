@@ -1,6 +1,6 @@
-import LeftDrawerScreen from "./LeftDrawerScreen";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import RightDrawerContent from "./RightDrawerContent";
+import ChatChannel from "../chatChannel/ChatChannel";
 
 const RightDrawer = createDrawerNavigator();
 
@@ -11,7 +11,7 @@ export default function RightDrawerScreen() {
       screenOptions={{ drawerPosition: "right", headerShown: false }}
       drawerContent={(props) => <RightDrawerContent {...props} />}
     >
-      <RightDrawer.Screen name="HomeDrawer" component={LeftDrawerScreen} />
+      <RightDrawer.Screen name="Channel" component={ChatChannel} />
     </RightDrawer.Navigator>
   );
 }
