@@ -14,7 +14,7 @@ import {
 } from "../../styles/colorScheme";
 
 export default function ChannelOverview({ navigation, route }) {
-  const { channelId } = route.params;
+  const { channelId, workspaceId } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, SetError] = useState("");
@@ -51,7 +51,12 @@ export default function ChannelOverview({ navigation, route }) {
         setClicked(false);
         return;
       }
-      const response = await updateChannelApi(channelId, name, description);
+      const response = await updateChannelApi(
+        workspaceId,
+        channelId,
+        name,
+        description
+      );
       if (response.status != 200) {
         SetError("update failed");
         setClicked(false);

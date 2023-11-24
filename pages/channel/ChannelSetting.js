@@ -6,9 +6,9 @@ import { Alert } from "react-native";
 import { buttonColor } from "../../styles/colorScheme";
 
 export default function ChannelSetting({ route, navigation }) {
-  const { channelId } = route.params;
+  const { channelId, workspaceId } = route.params;
   async function onPressDelete() {
-    const response = await deleteChannelApi(channelId);
+    const response = await deleteChannelApi(workspaceId, channelId);
     console.log(response.status);
     if (response.status != 200) {
       Alert.alert("delete channel failed");
@@ -37,6 +37,7 @@ export default function ChannelSetting({ route, navigation }) {
           onPress={() =>
             navigation.navigate("ChannelOverview", {
               channelId: channelId,
+              workspaceId: workspaceId,
             })
           }
         >

@@ -10,6 +10,7 @@ const LeftDrawer = createDrawerNavigator();
 export default function LeftDrawerScreen({ route }) {
   const { workspaceId } = route.params;
   let [currentChannelId, setCurrentChannelId] = useState("");
+
   return (
     <WorkspaceIdContext.Provider value={workspaceId}>
       <currentChannelIdContext.Provider

@@ -12,6 +12,7 @@ export default async (name, description, workspaceId) => {
         "content-type": "application/json",
         accept: "application/json",
         authorization: "Bearer " + userToken,
+        "workspace-id": workspaceId,
       },
       body: JSON.stringify({
         name: name,

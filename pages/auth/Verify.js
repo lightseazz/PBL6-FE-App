@@ -37,7 +37,7 @@ export default function Verify({ navigation, route }) {
         secureTextEntry
         label="OTP input"
         onChangeText={setVerify}
-        style={{ backgroundColor: "white", width: "80%" }}
+        style={{ backgroundColor: "white", width: "80%", marginBottom: 20 }}
         {...textInputColor}
       />
       <Button mode="elevated" onPress={verifyPress} {...buttonColor}>

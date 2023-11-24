@@ -20,7 +20,7 @@ export default function LeftDrawerContent({ navigation }) {
   const [workspaceName, setWorkspaceName] = useState("");
   useEffect(
     function () {
-      if (isFocused) {
+      if (isFocused && !currentChannelId) {
         try {
           const getWp = async () => {
             const workspace = await getWpbyIdAPi(workspaceId);
@@ -43,7 +43,7 @@ export default function LeftDrawerContent({ navigation }) {
         } catch (error) {}
       }
     },
-    [isFocused]
+    [isFocused, currentChannelId]
   );
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>

@@ -18,7 +18,6 @@ export default function Login({ navigation }) {
   const [signInError, setSignInError] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [clicked, setClicked] = useState(false);
-
   const { signIn } = useContext(AuthContext);
 
   const onChangeUsername = (text) => {
