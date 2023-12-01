@@ -8,6 +8,7 @@ import LeftDrawerContent from "./pages/workspace/LeftDrawerContent";
 import RightDrawerContent from "./pages/workspace/RightDrawerContent";
 import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
 import WorkspaceOverview from "./pages/workspace/WorkspaceOverview";
+import WorkspaceInvite from "./pages/workspace/WorkspaceInvite"
 import CreateChannel from "./pages/channel/CreateChannel";
 import ChannelSetting from "./pages/channel/ChannelSetting";
 import ChannelOverview from "./pages/channel/ChannelOverview";
@@ -88,6 +89,11 @@ export default function App() {
                   name="WorkspaceOverview"
                   component={WorkspaceOverview}
                   options={header({ title: "Workspace Overview" })}
+                />
+                <Stack.Screen
+                  name="WorkspaceInvite"
+                  component={WorkspaceInvite}
+                  options={header({ title: "Workspace Invite" })}
                 />
                 <Stack.Screen
                   name="ChannelOverview"

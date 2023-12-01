@@ -4,13 +4,13 @@ import RightDrawerScreen from "./RighDrawerScreen";
 import { WorkspaceIdContext } from "../../hook/WorkspaceContext";
 import { currentChannelIdContext } from "../../hook/ChannelContext";
 import { useState } from "react";
+import StatusSnackBar from "../StatusSnackbar";
 
 const LeftDrawer = createDrawerNavigator();
 
 export default function LeftDrawerScreen({ route }) {
   const { workspaceId } = route.params;
   let [currentChannelId, setCurrentChannelId] = useState("");
-
   return (
     <WorkspaceIdContext.Provider value={workspaceId}>
       <currentChannelIdContext.Provider
