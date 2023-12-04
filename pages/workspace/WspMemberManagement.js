@@ -1,50 +1,39 @@
-import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { Avatar, Button, Checkbox, Searchbar } from "react-native-paper";
 import { buttonColor } from "../../styles/colorScheme"
-import { useState } from "react";
-import getUserByEmailApi from "../../api/userApi/getUserByEmail.api";
-import addMembersWpApi from "../../api/workspaceApi/addMembersWp.api";
+import { useEffect, useState } from "react";
+import getUserByWorkspacdIdApi from "../../api/userApi/getUserByWorkspacdId.api";
 
-export default function WorkspaceInvite({ route }) {
+export default function WspMemberManagement({ route }) {
 	const { workspaceId } = route.params;
 	const [users, setUsers] = useState([]);
 	const [search, setSearch] = useState("");
-	async function findUsers() {
-		try {
-			const response = await getUserByEmailApi(search);
-			setUsers(response.map(user => (
-				{
-					id: user.id,
-					email: user.email,
-					username: user.firstName + user.lastName,
-					avatar: user.picture,
-					selected: user.selected ? user.selected : false,
+	useEffect(
+		function() {
+			try {
+				const findUsers = async () => {
+					const response = await getUserByWorkspacdIdApi(workspaceId);
+					console.log(response);
+					setUsers(response.map(user => (
+						{
+							id: user.id,
+							email: user.email,
+							username: user.firstName + user.lastName,
+							avatar: user.picture,
+							// selected: user.selected ? user.selected : false,
+							selected: false,
+						}
+					)))
 				}
-			)))
+				findUsers();
+			} catch (error) { }
+		},
+		[]
+	);
 
-		} catch {
-
-		}
-	}
-	async function addUsers() {
-		try {
-			const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
-			console.log(selectedUserIds)
-			const response = await addMembersWpApi(workspaceId, selectedUserIds);
-			if (response.status == 500) {
-				Alert.alert(response.title)
-				return;
-			}
-			Alert.alert("Success add members")
-
-		} catch {
-
-		}
-	}
 	return (
 		<View style={styles.container}>
-			<Searchbar style={styles.searchBar} placeholder="Enter Name or Email " onChangeText={setSearch} />
-			<Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
+			<Searchbar style={styles.searchBar} placeholder="Search " onChangeText={setSearch} />
 			<View style={{ flex: 6, width: '100%' }}>
 				<FlatList
 					data={users}
@@ -62,7 +51,6 @@ export default function WorkspaceInvite({ route }) {
 					keyExtractor={(item) => item.id}
 				/>
 			</View>
-			<Button {...buttonColor} style={styles.buttonAdd} onPress={addUsers}>add</Button>
 		</View>
 	);
 }

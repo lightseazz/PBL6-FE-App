@@ -9,6 +9,7 @@ import RightDrawerContent from "./pages/workspace/RightDrawerContent";
 import WorkspaceSetting from "./pages/workspace/WorkspaceSetting";
 import WorkspaceOverview from "./pages/workspace/WorkspaceOverview";
 import WorkspaceInvite from "./pages/workspace/WorkspaceInvite"
+import WspMemberManagement from "./pages/workspace/WspMemberManagement";
 import CreateChannel from "./pages/channel/CreateChannel";
 import ChannelSetting from "./pages/channel/ChannelSetting";
 import ChannelOverview from "./pages/channel/ChannelOverview";
@@ -94,6 +95,11 @@ export default function App() {
                   name="WorkspaceInvite"
                   component={WorkspaceInvite}
                   options={header({ title: "Workspace Invite" })}
+                />
+                <Stack.Screen
+                  name="WspMemberManagement"
+                  component={WspMemberManagement}
+                  options={header({ title: "Workspace members" })}
                 />
                 <Stack.Screen
                   name="ChannelOverview"

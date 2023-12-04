@@ -34,6 +34,18 @@ export default function WorkspaceSetting({ route, navigation }) {
         >
           Workspace Overview
         </Button>
+        <Button
+					style = {{marginTop: 20}}
+          {...buttonColor}
+          mode="elevated"
+          onPress={() =>
+            navigation.navigate("WspMemberManagement", {
+              workspaceId: workspaceId,
+            })
+          }
+        >
+          Members
+        </Button>
       </View>
       <View
         style={{
