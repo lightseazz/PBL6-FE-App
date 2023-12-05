@@ -21,7 +21,6 @@ export default function EnterEmail({ navigation }) {
   };
 
   async function onPressOK() {
-    console.log("hello");
     setClicked(true);
     if (checkCorrectEmail(email).correct == false) {
       {

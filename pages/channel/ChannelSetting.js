@@ -9,7 +9,6 @@ export default function ChannelSetting({ route, navigation }) {
   const { channelId, workspaceId } = route.params;
   async function onPressDelete() {
     const response = await deleteChannelApi(workspaceId, channelId);
-    console.log(response.status);
     if (response.status != 200) {
       Alert.alert("delete channel failed");
       return;
@@ -42,6 +41,19 @@ export default function ChannelSetting({ route, navigation }) {
           }
         >
           Channel Overview
+        </Button>
+        <Button
+					style={{marginTop: 20}}
+          {...buttonColor}
+          mode="elevated"
+          onPress={() =>
+            navigation.navigate("ChannelMemberManagement", {
+              channelId: channelId,
+              workspaceId: workspaceId,
+            })
+          }
+        >
+          Members
         </Button>
       </View>
       <View

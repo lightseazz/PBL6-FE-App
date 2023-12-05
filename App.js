@@ -13,7 +13,9 @@ import WspMemberManagement from "./pages/workspace/WspMemberManagement";
 import CreateChannel from "./pages/channel/CreateChannel";
 import ChannelSetting from "./pages/channel/ChannelSetting";
 import ChannelOverview from "./pages/channel/ChannelOverview";
+import ChannelInvite from "./pages/channel/ChannelInvite";
 import ChangePassword from "./pages/userSetting/ChangePassword";
+import ChannelMemberManagement from "./pages/channel/ChannelMemberManagement";
 import { header } from "./utils/common";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
@@ -107,6 +109,11 @@ export default function App() {
                   options={header({ title: "Channel Overview" })}
                 />
                 <Stack.Screen
+                  name="ChannelInvite"
+                  component={ChannelInvite}
+                  options={header({ title: "Invite members" })}
+                />
+                <Stack.Screen
                   name="CreateChannel"
                   component={CreateChannel}
                   options={header({ title: "Create Channel" })}
@@ -115,6 +122,11 @@ export default function App() {
                   name="ChannelSetting"
                   component={ChannelSetting}
                   options={header({ title: "Channel Setting" })}
+                />
+                <Stack.Screen
+                  name="ChannelMemberManagement"
+                  component={ChannelMemberManagement}
+                  options={header({ title: "Members" })}
                 />
                 <Stack.Screen
                   name="ChangePassword"

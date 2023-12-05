@@ -50,6 +50,20 @@ export default function RightDrawerContent({ navigation }) {
         >
           Channel Setting
         </Button>
+        <Button
+          {...buttonColor}
+          mode="contained"
+          icon="cog-outline"
+          style={{ marginBottom: 20 }}
+          onPress={() =>
+            navigation.navigate("ChannelInvite", {
+              channelId: currentChannelId,
+              workspaceId: workspaceId,
+            })
+          }
+        >
+          invite to channel
+        </Button>
       </View>
     </View>
   );

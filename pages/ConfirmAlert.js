@@ -1,6 +1,6 @@
 import { Alert } from "react-native";
 
-export default function createTwoButtonAlert({
+export default function ConfirmAlert({
   title,
   message,
   OKText,

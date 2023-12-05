@@ -1,13 +1,13 @@
-import { ActivityIndicator, FlatList, StyleSheet, View, Text } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { Avatar, Button, Checkbox, Searchbar } from "react-native-paper";
 import { buttonColor, deleteButtonColor } from "../../styles/colorScheme"
 import { useEffect, useState } from "react";
-import getUserByWorkspacdIdApi from "../../api/userApi/getUserByWorkspacdId.api";
+import getUserByChannelIdApi from "../../api/userApi/getUserByChannelId.api";
 import ConfirmAlert from "../ConfirmAlert";
-import removeMembersWpApi from "../../api/workspaceApi/removeMembersWp.api";
+import removeMembersChannelApi from "../../api/channelApi/removeMembersChannel.api";
 
 export default function WspMemberManagement({ route }) {
-	const { workspaceId } = route.params;
+	const { channelId } = route.params;
 	const [users, setUsers] = useState([]);
 	const [allUsers, setAllusers] = useState([]);
 	const [search, setSearch] = useState("");
@@ -15,8 +15,7 @@ export default function WspMemberManagement({ route }) {
 		function() {
 			try {
 				const findUsers = async () => {
-					const response = await getUserByWorkspacdIdApi(workspaceId);
-					console.log(response.length)
+					const response = await getUserByChannelIdApi(channelId);
 					const allUsersResponse = response.map(user => (
 						{
 							id: user.id,
@@ -49,7 +48,7 @@ export default function WspMemberManagement({ route }) {
 	async function onPressDelete() {
 		try {
 			const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
-			const response =  await removeMembersWpApi(workspaceId, selectedUserIds);
+			const response =  await removeMembersChannelApi(channelId, selectedUserIds);
 			console.log(response);
 
 		} catch {

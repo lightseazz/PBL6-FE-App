@@ -8,6 +8,11 @@ export const cancelButtonColor = {
   textColor: "black",
   rippleColor: "white",
 };
+export const deleteButtonColor = {
+  buttonColor: "red",
+  textColor: "white",
+  rippleColor: "white",
+};
 export const linkColor = {
   textColor: "black",
   rippleColor: "grey",

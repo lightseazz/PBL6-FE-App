@@ -1,4 +1,4 @@
-import { Alert, FlatList, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { Avatar, Button, Checkbox, Searchbar } from "react-native-paper";
 import { buttonColor } from "../../styles/colorScheme"
 import { useState } from "react";
@@ -9,8 +9,10 @@ export default function WorkspaceInvite({ route }) {
 	const { workspaceId } = route.params;
 	const [users, setUsers] = useState([]);
 	const [search, setSearch] = useState("");
+	const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 	async function findUsers() {
 		try {
+			setIsLoadingUsers(true);
 			const response = await getUserByEmailApi(search);
 			setUsers(response.map(user => (
 				{
@@ -21,15 +23,15 @@ export default function WorkspaceInvite({ route }) {
 					selected: user.selected ? user.selected : false,
 				}
 			)))
+			setIsLoadingUsers(false);
 
 		} catch {
-
+			setIsLoadingUsers(false);
 		}
 	}
 	async function addUsers() {
 		try {
 			const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
-			console.log(selectedUserIds)
 			const response = await addMembersWpApi(workspaceId, selectedUserIds);
 			if (response.status == 500) {
 				Alert.alert(response.title)
@@ -46,7 +48,7 @@ export default function WorkspaceInvite({ route }) {
 			<Searchbar style={styles.searchBar} placeholder="Enter Name or Email " onChangeText={setSearch} />
 			<Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
 			<View style={{ flex: 6, width: '100%' }}>
-				<FlatList
+				{isLoadingUsers ? <ActivityIndicator size="large" color="black"/> : <FlatList
 					data={users}
 					renderItem={({ item, index }) => (
 						<User
@@ -60,7 +62,7 @@ export default function WorkspaceInvite({ route }) {
 						/>
 					)}
 					keyExtractor={(item) => item.id}
-				/>
+				/>}
 			</View>
 			<Button {...buttonColor} style={styles.buttonAdd} onPress={addUsers}>add</Button>
 		</View>
