@@ -13,7 +13,7 @@ export default function WorkspaceInvite({ route }) {
 	async function findUsers() {
 		try {
 			setIsLoadingUsers(true);
-			const response = await getUserByEmailApi(search);
+			const response = await getUserByEmailApi(search, 10);
 			setUsers(response.map(user => (
 				{
 					id: user.id,

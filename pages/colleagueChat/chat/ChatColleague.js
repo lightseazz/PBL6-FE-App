@@ -1,4 +1,4 @@
-import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard } from "react-native";
+import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard, PlatformColor } from "react-native";
 import { useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -8,7 +8,7 @@ import * as signalR from "@microsoft/signalr"
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { Button } from "react-native-paper";
+import { ActivityIndicator, Button } from "react-native-paper";
 import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 
@@ -24,6 +24,7 @@ export default function ChatColleague({ navigation, route }) {
   const [messageSend, setMessageSend] = useState("");
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState();
+  const [loadingMore, setLoadingMore] = useState(false);
   useEffect(function () {
     async function getUserInformation() {
       const userId = await SecureStore.getItemAsync("userId");
@@ -102,7 +103,7 @@ export default function ChatColleague({ navigation, route }) {
     });
     richText.current.blurContentEditor();
     richText.current.setContentHTML("");
-		let currentTime = new Date();
+    let currentTime = new Date();
     const MessagesAfterReceived = [...messages];
     MessagesAfterReceived.unshift({
       content: { html: `${messageSend}` },
@@ -111,6 +112,28 @@ export default function ChatColleague({ navigation, route }) {
       sendAt: currentTime,
     })
     setMessages(MessagesAfterReceived);
+  }
+  async function handleOnEndReached() {
+    setLoadingMore(true);
+    if (!messages || messages.length <= 0) {
+      setLoadingMore(false);
+      return;
+    }
+    const oldestMessage = messages[messages.length - 1];
+    let oldestTime = new Date(oldestMessage.sendAt);
+		oldestTime = oldestTime.toISOString();
+    const response = await getMessageUserApi(oldestTime, 5, userId);
+
+    const loadMoreMessage = [...messages];
+    response.map(message => loadMoreMessage.push({
+      id: message.id,
+      content: { html: `${message.content}` },
+      senderAvatar: message.senderAvatar,
+      senderName: message.senderName,
+      sendAt: message.sendAt,
+    }))
+    // response.map(message => console.log(new Date(message.sendAt).toTimeString()))
+    setMessages(loadMoreMessage);
   }
   const [modalVisible, setModalVisible] = useState({
     message: false,
@@ -150,6 +173,9 @@ export default function ChatColleague({ navigation, route }) {
         }}
       >
         <FlatList
+          ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
+          onEndReached={handleOnEndReached}
+          onEndReachedThreshold={0.5}
           initialNumToRender={5}
           inverted
           data={messages}
@@ -201,3 +227,4 @@ export default function ChatColleague({ navigation, route }) {
     </View>
   );
 }
+
