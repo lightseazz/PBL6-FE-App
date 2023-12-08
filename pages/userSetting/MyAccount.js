@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   Text,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Button, Divider, TextInput } from "react-native-paper";
@@ -20,6 +21,8 @@ export default function MyAccount() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -40,27 +43,32 @@ export default function MyAccount() {
       async function getUserInformation() {
         const userId = await SecureStore.getItemAsync("userId");
         const response = await getUserByIdApi(userId);
-				setUserId(userId);
+        setUserId(userId);
         setImage(response.picture);
         setUsername(response.username);
-        setEmail(response.email); 
+        setEmail(response.email);
         setPhone(response.phone);
+        setfirstName(response.firstName);
+        setLastName(response.lastName);
       }
+      getUserInformation();
     } catch { }
-    getUserInformation();
   }, [])
   async function onPressUpdateImage() {
     try {
       const response = await updateUserAvatarApi(userId, image);
-			if(response.status != 200){
-				Alert.alert("update image failed");
-				return;
-			}
-				Alert.alert("update image success");
+      if (response.status != 200) {
+        Alert.alert("update image failed");
+        return;
+      }
+      Alert.alert("update image success");
     } catch { }
   }
+	async function saveInformation(){
+
+	}
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.headerText}>Change image profile</Text>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
@@ -94,7 +102,13 @@ export default function MyAccount() {
       <Text>
         Your username is <Text style={{ fontWeight: "bold" }}>{username}</Text>
       </Text>
-    </View>
+      <Text style={styles.headerText}>FirstName</Text>
+      <TextInput style={{ backgroundColor: 'white' }} value={firstName} onChangeText={setfirstName} />
+      <Text style={styles.headerText}>LastName</Text>
+      <TextInput style={{ backgroundColor: 'white' }} value={lastName} onChangeText={setLastName}/>
+      <Button {...buttonColor} style={{ width: '30%', marginTop: 10 }} onPress={saveInformation}>Save</Button>
+
+    </ScrollView>
   );
 }
 

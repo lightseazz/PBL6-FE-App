@@ -1,4 +1,4 @@
-import { FlatList, StatusBar, View, Text, TouchableOpacity } from "react-native";
+import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard } from "react-native";
 import { useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -19,17 +19,26 @@ export default function ChatColleague({ navigation, route }) {
   const { userId } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
-  const [sendDisabled, setSendDisabled] = useState(false);
+  const [sendDisabled, setSendDisabled] = useState(true);
   const [connection, setConnection] = useState();
-	const [messageSend, setMessageSend] = useState("");
+  const [messageSend, setMessageSend] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState();
   useEffect(function () {
+    async function getUserInformation() {
+      const userId = await SecureStore.getItemAsync("userId");
+      const user = await getUserByIdApi(userId);
+      setUserName(user.firstName + " " + user.lastName);
+      setUserAvatar(user.picture);
+
+    }
     async function getColleague() {
       const colleague = await getUserByIdApi(userId);
       setColleagueName(colleague.firstName + " " + colleague.lastName)
     }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageUserApi(currentTime, 3, userId);
+      const messagesResponse = await getMessageUserApi(currentTime, 5, userId);
       const initMessages = [];
       messagesResponse.map(message => initMessages.push({
         id: message.id,
@@ -59,20 +68,21 @@ export default function ChatColleague({ navigation, route }) {
           return console.error(err.toString());
         });
     }
+    getUserInformation();
     connectHub();
     getColleague();
     getInitMessages();
   }, [])
 
-	// receive message
+  // receive message
   useEffect(function () {
-		if(!connection) return;
+    if (!connection) return;
     connection.on("receive_message", function (message) {
       if (message.isChannel) return;
       const MessagesAfterReceived = [...messages];
       MessagesAfterReceived.unshift({
         id: message.id,
-        content: { html: `<p>${message.content}</p>` },
+        content: { html: `${message.content}` },
         senderAvatar: message.senderAvatar,
         senderName: message.senderName,
         sendAt: message.sendAt,
@@ -90,6 +100,17 @@ export default function ChatColleague({ navigation, route }) {
     }).catch(function (err) {
       return console.error(err.toString());
     });
+    richText.current.blurContentEditor();
+    richText.current.setContentHTML("");
+		let currentTime = new Date();
+    const MessagesAfterReceived = [...messages];
+    MessagesAfterReceived.unshift({
+      content: { html: `${messageSend}` },
+      senderAvatar: userAvatar,
+      senderName: userName,
+      sendAt: currentTime,
+    })
+    setMessages(MessagesAfterReceived);
   }
   const [modalVisible, setModalVisible] = useState({
     message: false,
@@ -173,7 +194,8 @@ export default function ChatColleague({ navigation, route }) {
         </View>
         <RichToolbar
           editor={richText}
-          actions={[actions.setBold, actions.setItalic, actions.code]}
+          actions={[actions.setBold, actions.setItalic,
+          actions.code, actions.insertOrderedList, actions.insertLink]}
         />
       </View>
     </View>

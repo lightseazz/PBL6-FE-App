@@ -7,10 +7,18 @@ import { buttonColor, textInputColor } from "../../styles/colorScheme";
 
 const avatar =
   "https://images.unsplash.com/photo-1529397938791-2aba4681454f?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+// const hardCodeIds = ["5fbad663-f3f4-46cc-adf5-08dbe02fb464", "998e45bf-fd1a-410a-f209-08dbf7e30ee4"];
 const hardCodeData = [{
   id: "5fbad663-f3f4-46cc-adf5-08dbe02fb464",
-  avatar: avatar,
-  username: "Tin",
+  // avatar: avatar,
+  username: "Hai Dang",
+  // time: "24/10 12:00 PM",
+  // previewText: "to day is good day ...",
+},
+{
+  id: "998e45bf-fd1a-410a-f209-08dbf7e30ee4",
+  // avatar: avatar,
+  username: "Jon Snow",
   // time: "24/10 12:00 PM",
   // previewText: "to day is good day ...",
 }];
@@ -38,7 +46,7 @@ export default function ColleagueChat({ navigation }) {
         renderItem={({ item }) => (
           <Colleague
             navigation={navigation}
-						userId = {item.id}
+            userId={item.id}
             avatar={item.avatar}
             username={item.username}
             time={item.time}
