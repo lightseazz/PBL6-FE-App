@@ -18,6 +18,7 @@ export function authFunctions(dispatch) {
       }
 
       await SecureStore.setItemAsync("userToken", response.token);
+			await SecureStore.setItemAsync("userId", response.userId);
 
       dispatch({ type: "SIGN_IN", token: response.token });
     },

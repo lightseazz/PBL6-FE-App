@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Image,
@@ -6,14 +6,20 @@ import {
   TouchableOpacity,
   Alert,
   Text,
-  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Button, Divider, TextInput } from "react-native-paper";
 import { buttonColor } from "../../styles/colorScheme";
+import * as SecureStore from "expo-secure-store"
+import getUserByIdApi from "../../api/userApi/getUserById.api";
+import updateUserAvatarApi from "../../api/userApi/updateUserAvatar.api";
 
 export default function MyAccount() {
   const [image, setImage] = useState(null);
+  const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -29,6 +35,30 @@ export default function MyAccount() {
     }
   };
 
+  useEffect(function () {
+    try {
+      async function getUserInformation() {
+        const userId = await SecureStore.getItemAsync("userId");
+        const response = await getUserByIdApi(userId);
+				setUserId(userId);
+        setImage(response.picture);
+        setUsername(response.username);
+        setEmail(response.email); 
+        setPhone(response.phone);
+      }
+    } catch { }
+    getUserInformation();
+  }, [])
+  async function onPressUpdateImage() {
+    try {
+      const response = await updateUserAvatarApi(userId, image);
+			if(response.status != 200){
+				Alert.alert("update image failed");
+				return;
+			}
+				Alert.alert("update image success");
+    } catch { }
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Change image profile</Text>
@@ -46,38 +76,23 @@ export default function MyAccount() {
             {...buttonColor}
             disabled={image ? false : true}
             mode="elevated"
-            onPress={() => Alert.alert("test")}
+            onPress={onPressUpdateImage}
             style={styles.saveImage}
           >
-            Save
+            Update
           </Button>
         </View>
       </View>
       <Divider style={styles.divider} />
       <Text style={styles.headerText}>Email</Text>
       <Text>
-        Your email address is{" "}
-        <Text style={{ fontWeight: "bold" }}>haidangltv@gmail.com</Text>
+        Your email address is
+        <Text style={{ fontWeight: "bold" }}> {email}</Text>
       </Text>
-      <TextInput
-        secureTextEntry
-        label="Curent Password"
-        mode="outlined"
-        style={styles.textInput}
-      />
-      <TextInput label="New Email" mode="outlined" style={styles.textInput} />
-      <Button
-        disabled
-        mode="elevated"
-        style={styles.saveImage}
-        {...buttonColor}
-      >
-        Change Email
-      </Button>
       <Divider style={styles.divider} />
       <Text style={styles.headerText}>Username</Text>
       <Text>
-        Your username is <Text style={{ fontWeight: "bold" }}>haidangltv</Text>
+        Your username is <Text style={{ fontWeight: "bold" }}>{username}</Text>
       </Text>
     </View>
   );

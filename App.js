@@ -17,6 +17,7 @@ import ChannelInvite from "./pages/channel/ChannelInvite";
 import ChangePassword from "./pages/userSetting/ChangePassword";
 import ChannelMemberManagement from "./pages/channel/ChannelMemberManagement";
 import { header } from "./utils/common";
+import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -127,6 +128,10 @@ export default function App() {
                   name="ChannelMemberManagement"
                   component={ChannelMemberManagement}
                   options={header({ title: "Members" })}
+                />
+                <Stack.Screen
+                  name="ChatColleague"
+                  component={ChatColleague}
                 />
                 <Stack.Screen
                   name="ChangePassword"
