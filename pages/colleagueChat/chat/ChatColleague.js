@@ -19,49 +19,38 @@ export default function ChatColleague({ navigation, route }) {
   const { userId } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
-  const [sendDisabled, setSendDisabled] = useState(true);
-  let connection;
+  const [sendDisabled, setSendDisabled] = useState(false);
+  const [connection, setConnection] = useState();
+	const [messageSend, setMessageSend] = useState("");
   useEffect(function () {
     async function getColleague() {
       const colleague = await getUserByIdApi(userId);
       setColleagueName(colleague.firstName + " " + colleague.lastName)
     }
-    async function getMessages() {
+    async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageUserApi(currentTime, 5, userId);
-      const appendMessages = messages;
-      messagesResponse.map(message => appendMessages.push({
+      const messagesResponse = await getMessageUserApi(currentTime, 3, userId);
+      const initMessages = [];
+      messagesResponse.map(message => initMessages.push({
         id: message.id,
         content: { html: `<p>${message.content}</p>` },
         senderAvatar: message.senderAvatar,
         senderName: message.senderName,
         sendAt: message.sendAt,
       }))
-      setMessages(appendMessages);
+      setMessages(initMessages);
     }
     async function connectHub() {
       let baseUrl = "https://api.firar.live";
       const userToken = await SecureStore.getItemAsync("userToken");
-      connection = new signalR.HubConnectionBuilder()
+      let connection = new signalR.HubConnectionBuilder()
         .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
         // .configureLogging(signalR.LogLevel.Information)
         .build()
+      setConnection(connection);
 
       connection.on("Error", function (message) {
         console.log("signalR Connection Error: ", message);
-      });
-      connection.on("receive_message", function (message) {
-        if (message.isChannel) return;
-
-        const appendMessages = messages;
-        appendMessages.push({
-          id: message.id,
-          content: { html: `<p>${message.content}</p>` },
-          senderAvatar: message.senderAvatar,
-          senderName: message.senderName,
-          sendAt: message.sendAt,
-        })
-        setMessages(appendMessages);
       });
       connection.start().then(function () {
         setSendDisabled(false);
@@ -72,13 +61,31 @@ export default function ChatColleague({ navigation, route }) {
     }
     connectHub();
     getColleague();
-    getMessages();
+    getInitMessages();
   }, [])
+
+	// receive message
+  useEffect(function () {
+		if(!connection) return;
+    connection.on("receive_message", function (message) {
+      if (message.isChannel) return;
+      const MessagesAfterReceived = [...messages];
+      MessagesAfterReceived.unshift({
+        id: message.id,
+        content: { html: `<p>${message.content}</p>` },
+        senderAvatar: message.senderAvatar,
+        senderName: message.senderName,
+        sendAt: message.sendAt,
+      })
+      setMessages(MessagesAfterReceived);
+    });
+
+  }, [connection, messages]);
 
   function sendMessage() {
     connection.invoke("SendMessageAsync", {
       ReceiverId: userId,
-      Content: "laoao",
+      Content: messageSend,
       IsChannel: false
     }).catch(function (err) {
       return console.error(err.toString());
@@ -152,8 +159,7 @@ export default function ChatColleague({ navigation, route }) {
               style={{ borderWidth: 1, borderRadius: 10, padding: 3, backgroundColor: "white" }}
               androidLayerType="software"
               ref={richText}
-              onChange={(descriptionText) => {
-              }}
+              onChange={(text) => setMessageSend(text)}
             />
           </View>
           <View style={{ alignItems: 'center', flex: 1 }}>
