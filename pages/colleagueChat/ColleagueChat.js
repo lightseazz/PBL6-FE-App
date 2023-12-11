@@ -21,6 +21,13 @@ const hardCodeData = [{
   username: "Jon Snow",
   // time: "24/10 12:00 PM",
   // previewText: "to day is good day ...",
+},
+{
+  id: "97f75d63-e7f1-4205-adf4-08dbe02fb464",
+  // avatar: avatar,
+  username: "Tin",
+  // time: "24/10 12:00 PM",
+  // previewText: "to day is good day ...",
 }];
 export default function ColleagueChat({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -46,7 +53,7 @@ export default function ColleagueChat({ navigation }) {
         renderItem={({ item }) => (
           <Colleague
             navigation={navigation}
-            userId={item.id}
+            colleagueId={item.id}
             avatar={item.avatar}
             username={item.username}
             time={item.time}

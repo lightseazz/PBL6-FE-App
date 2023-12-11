@@ -3,7 +3,7 @@ import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
 
 export default function Colleague({
-	userId,
+  colleagueId,
   username,
   avatar,
   time,
@@ -14,8 +14,8 @@ export default function Colleague({
     <TouchableOpacity
       style={styles.container}
       onPress={() => navigation.navigate("ChatColleague", {
-				userId: userId
-			})}
+        colleagueId: colleagueId
+      })}
     >
       <View style={styles.secondContainer}>
         <Avatar.Image

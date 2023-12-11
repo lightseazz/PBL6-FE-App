@@ -10,7 +10,9 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
-  modalVisible,
+	isSending,
+  setModalId,
+  id,
   setModalVisible,
   content,
   senderAvatar,
@@ -18,16 +20,18 @@ export default function Message({
   sendAt,
 }) {
   const { width } = useWindowDimensions();
-	let time = (new Date(sendAt)).toLocaleString();
+  let time = (new Date(sendAt)).toLocaleString();
   return (
     <TouchableOpacity
       style={styles.messageContainer}
       delayLongPress={200}
-      onLongPress={() =>
+      onLongPress={() => {
+        setModalId(id);
         setModalVisible({
           message: true,
           emoji: false,
         })
+      }
       }
     >
       <View
@@ -43,7 +47,8 @@ export default function Message({
           }}
         />
         <View>
-          <Text style={styles.usernameText}>{senderName}</Text>
+					{isSending ? <Text style={styles.isSending}>...Sending</Text>:<></>}
+					<Text style={styles.usernameText}>{senderName}</Text>
           <Text style={styles.timeText}>{time}</Text>
         </View>
       </View>
@@ -58,11 +63,13 @@ export default function Message({
         <View style={styles.emoji}>
           <TouchableOpacity
             style={{ flexDirection: "row" }}
-            onPress={() =>
+            onPress={() => {
+							setModalId(id);
               setModalVisible({
                 message: false,
                 emoji: true,
               })
+            }
             }
           >
             <Icon name="emoticon-outline" size={21} />
@@ -94,5 +101,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#d3e6e8",
   },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
+  isSending: { marginLeft: 20, fontSize: 15 },
   timeText: { marginLeft: 20, fontSize: 12 },
 });

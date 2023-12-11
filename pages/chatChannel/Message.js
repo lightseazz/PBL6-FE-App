@@ -10,7 +10,7 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
-  modalVisible,
+  isSending,
   setModalVisible,
   text,
   avatar,
@@ -42,6 +42,7 @@ export default function Message({
           }}
         />
         <View>
+					<Text>...Sending</Text>
           <Text style={styles.usernameText}>{username}</Text>
           <Text style={styles.timeText}>{time}</Text>
         </View>

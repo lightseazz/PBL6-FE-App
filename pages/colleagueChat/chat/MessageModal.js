@@ -4,7 +4,19 @@ import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-export default function MessageModal({ modalVisible, setModalVisible }) {
+export default function MessageModal({ connection,selectedMessageId, modalVisible, setModalVisible }) {
+  function onReply() {
+  }
+	async	function onDeleteMessage() {
+		const response = await connection.invoke("DeleteMessageAsync",selectedMessageId, false ).catch(function (err) {
+      return console.error(err.toString());
+    });
+		console.log("log ", response);
+		setModalVisible({
+			message: false,
+			emoji: false,
+		});
+	}
   return (
     <Modal
       animationType="fade"
@@ -34,7 +46,7 @@ export default function MessageModal({ modalVisible, setModalVisible }) {
             <Icon size={24} name="pencil" style={styles.icon} />
             <Text>Edit Message</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.component}>
+          <TouchableOpacity style={styles.component} onPress={onReply}>
             <Icon size={24} name="reply" style={styles.icon} />
             <Text>Reply</Text>
           </TouchableOpacity>
@@ -42,7 +54,7 @@ export default function MessageModal({ modalVisible, setModalVisible }) {
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.component}>
+          <TouchableOpacity style={styles.component} onPress={onDeleteMessage}  >
             <Icon size={24} name="delete" style={styles.icon} />
             <Text>Delete Message</Text>
           </TouchableOpacity>

@@ -1,4 +1,4 @@
-import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard, PlatformColor, SafeAreaView, ScrollView, KeyboardAvoidingView } from "react-native";
+import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard, PlatformColor } from "react-native";
 import { useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -14,12 +14,12 @@ import getUserByIdApi from "../../../api/userApi/getUserById.api";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
-export default function ChatColleague({ navigation, route }) {
-  const { colleagueId } = route.params;
-  const [colleagueName, setColleagueName] = useState("");
+export default function ChatThreadUser({ navigation, route }) {
+  const { parentMessageId, colleagueId } = route.params;
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
   const [connection, setConnection] = useState();
+  const [messageSend, setMessageSend] = useState("");
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState();
   const [loadingMore, setLoadingMore] = useState(false);
@@ -27,8 +27,8 @@ export default function ChatColleague({ navigation, route }) {
     message: false,
     emoji: false,
   });
-  const [selectedMessageId, setSelectedMessageId] = useState();
-  const richTextRef = useRef();
+  const [modalId, setModalId] = useState();
+  const richText = useRef();
   const flatListRef = useRef();
   useEffect(function () {
     async function getUserInformation() {
@@ -38,22 +38,17 @@ export default function ChatColleague({ navigation, route }) {
       setUserAvatar(user.picture);
 
     }
-    async function getColleague() {
-      const colleague = await getUserByIdApi(colleagueId);
-      setColleagueName(colleague.firstName + " " + colleague.lastName)
-    }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageUserApi(currentTime, 7, colleagueId);
+      const messagesResponse = await getMessageUserApi(currentTime, 5, colleagueId);
       const initMessages = [];
-      messagesResponse.map(message => initMessages.push(
-        buildMessage(
-          message.id,
-          message.content,
-          message.senderAvatar,
-          message.senderName,
-          message.sendAt)
-      ))
+      messagesResponse.map(message => initMessages.push({
+        id: message.id,
+        content: { html: `<p>${message.content}</p>` },
+        senderAvatar: message.senderAvatar,
+        senderName: message.senderName,
+        sendAt: message.sendAt,
+      }))
       setMessages(initMessages);
     }
     async function connectHub() {
@@ -70,6 +65,7 @@ export default function ChatColleague({ navigation, route }) {
         console.log("signalR Connection Error: ", message);
       });
       connection.start().then(function () {
+        setSendDisabled(false);
       })
         .catch(function (err) {
           return console.error(err.toString());
@@ -86,70 +82,43 @@ export default function ChatColleague({ navigation, route }) {
     if (!connection) return;
     connection.on("receive_message", function (message) {
       if (message.isChannel) return;
-      if (message.receiverId != colleagueId) return;
       const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage(
-            message.id,
-            message.content,
-            message.senderAvatar,
-            message.senderName,
-            message.sendAt)
-        )
-      )
+      MessagesAfterReceived.unshift({
+        id: message.id,
+        content: { html: `${message.content}` },
+        senderAvatar: message.senderAvatar,
+        senderName: message.senderName,
+        sendAt: message.sendAt,
+      })
       setMessages(MessagesAfterReceived);
     });
 
   }, [connection, messages]);
 
-  function sendMessage() {
-    let tempId = Date.now();
-    let currentTime = new Date()
-    let content = richTextRef.text;
-    const messagesAfterSending = [...messages];
-    messagesAfterSending.unshift(
-      buildMessage(
-        tempId,
-        content,
-        userAvatar,
-        userName,
-        currentTime,
-        true,
-      )
-    )
-    setMessages(messagesAfterSending);
-    flatListRef.current.scrollToOffset({ offset: 0 });
-    richTextRef.current.setContentHTML("");
-    setSendDisabled(true);
-    sendMessageToServer(content, messagesAfterSending);
-  }
-  async function sendMessageToServer(content, messagesAfterSending) {
-		console.log(content);
+  async function sendMessage() {
     const response = await connection.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
-      Content: content,
+      Content: messageSend,
       IsChannel: false,
     }).catch(function (err) {
       return console.error(err.toString());
     });
-    if (typeof response != 'string' || !response instanceof String) {
-      return;
-    }
-		const tempMessages = [...messagesAfterSending]
-    tempMessages[0].id = response;
-    tempMessages[0].isSending = false;
-    setMessages(tempMessages);
+    // check response valid
 
-
-  }
-  function onChangeTextMessage(text) {
-    richTextRef.text = text;
-    if (!text) {
-      setSendDisabled(true);
-      return;
-    }
-    setSendDisabled(false);
+    //
+    richText.current.blurContentEditor();
+    richText.current.setContentHTML("");
+    let currentTime = new Date();
+    const MessagesAfterReceived = [...messages];
+    MessagesAfterReceived.unshift({
+      id: response,
+      content: { html: `${messageSend}` },
+      senderAvatar: userAvatar,
+      senderName: userName,
+      sendAt: currentTime,
+    })
+    setMessages(MessagesAfterReceived);
+    flatListRef.current.scrollToOffset({ offset: 0 });
   }
   async function handleOnEndReached() {
     setLoadingMore(true);
@@ -195,7 +164,7 @@ export default function ChatColleague({ navigation, route }) {
         >
           <Icon name="arrow-left" size={28} />
         </TouchableOpacity>
-        <Text style={{ marginLeft: 30, fontSize: 20 }}>{colleagueName}</Text>
+        <Text style={{ marginLeft: 30, fontSize: 20 }}>Thread</Text>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -206,7 +175,7 @@ export default function ChatColleague({ navigation, route }) {
       </View>
       <View
         style={{
-          flex: 40,
+          flex: 5,
         }}
       >
         <FlatList
@@ -221,68 +190,52 @@ export default function ChatColleague({ navigation, route }) {
             <Message
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
-              setModalId={setSelectedMessageId}
+              setModalId={setModalId}
               id={item.id}
               content={item.content}
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
               sendAt={item.sendAt}
-              isSending={item.isSending}
             />
           )}
         />
       </View>
       <MessageModal
-        connection={connection}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        selectedMessageId={selectedMessageId}
+        selectedMessageId={modalId}
       />
       <EmojiModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        selectedMessageId={selectedMessageId}
+        modalId={modalId}
       />
-
-      <ScrollView>
-        <RichEditor
-          editorStyle={{ backgroundColor: 'rgba(52, 52, 52, 0)' }}
-          placeholder="Message"
-          androidLayerType="software"
-          style={{ borderTopWidth: 1, borderColor: 'grey' }}
-          ref={richTextRef}
-          onChange={onChangeTextMessage}
-        />
-      </ScrollView>
-      <View style={{ flexDirection: 'row' }}>
-        <RichToolbar
-          editor={richTextRef}
-          actions={[actions.setBold, actions.setItalic,
-          actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList]}
-        />
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{
-              padding: 10, borderRadius: 20, marginRight: 15,
-              alignSelf: 'flex-end', backgroundColor: sendDisabled ? "rgba(52, 52, 52, 0)" : "black"
-            }}
-            disabled={sendDisabled}
-            onPress={sendMessage}>
-            <Icon name="send" size={23} color={sendDisabled ? "grey" : "white"} />
-          </TouchableOpacity>
+      <View style={{ height: 90, flex: 1, width: '100%', flexDirection: 'column-reverse' }}>
+        <View style={{ width: '100%', flexDirection: 'row', padding: 15, alignItems: 'center' }}>
+          <View style={{ width: '80%' }}>
+            <RichEditor
+              style={{ borderWidth: 1, borderRadius: 10, padding: 3, backgroundColor: "white" }}
+              androidLayerType="software"
+              ref={richText}
+              onChange={(text) => setMessageSend(text)}
+            />
+          </View>
+          <View style={{ alignItems: 'center', flex: 1 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: sendDisabled ? "grey" : "black", padding: 10, borderRadius: 20 }}
+              disabled={sendDisabled}
+              onPress={sendMessage}>
+              <Icon name="send" size={23} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
+        <RichToolbar
+          editor={richText}
+          actions={[actions.setBold, actions.setItalic,
+          actions.code, actions.insertOrderedList, actions.insertLink]}
+        />
       </View>
     </View>
   );
 }
 
-function buildMessage(id, content, senderAvatar, senderName, sendAt, isSending = false) {
-  return {
-    id,
-    content: { html: `${content}` },
-    senderAvatar,
-    senderName,
-    sendAt,
-    isSending,
-  }
-}
