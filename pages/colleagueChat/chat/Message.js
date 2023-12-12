@@ -16,6 +16,8 @@ export default function Message({
   id,
   setModalVisible,
   content,
+  senderId,
+  selectedUserRef,
   senderAvatar,
   senderName,
   sendAt,
@@ -25,13 +27,14 @@ export default function Message({
   return (
     <>
       {state == "deleted" ? (
-        <View style={styles.containerDelete }>
+        <View style={styles.containerDelete}>
           <Text style={styles.deleteMessage}>Message is Deleted</Text>
         </View>) : (
         <TouchableOpacity
           style={styles.messageContainer}
           delayLongPress={50}
           onLongPress={() => {
+            selectedUserRef.current = senderId;
             setModalId(id);
             setModalVisible({
               message: true,
@@ -96,10 +99,10 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: 5,
   },
-	containerDelete: {
-		padding: 13,
-		height: 50,
-	},
+  containerDelete: {
+    padding: 13,
+    height: 50,
+  },
   emojiContainer: {
     flexDirection: "row",
     flexWrap: "wrap",

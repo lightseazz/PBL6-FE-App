@@ -29,12 +29,15 @@ export default function ChatColleague({ navigation, route }) {
     emoji: false,
   });
   const [selectedMessageId, setSelectedMessageId] = useState();
+  const [isEdit, setIsEdit] = useState(false);
   const richTextRef = useRef();
   const flatListRef = useRef();
-  const [isEdit, setIsEdit] = useState(false);
+	const userIdRef = useRef("");
+	const selectedUserRef = useRef("");
   useEffect(function () {
     async function getUserInformation() {
       const userId = await SecureStore.getItemAsync("userId");
+			userIdRef.current = userId;
       const user = await getUserByIdApi(userId);
       setUserName(user.firstName + " " + user.lastName);
       setUserAvatar(user.picture);
@@ -51,6 +54,7 @@ export default function ChatColleague({ navigation, route }) {
       messagesResponse.map(message => initMessages.push(
         buildMessage(
           message.id,
+					message.senderId,
           message.content,
           message.senderAvatar,
           message.senderName,
@@ -94,6 +98,7 @@ export default function ChatColleague({ navigation, route }) {
         (
           buildMessage(
             message.id,
+						message.senderId,
             message.content,
             message.senderAvatar,
             message.senderName,
@@ -114,6 +119,7 @@ export default function ChatColleague({ navigation, route }) {
       messagesAfterSending.unshift(
         buildMessage(
           tempId,
+					userIdRef.current,
           content,
           userAvatar,
           userName,
@@ -192,6 +198,7 @@ export default function ChatColleague({ navigation, route }) {
     const loadMoreMessage = [...messages];
     response.map(message => loadMoreMessage.push({
       id: message.id,
+			senderId: message.senderId,
       content: { html: `${message.content}` },
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
@@ -246,6 +253,8 @@ export default function ChatColleague({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
+							senderId={item.senderId}
+							selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
@@ -266,6 +275,8 @@ export default function ChatColleague({ navigation, route }) {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         richTextRef={richTextRef}
+				selectedUserRef={selectedUserRef}
+				userIdRef={userIdRef}
         setIsEdit={setIsEdit}
         setSendDisabled={setSendDisabled}
         selectedMessageId={selectedMessageId}
@@ -320,9 +331,10 @@ export default function ChatColleague({ navigation, route }) {
   );
 }
 
-function buildMessage(id, content, senderAvatar, senderName, sendAt, state = "") {
+function buildMessage(id, senderId, content, senderAvatar, senderName, sendAt, state = "") {
   return {
     id,
+		senderId,
     content: { html: `${content}` },
     senderAvatar,
     senderName,

@@ -6,8 +6,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 
 export default function MessageModal({ connection, selectedMessageId,
-  modalVisible, setModalVisible, setMessages, 
-	messages, richTextRef, setSendDisabled, setIsEdit }) {
+  modalVisible, setModalVisible, setMessages,
+  messages, richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }) {
+
   function onReply() {
   }
   async function onDeleteMessage() {
@@ -32,13 +33,13 @@ export default function MessageModal({ connection, selectedMessageId,
     else {
       richTextRef.current.setContentHTML("");
     }
-		richTextRef.text = editMessage.content.html;
+    richTextRef.text = editMessage.content.html;
     setSendDisabled(false);
     setModalVisible({
       message: false,
       emoji: false,
     });
-		setIsEdit(true);
+    setIsEdit(true);
   }
   return (
     <Modal
@@ -65,10 +66,18 @@ export default function MessageModal({ connection, selectedMessageId,
           >
             <Icon size={30} name="minus-thick" style={styles.close} />
           </Pressable>
-          <TouchableOpacity style={styles.component} onPress={onEditMessage} >
-            <Icon size={24} name="pencil" style={styles.icon} />
-            <Text>Edit Message</Text>
-          </TouchableOpacity>
+          {selectedUserRef.current == userIdRef.current ? (
+            <>
+              <TouchableOpacity style={styles.component} onPress={onEditMessage}>
+                <Icon size={24} name="pencil" style={styles.icon} />
+                <Text>Edit Message</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
+                <Icon size={24} name="delete" style={styles.icon} />
+                <Text>Delete Message</Text>
+              </TouchableOpacity>
+            </>
+          ) : <></>}
           <TouchableOpacity style={styles.component} onPress={onReply}>
             <Icon size={24} name="reply" style={styles.icon} />
             <Text>Reply</Text>
@@ -76,10 +85,6 @@ export default function MessageModal({ connection, selectedMessageId,
           <TouchableOpacity style={styles.component}>
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.component} onPress={onDeleteMessage}  >
-            <Icon size={24} name="delete" style={styles.icon} />
-            <Text>Delete Message</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.component}>
             <Icon size={24} name="pin" style={styles.icon} />
