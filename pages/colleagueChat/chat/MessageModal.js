@@ -3,20 +3,43 @@ import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { messageState } from "../../../utils/messageState";
 
-export default function MessageModal({ connection,selectedMessageId, modalVisible, setModalVisible }) {
+export default function MessageModal({ connection, selectedMessageId,
+  modalVisible, setModalVisible, setMessages, 
+	messages, richTextRef, setSendDisabled, setIsEdit }) {
   function onReply() {
   }
-	async	function onDeleteMessage() {
-		const response = await connection.invoke("DeleteMessageAsync",selectedMessageId, false ).catch(function (err) {
+  async function onDeleteMessage() {
+    const response = await connection.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
       return console.error(err.toString());
     });
-		console.log("log ", response);
-		setModalVisible({
-			message: false,
-			emoji: false,
-		});
-	}
+    if (typeof response == "string") {
+      const deleteMessage = messages.find(message => message.id == response);
+      deleteMessage.state = messageState.isDeleted;
+    }
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+  }
+  function onEditMessage() {
+    const editMessage = messages.find(message => message.id == selectedMessageId);
+    richTextRef.current.initialFocus = true;
+    if (editMessage.content && editMessage.content.html) {
+      richTextRef.current.setContentHTML(editMessage.content.html);
+    }
+    else {
+      richTextRef.current.setContentHTML("");
+    }
+		richTextRef.text = editMessage.content.html;
+    setSendDisabled(false);
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+		setIsEdit(true);
+  }
   return (
     <Modal
       animationType="fade"
@@ -42,7 +65,7 @@ export default function MessageModal({ connection,selectedMessageId, modalVisibl
           >
             <Icon size={30} name="minus-thick" style={styles.close} />
           </Pressable>
-          <TouchableOpacity style={styles.component}>
+          <TouchableOpacity style={styles.component} onPress={onEditMessage} >
             <Icon size={24} name="pencil" style={styles.icon} />
             <Text>Edit Message</Text>
           </TouchableOpacity>

@@ -11,6 +11,7 @@ import EmojiModal from "./EmojiModal";
 import { ActivityIndicator, Button } from "react-native-paper";
 import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
+import { messageState } from "../../../utils/messageState";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
@@ -30,6 +31,7 @@ export default function ChatColleague({ navigation, route }) {
   const [selectedMessageId, setSelectedMessageId] = useState();
   const richTextRef = useRef();
   const flatListRef = useRef();
+  const [isEdit, setIsEdit] = useState(false);
   useEffect(function () {
     async function getUserInformation() {
       const userId = await SecureStore.getItemAsync("userId");
@@ -104,28 +106,33 @@ export default function ChatColleague({ navigation, route }) {
   }, [connection, messages]);
 
   function sendMessage() {
-    let tempId = Date.now();
-    let currentTime = new Date()
-    let content = richTextRef.text;
-    const messagesAfterSending = [...messages];
-    messagesAfterSending.unshift(
-      buildMessage(
-        tempId,
-        content,
-        userAvatar,
-        userName,
-        currentTime,
-        true,
+    if (isEdit == false) {
+      let tempId = Date.now();
+      let currentTime = new Date()
+      let content = richTextRef.text;
+      const messagesAfterSending = [...messages];
+      messagesAfterSending.unshift(
+        buildMessage(
+          tempId,
+          content,
+          userAvatar,
+          userName,
+          currentTime,
+          messageState.isSending,
+        )
       )
-    )
-    setMessages(messagesAfterSending);
-    flatListRef.current.scrollToOffset({ offset: 0 });
-    richTextRef.current.setContentHTML("");
-    setSendDisabled(true);
-    sendMessageToServer(content, messagesAfterSending);
+      setMessages(messagesAfterSending);
+      flatListRef.current.scrollToOffset({ offset: 0 });
+      richTextRef.current.setContentHTML("");
+      setSendDisabled(true);
+      sendMessageToServer(content, messagesAfterSending);
+    }
+    if (isEdit == true) {
+      updateMessageToServer();
+    }
+    setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending) {
-		console.log(content);
     const response = await connection.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       Content: content,
@@ -136,11 +143,31 @@ export default function ChatColleague({ navigation, route }) {
     if (typeof response != 'string' || !response instanceof String) {
       return;
     }
-		const tempMessages = [...messagesAfterSending]
+    const tempMessages = [...messagesAfterSending]
     tempMessages[0].id = response;
-    tempMessages[0].isSending = false;
+    tempMessages[0].state = "";
     setMessages(tempMessages);
-
+  }
+  async function updateMessageToServer() {
+    const response = await connection.invoke("UpdateMessageAsync", {
+      Id: selectedMessageId,
+      Content: richTextRef.text,
+      IsChannel: false,
+    }).catch(function (err) {
+      return console.error(err.toString());
+    });
+    const editMessage = messages.find(message => message.id == selectedMessageId);
+    editMessage.content = { html: `${richTextRef.text}` };
+    editMessage.state = messageState.isEdited;
+    setMessages([...messages]);
+    richTextRef.current.setContentHTML("");
+    setSendDisabled(true);
+  }
+	function cancelEdit(){
+    richTextRef.current.setContentHTML("");
+		richTextRef.current.initialFocus = false;
+		setSendDisabled(true);
+    setIsEdit(true);
 
   }
   function onChangeTextMessage(text) {
@@ -227,15 +254,20 @@ export default function ChatColleague({ navigation, route }) {
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
               sendAt={item.sendAt}
-              isSending={item.isSending}
+              state={item.state}
             />
           )}
         />
       </View>
       <MessageModal
         connection={connection}
+        messages={messages}
+        setMessages={setMessages}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        richTextRef={richTextRef}
+        setIsEdit={setIsEdit}
+        setSendDisabled={setSendDisabled}
         selectedMessageId={selectedMessageId}
       />
       <EmojiModal
@@ -260,7 +292,7 @@ export default function ChatColleague({ navigation, route }) {
           actions={[actions.setBold, actions.setItalic,
           actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList]}
         />
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
           <TouchableOpacity
             style={{
               padding: 10, borderRadius: 20, marginRight: 15,
@@ -270,19 +302,31 @@ export default function ChatColleague({ navigation, route }) {
             onPress={sendMessage}>
             <Icon name="send" size={23} color={sendDisabled ? "grey" : "white"} />
           </TouchableOpacity>
+          {isEdit ? (
+            <TouchableOpacity
+              style={{
+                padding: 10, borderRadius: 20, marginRight: 15,
+                alignSelf: 'flex-end', backgroundColor: "red"
+              }}
+              onPress={cancelEdit}>
+              <Icon name="window-close" size={23} color={"white"} />
+            </TouchableOpacity>
+
+          ) : <></>}
+
         </View>
       </View>
     </View>
   );
 }
 
-function buildMessage(id, content, senderAvatar, senderName, sendAt, isSending = false) {
+function buildMessage(id, content, senderAvatar, senderName, sendAt, state = "") {
   return {
     id,
     content: { html: `${content}` },
     senderAvatar,
     senderName,
     sendAt,
-    isSending,
+    state,
   }
 }
