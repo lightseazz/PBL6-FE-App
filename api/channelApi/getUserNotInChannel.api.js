@@ -5,7 +5,7 @@ export default async (workspaceId, channelId) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
     const response = await fetch(
-      baseUrl + "Channel/" + "workspace/" + workspaceId+"/channel/"+ channelId,
+      baseUrl + "Channel/" + "workspace/" + workspaceId+"/channel/"+ channelId+"/user-not-in-channel",
       {
         method: "GET",
         headers: {
@@ -13,6 +13,8 @@ export default async (workspaceId, channelId) => {
           "content-type": "application/json",
           accept: "application/json",
           authorization: "Bearer " + userToken,
+					"channel-id": channelId,
+					"workspace-id": workspaceId,
         },
       }
     );

@@ -3,7 +3,7 @@ import { Avatar, Button, Checkbox, Searchbar } from "react-native-paper";
 import { buttonColor } from "../../styles/colorScheme"
 import { useEffect, useState } from "react";
 import addMembersChannelApi from "../../api/channelApi/addMembersChannel.api";
-import getUserByWorkspacdIdApi from "../../api/userApi/getUserByWorkspacdId.api";
+import getUserNotInChannelApi from "../../api/channelApi/getUserNotInChannel.api";
 
 export default function ChannelInvite({ route }) {
   const { workspaceId, channelId } = route.params;
@@ -14,7 +14,7 @@ export default function ChannelInvite({ route }) {
     function () {
       try {
         const findUsers = async () => {
-          const response = await getUserByWorkspacdIdApi(workspaceId);
+          const response = await getUserNotInChannelApi(workspaceId, channelId);
           const allUsers = response.map(user => (
             {
               id: user.id,

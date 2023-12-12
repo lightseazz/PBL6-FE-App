@@ -5,10 +5,9 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 
-export default function MessageModal(
-  { connection, selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
-    richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }
-) {
+export default function MessageModal({ connection, selectedMessageId,
+  modalVisible, setModalVisible, setMessages,
+  messages, richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }) {
 
   function onReply() {
   }
@@ -20,7 +19,6 @@ export default function MessageModal(
       const deleteMessage = messages.find(message => message.id == response);
       deleteMessage.state = messageState.isDeleted;
     }
-		setMessages([...messages]);
     setModalVisible({
       message: false,
       emoji: false,

@@ -1,22 +1,21 @@
-import { StatusBar, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard, PlatformColor, SafeAreaView, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect } from "react";
-import * as SecureStore from "expo-secure-store";
-import * as signalR from "@microsoft/signalr";
-import Message from "./Message";
+import * as SecureStore from "expo-secure-store"
+import * as signalR from "@microsoft/signalr"
+import  Message  from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Button } from "react-native-paper";
 import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
-import { FlashList } from "@shopify/flash-list";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
-export default function ChatColleague({ navigation, route }) {
+export default function ChatThread({ navigation, route }) {
   const { colleagueId } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
@@ -175,6 +174,7 @@ export default function ChatColleague({ navigation, route }) {
     richTextRef.current.initialFocus = false;
     setSendDisabled(true);
     setIsEdit(true);
+
   }
   function onChangeTextMessage(text) {
     richTextRef.text = text;
@@ -243,12 +243,12 @@ export default function ChatColleague({ navigation, route }) {
           flex: 40,
         }}
       >
-        <FlashList
+        <FlatList
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
-					onEndReachedThreshold={0.1}
-          estimatedItemSize={200}
+          onEndReachedThreshold={0.5}
+          initialNumToRender={5}
           inverted
           data={messages}
           renderItem={({ item }) => (
