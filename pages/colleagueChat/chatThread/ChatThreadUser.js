@@ -1,26 +1,37 @@
-import { FlatList, StatusBar, View, Text, TouchableOpacity, Keyboard, PlatformColor, SafeAreaView, ScrollView, KeyboardAvoidingView } from "react-native";
+import { StatusBar, View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect } from "react";
-import * as SecureStore from "expo-secure-store"
-import * as signalR from "@microsoft/signalr"
-import  Message  from "./Message";
+import * as SecureStore from "expo-secure-store";
+import * as signalR from "@microsoft/signalr";
+import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator, Button } from "react-native-paper";
-import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
+import { ActivityIndicator } from "react-native-paper";
+import getMessageChildApi from "../../../api/chatApi/getMessageChild.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
+import { FlashList } from "@shopify/flash-list";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
-export default function ChatThread({ navigation, route }) {
-  const { colleagueId } = route.params;
+export default function ChatThreadUser({ navigation, route }) {
+  const
+    {
+      colleagueId,
+      connection,
+      parentMessageId,
+      parentContent,
+      parentSendAt,
+      parentSenderId,
+      parentSenderName,
+      parentState,
+      parentAvatar,
+    } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
-  const [connection, setConnection] = useState();
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState();
   const [loadingMore, setLoadingMore] = useState(false);
@@ -30,6 +41,9 @@ export default function ChatThread({ navigation, route }) {
   });
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
+  const [isSelectParentMessage, setIsSelectParentMessage] = useState(false);
+	const [currentParentContent, setCurentParentContent] = useState(parentContent);
+	const [currentParentState, setCurrentParentState] = useState(parentState);
   const richTextRef = useRef();
   const flatListRef = useRef();
   const userIdRef = useRef("");
@@ -49,40 +63,21 @@ export default function ChatThread({ navigation, route }) {
     }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageUserApi(currentTime, 7, colleagueId);
+      const messagesResponse = await getMessageChildApi(currentTime, 7, parentMessageId, colleagueId);
       const initMessages = [];
       messagesResponse.map(message => initMessages.push(
-        buildMessage(
-          message.id,
-          message.senderId,
-          message.content,
-          message.senderAvatar,
-          message.senderName,
-          message.sendAt)
+        buildMessage({
+          id: message.id,
+          senderId: message.senderId,
+          content: message.content,
+          senderAvatar: message.senderAvatar,
+          senderName: message.senderName,
+          sendAt: message.sendAt,
+        })
       ))
       setMessages(initMessages);
     }
-    async function connectHub() {
-      let baseUrl = "https://api.firar.live";
-      const userToken = await SecureStore.getItemAsync("userToken");
-      let connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
-        // .configureLogging(signalR.LogLevel.Information)
-        .withAutomaticReconnect()
-        .build()
-      setConnection(connection);
-
-      connection.on("Error", function (message) {
-        console.log("signalR Connection Error: ", message);
-      });
-      connection.start().then(function () {
-      })
-        .catch(function (err) {
-          return console.error(err.toString());
-        });
-    }
     getUserInformation();
-    connectHub();
     getColleague();
     getInitMessages();
   }, [])
@@ -92,17 +87,18 @@ export default function ChatThread({ navigation, route }) {
     if (!connection) return;
     connection.on("receive_message", function (message) {
       if (message.isChannel) return;
-      if (message.receiverId != colleagueId) return;
+      if (message.parentId != parentMessageId) return;
       const MessagesAfterReceived = [...messages];
       MessagesAfterReceived.unshift(
         (
-          buildMessage(
-            message.id,
-            message.senderId,
-            message.content,
-            message.senderAvatar,
-            message.senderName,
-            message.sendAt)
+          buildMessage({
+            id: message.id,
+            senderId: message.senderId,
+            content: message.content,
+            senderAvatar: message.senderAvatar,
+            senderName: message.senderName,
+            sendAt: message.sendAt,
+          })
         )
       )
       setMessages(MessagesAfterReceived);
@@ -117,15 +113,15 @@ export default function ChatThread({ navigation, route }) {
       let content = richTextRef.text;
       const messagesAfterSending = [...messages];
       messagesAfterSending.unshift(
-        buildMessage(
-          tempId,
-          userIdRef.current,
+        buildMessage({
+          id: tempId,
+          senderId: userIdRef.current,
           content,
-          userAvatar,
-          userName,
-          currentTime,
-          messageState.isSending,
-        )
+          senderAvatar: userAvatar,
+          senderName: userName,
+          sendAt: currentTime,
+          state: messageState.isSending,
+        })
       )
       setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
@@ -133,14 +129,18 @@ export default function ChatThread({ navigation, route }) {
       setSendDisabled(true);
       sendMessageToServer(content, messagesAfterSending);
     }
-    if (isEdit == true) {
+    if (isEdit == true && isSelectParentMessage == false) {
       updateMessageToServer();
+    }
+    if (isEdit == true && isSelectParentMessage == true) {
+      updateParentMessageToServer();
     }
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending) {
     const response = await connection.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
+      ReplyTo: parentMessageId,
       Content: content,
       IsChannel: false,
     }).catch(function (err) {
@@ -169,12 +169,25 @@ export default function ChatThread({ navigation, route }) {
     richTextRef.current.setContentHTML("");
     setSendDisabled(true);
   }
+  async function updateParentMessageToServer() {
+    const response = await connection.invoke("UpdateMessageAsync", {
+      Id: selectedMessageId,
+      Content: richTextRef.text,
+      IsChannel: false,
+    }).catch(function (err) {
+      return console.error(err.toString());
+    });
+		setCurentParentContent({ html: `${richTextRef.text}` }) ;
+		setCurrentParentState(messageState.isEdited);
+    setMessages([...messages]);
+    richTextRef.current.setContentHTML("");
+    setSendDisabled(true);
+  }
   function cancelEdit() {
     richTextRef.current.setContentHTML("");
     richTextRef.current.initialFocus = false;
     setSendDisabled(true);
     setIsEdit(true);
-
   }
   function onChangeTextMessage(text) {
     richTextRef.text = text;
@@ -193,7 +206,7 @@ export default function ChatThread({ navigation, route }) {
     const oldestMessage = messages[messages.length - 1];
     let oldestTime = new Date(oldestMessage.sendAt);
     oldestTime = oldestTime.toISOString();
-    const response = await getMessageUserApi(oldestTime, 5, colleagueId);
+    const response = await getMessageChildApi(oldestTime, 5, parentMessageId, colleagueId);
 
     const loadMoreMessage = [...messages];
     response.map(message => loadMoreMessage.push({
@@ -215,7 +228,6 @@ export default function ChatThread({ navigation, route }) {
     <View style={{ flex: 1 }}>
       <View
         style={{
-          height: 60,
           marginTop: StatusBar.currentHeight,
           borderBottomWidth: 1,
           alignItems: "center",
@@ -229,7 +241,21 @@ export default function ChatThread({ navigation, route }) {
         >
           <Icon name="arrow-left" size={28} />
         </TouchableOpacity>
-        <Text style={{ marginLeft: 30, fontSize: 20 }}>{colleagueName}</Text>
+        <Message
+          isParent={true}
+          setIsSelectParentMessage={setIsSelectParentMessage}
+          senderId={parentSenderId}
+          selectedUserRef={selectedUserRef}
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          setModalId={setSelectedMessageId}
+          id={parentMessageId}
+          content={currentParentContent}
+          senderAvatar={parentAvatar}
+          senderName={parentSenderName}
+          sendAt={parentSendAt}
+          state={currentParentState}
+        />
         <View
           style={{
             flexDirection: "row-reverse",
@@ -243,16 +269,18 @@ export default function ChatThread({ navigation, route }) {
           flex: 40,
         }}
       >
-        <FlatList
+        <FlashList
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={5}
+          onEndReachedThreshold={0.1}
+          estimatedItemSize={200}
           inverted
           data={messages}
           renderItem={({ item }) => (
             <Message
+              isParent={false}
+              setIsSelectParentMessage={setIsSelectParentMessage}
               senderId={item.senderId}
               selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
@@ -269,6 +297,8 @@ export default function ChatThread({ navigation, route }) {
         />
       </View>
       <MessageModal
+        parentContent={currentParentContent}
+        isSelectParentMessage={isSelectParentMessage}
         connection={connection}
         messages={messages}
         setMessages={setMessages}
@@ -331,7 +361,7 @@ export default function ChatThread({ navigation, route }) {
   );
 }
 
-function buildMessage(id, senderId, content, senderAvatar, senderName, sendAt, state = "") {
+function buildMessage({ id, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     senderId,

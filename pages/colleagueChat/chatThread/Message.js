@@ -8,10 +8,12 @@ import { Avatar } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { messageState } from "../../../utils/messageState";
 
 export default function Message({
   state,
+	parentState,
+  isParent,
+  setIsSelectParentMessage,
   setModalId,
   id,
   setModalVisible,
@@ -34,6 +36,8 @@ export default function Message({
           style={styles.messageContainer}
           delayLongPress={50}
           onLongPress={() => {
+            if (isParent) setIsSelectParentMessage(true)
+            else setIsSelectParentMessage(false)
             selectedUserRef.current = senderId;
             setModalId(id);
             setModalVisible({

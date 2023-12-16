@@ -18,7 +18,7 @@ import ChangePassword from "./pages/userSetting/ChangePassword";
 import ChannelMemberManagement from "./pages/channel/ChannelMemberManagement";
 import { header } from "./utils/common";
 import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
-import ChatThreadUser from "./pages/colleagueChat/chat/ChatThreadUser";
+import ChatThreadUser from "./pages/colleagueChat/chatThread/ChatThreadUser";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";

@@ -53,13 +53,15 @@ export default function ChatColleague({ navigation, route }) {
       const messagesResponse = await getMessageUserApi(currentTime, 7, colleagueId);
       const initMessages = [];
       messagesResponse.map(message => initMessages.push(
-        buildMessage(
-          message.id,
-          message.senderId,
-          message.content,
-          message.senderAvatar,
-          message.senderName,
-          message.sendAt)
+        buildMessage({
+          id: message.id,
+          childCount: message.childCount,
+          senderId: message.senderId,
+          content: message.content,
+          senderAvatar: message.senderAvatar,
+          senderName: message.senderName,
+          sendAt: message.sendAt,
+        })
       ))
       setMessages(initMessages);
     }
@@ -93,17 +95,19 @@ export default function ChatColleague({ navigation, route }) {
     if (!connection) return;
     connection.on("receive_message", function (message) {
       if (message.isChannel) return;
-      if (message.receiverId != colleagueId) return;
+      if (message.senderId != colleagueId) return;
       const MessagesAfterReceived = [...messages];
       MessagesAfterReceived.unshift(
         (
-          buildMessage(
-            message.id,
-            message.senderId,
-            message.content,
-            message.senderAvatar,
-            message.senderName,
-            message.sendAt)
+          buildMessage({
+            id: message.id,
+            childCount: message.childCount,
+            senderId: message.senderId,
+            content: message.content,
+            senderAvatar: message.senderAvatar,
+            senderName: message.senderName,
+            sendAt: message.sendAt,
+          })
         )
       )
       setMessages(MessagesAfterReceived);
@@ -118,15 +122,16 @@ export default function ChatColleague({ navigation, route }) {
       let content = richTextRef.text;
       const messagesAfterSending = [...messages];
       messagesAfterSending.unshift(
-        buildMessage(
-          tempId,
-          userIdRef.current,
+        buildMessage({
+          id: tempId,
+          senderId: userIdRef.current,
+					childCount: 0,
           content,
-          userAvatar,
-          userName,
-          currentTime,
-          messageState.isSending,
-        )
+          senderAvatar: userAvatar,
+          senderName: userName,
+          sendAt: currentTime,
+          state: messageState.isSending,
+        })
       )
       setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
@@ -198,6 +203,7 @@ export default function ChatColleague({ navigation, route }) {
     const loadMoreMessage = [...messages];
     response.map(message => loadMoreMessage.push({
       id: message.id,
+			childCount: message.childCount,
       senderId: message.senderId,
       content: { html: `${message.content}` },
       senderAvatar: message.senderAvatar,
@@ -247,12 +253,16 @@ export default function ChatColleague({ navigation, route }) {
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
-					onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.1}
           estimatedItemSize={200}
           inverted
           data={messages}
           renderItem={({ item }) => (
             <Message
+							connection={connection}
+							colleagueId={colleagueId}
+							navigation={navigation}
+							childCount={item.childCount}
               senderId={item.senderId}
               selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
@@ -331,9 +341,10 @@ export default function ChatColleague({ navigation, route }) {
   );
 }
 
-function buildMessage(id, senderId, content, senderAvatar, senderName, sendAt, state = "") {
+function buildMessage({ id, childCount, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
+    childCount,
     senderId,
     content: { html: `${content}` },
     senderAvatar,

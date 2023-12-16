@@ -5,12 +5,11 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 
-export default function MessageModal({ connection, selectedMessageId,
-  modalVisible, setModalVisible, setMessages,
-  messages, richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }) {
+export default function MessageModal(
+  { connection, selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
+    richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit, isSelectParentMessage, parentContent }
+) {
 
-  function onReply() {
-  }
   async function onDeleteMessage() {
     const response = await connection.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
       return console.error(err.toString());
@@ -19,12 +18,28 @@ export default function MessageModal({ connection, selectedMessageId,
       const deleteMessage = messages.find(message => message.id == response);
       deleteMessage.state = messageState.isDeleted;
     }
+    setMessages([...messages]);
     setModalVisible({
       message: false,
       emoji: false,
     });
   }
   function onEditMessage() {
+    if (isSelectParentMessage) onEditParent()
+    else onEditChild()
+  }
+  function onEditParent() {
+    richTextRef.current.initialFocus = true;
+    richTextRef.current.setContentHTML(parentContent.html);
+    richTextRef.text = parentContent.html;
+    setSendDisabled(false);
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+    setIsEdit(true);
+  }
+  function onEditChild() {
     const editMessage = messages.find(message => message.id == selectedMessageId);
     richTextRef.current.initialFocus = true;
     if (editMessage.content && editMessage.content.html) {
@@ -72,16 +87,14 @@ export default function MessageModal({ connection, selectedMessageId,
                 <Icon size={24} name="pencil" style={styles.icon} />
                 <Text>Edit Message</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
-                <Icon size={24} name="delete" style={styles.icon} />
-                <Text>Delete Message</Text>
-              </TouchableOpacity>
+              {!isSelectParentMessage ? (
+                <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
+                  <Icon size={24} name="delete" style={styles.icon} />
+                  <Text>Delete Message</Text>
+                </TouchableOpacity>
+              ) : <></>}
             </>
           ) : <></>}
-          <TouchableOpacity style={styles.component} onPress={onReply}>
-            <Icon size={24} name="reply" style={styles.icon} />
-            <Text>Reply</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.component}>
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>

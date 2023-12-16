@@ -9,9 +9,14 @@ import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
+import { useState } from "react";
 
 export default function Message({
+  connection,
+  colleagueId,
+  navigation,
   state,
+  childCount,
   setModalId,
   id,
   setModalVisible,
@@ -24,6 +29,20 @@ export default function Message({
 }) {
   const { width } = useWindowDimensions();
   let time = (new Date(sendAt)).toLocaleString();
+  function onPressReply() {
+    navigation.navigate("ChatThreadUser", {
+      connection: connection,
+      colleagueId: colleagueId,
+      parentMessageId: id,
+			parentContent: content,
+			parentSendAt: sendAt,
+			parentSenderId: senderId,
+			parentSenderName: senderName,
+			parentState: state,
+			parentAvatar: senderAvatar,
+
+    })
+  }
   return (
     <>
       {state == "deleted" ? (
@@ -33,6 +52,7 @@ export default function Message({
         <TouchableOpacity
           style={styles.messageContainer}
           delayLongPress={50}
+          onPress={onPressReply}
           onLongPress={() => {
             selectedUserRef.current = senderId;
             setModalId(id);
@@ -86,6 +106,9 @@ export default function Message({
               </TouchableOpacity>
             </View>
           </View>
+          <TouchableOpacity style={styles.replyContainer} onPress={onPressReply}>
+            <Text style={styles.childCount}>{childCount} replies</Text>
+          </TouchableOpacity>
         </TouchableOpacity>
       )}
     </>
@@ -116,8 +139,15 @@ const styles = StyleSheet.create({
     padding: 3,
     backgroundColor: "#d3e6e8",
   },
+  replyContainer: {
+    backgroundColor: '#E3E5E7',
+    borderRadius: 10,
+    padding: 3,
+    paddingLeft: 10,
+  },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
   deleteMessage: { fontStyle: "italic" },
   isSending: { marginLeft: 20, fontSize: 15 },
   timeText: { marginLeft: 20, fontSize: 12 },
+  childCount: { color: '#3B7DBB' }
 });

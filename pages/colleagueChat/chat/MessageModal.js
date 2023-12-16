@@ -10,8 +10,6 @@ export default function MessageModal(
     richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }
 ) {
 
-  function onReply() {
-  }
   async function onDeleteMessage() {
     const response = await connection.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
       return console.error(err.toString());
@@ -80,10 +78,6 @@ export default function MessageModal(
               </TouchableOpacity>
             </>
           ) : <></>}
-          <TouchableOpacity style={styles.component} onPress={onReply}>
-            <Icon size={24} name="reply" style={styles.icon} />
-            <Text>Reply</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.component}>
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>
