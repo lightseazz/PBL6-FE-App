@@ -65,7 +65,7 @@ export default function Message({
               <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
-          <RenderHtml contentWidth={width} source={content} />
+          <RenderHtml contentWidth={width} source={{html: content}} />
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <Text>😪 1</Text>

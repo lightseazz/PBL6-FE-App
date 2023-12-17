@@ -28,6 +28,7 @@ import { AuthContext, authFunctions } from "./hook/AuthContext";
 import { authReducer, initialAuthState } from "./hook/authReducer";
 import { PaperProvider } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
+import { setGlobalUserSignedIn } from "./globalVar/global";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
 
       try {
         userToken = await SecureStore.getItemAsync("userToken");
+      
       } catch (e) {
         // Restoring token failed
       }

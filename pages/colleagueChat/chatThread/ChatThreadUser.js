@@ -13,6 +13,8 @@ import getMessageChildApi from "../../../api/chatApi/getMessageChild.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
+import { userSignedIn } from "../../../globalVar/global";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
@@ -20,7 +22,6 @@ export default function ChatThreadUser({ navigation, route }) {
   const
     {
       colleagueId,
-      connection,
       parentMessageId,
       parentContent,
       parentSendAt,
@@ -32,9 +33,7 @@ export default function ChatThreadUser({ navigation, route }) {
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
-  const [userName, setUserName] = useState("");
-  const [userAvatar, setUserAvatar] = useState();
-  const [loadingMore, setLoadingMore] = useState(false);
+   const [loadingMore, setLoadingMore] = useState(false);
   const [modalVisible, setModalVisible] = useState({
     message: false,
     emoji: false,
@@ -42,22 +41,13 @@ export default function ChatThreadUser({ navigation, route }) {
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
   const [isSelectParentMessage, setIsSelectParentMessage] = useState(false);
-	const [currentParentContent, setCurentParentContent] = useState(parentContent);
-	const [currentParentState, setCurrentParentState] = useState(parentState);
+  const [currentParentContent, setCurentParentContent] = useState(parentContent);
+  const [currentParentState, setCurrentParentState] = useState(parentState);
   const richTextRef = useRef();
   const flatListRef = useRef();
-  const userIdRef = useRef("");
   const selectedUserRef = useRef("");
   useEffect(function () {
-    async function getUserInformation() {
-      const userId = await SecureStore.getItemAsync("userId");
-      userIdRef.current = userId;
-      const user = await getUserByIdApi(userId);
-      setUserName(user.firstName + " " + user.lastName);
-      setUserAvatar(user.picture);
-
-    }
-    async function getColleague() {
+     async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
       setColleagueName(colleague.firstName + " " + colleague.lastName)
     }
@@ -77,34 +67,61 @@ export default function ChatThreadUser({ navigation, route }) {
       ))
       setMessages(initMessages);
     }
-    getUserInformation();
     getColleague();
     getInitMessages();
   }, [])
 
   // receive message
   useEffect(function () {
-    if (!connection) return;
-    connection.on("receive_message", function (message) {
-      if (message.isChannel) return;
-      if (message.parentId != parentMessageId) return;
-      const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage({
-            id: message.id,
-            senderId: message.senderId,
-            content: message.content,
-            senderAvatar: message.senderAvatar,
-            senderName: message.senderName,
-            sendAt: message.sendAt,
-          })
+    if (!connectionChatColleague) return;
+    function receiveMessage() {
+      connectionChatColleague.on("receive_message", function (message) {
+        if (message.isChannel) return;
+        if (message.parentId != parentMessageId) return;
+        const MessagesAfterReceived = [...messages];
+        MessagesAfterReceived.unshift(
+          (
+            buildMessage({
+              id: message.id,
+              senderId: message.senderId,
+              content: message.content,
+              senderAvatar: message.senderAvatar,
+              senderName: message.senderName,
+              sendAt: message.sendAt,
+            })
+          )
         )
-      )
-      setMessages(MessagesAfterReceived);
-    });
+        setMessages(MessagesAfterReceived);
+      })
+    };
+    function receiveDelete() {
+      connectionChatColleague.on("delete_message", function (message) {
+        if (message.isChannel) return;
+        if (message.senderId != colleagueId) return;
 
-  }, [connection, messages]);
+        const deleteMessage = messages.find(msg => msg.id == message.id);
+        deleteMessage.state = messageState.isDeleted;
+        setMessages([...messages]);
+      })
+    }
+    function reiceiveUpdate() {
+      connectionChatColleague.on("update_message", function (message) {
+        if (message.isChannel) return;
+        if (message.senderId != colleagueId) return;
+        console.log("new", message.content);
+        const updateMessage = messages.find(msg => msg.id == message.id);
+        console.log("old", updateMessage.content);
+        if (updateMessage.content != message.content)
+          updateMessage.state = messageState.isEdited;
+        updateMessage.content = message.content;
+        updateMessage.reactionCount = message.reactionCount;
+        setMessages([...messages]);
+      })
+    }
+    receiveMessage();
+		reiceiveUpdate();
+		receiveDelete();
+  }, [connectionChatColleague]);
 
   function sendMessage() {
     if (isEdit == false) {
@@ -115,10 +132,10 @@ export default function ChatThreadUser({ navigation, route }) {
       messagesAfterSending.unshift(
         buildMessage({
           id: tempId,
-          senderId: userIdRef.current,
+          senderId: userSignedIn.id,
           content,
-          senderAvatar: userAvatar,
-          senderName: userName,
+          senderAvatar: userSignedIn.picture,
+          senderName: userSignedIn.firstName+" "+userSignedIn.lastName,
           sendAt: currentTime,
           state: messageState.isSending,
         })
@@ -138,7 +155,7 @@ export default function ChatThreadUser({ navigation, route }) {
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending) {
-    const response = await connection.invoke("SendMessageAsync", {
+    const response = await connectionChatColleague.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       ReplyTo: parentMessageId,
       Content: content,
@@ -155,7 +172,7 @@ export default function ChatThreadUser({ navigation, route }) {
     setMessages(tempMessages);
   }
   async function updateMessageToServer() {
-    const response = await connection.invoke("UpdateMessageAsync", {
+    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
@@ -163,22 +180,22 @@ export default function ChatThreadUser({ navigation, route }) {
       return console.error(err.toString());
     });
     const editMessage = messages.find(message => message.id == selectedMessageId);
-    editMessage.content = { html: `${richTextRef.text}` };
+    editMessage.content = richTextRef.text;
     editMessage.state = messageState.isEdited;
     setMessages([...messages]);
     richTextRef.current.setContentHTML("");
     setSendDisabled(true);
   }
   async function updateParentMessageToServer() {
-    const response = await connection.invoke("UpdateMessageAsync", {
+    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
     }).catch(function (err) {
       return console.error(err.toString());
     });
-		setCurentParentContent({ html: `${richTextRef.text}` }) ;
-		setCurrentParentState(messageState.isEdited);
+    setCurentParentContent(richTextRef.text);
+    setCurrentParentState(messageState.isEdited);
     setMessages([...messages]);
     richTextRef.current.setContentHTML("");
     setSendDisabled(true);
@@ -212,7 +229,7 @@ export default function ChatThreadUser({ navigation, route }) {
     response.map(message => loadMoreMessage.push({
       id: message.id,
       senderId: message.senderId,
-      content: { html: `${message.content}` },
+      content: message.content,
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
       sendAt: message.sendAt,
@@ -299,14 +316,12 @@ export default function ChatThreadUser({ navigation, route }) {
       <MessageModal
         parentContent={currentParentContent}
         isSelectParentMessage={isSelectParentMessage}
-        connection={connection}
         messages={messages}
         setMessages={setMessages}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         richTextRef={richTextRef}
         selectedUserRef={selectedUserRef}
-        userIdRef={userIdRef}
         setIsEdit={setIsEdit}
         setSendDisabled={setSendDisabled}
         selectedMessageId={selectedMessageId}
@@ -365,7 +380,7 @@ function buildMessage({ id, senderId, content, senderAvatar, senderName, sendAt,
   return {
     id,
     senderId,
-    content: { html: `${content}` },
+    content,
     senderAvatar,
     senderName,
     sendAt,

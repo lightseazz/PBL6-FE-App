@@ -4,6 +4,7 @@ import { general } from "../../styles/styles";
 import getAllWpApi from "../../api/workspaceApi/getAllWp.api";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
+import { setGlobalUser } from "../../globalVar/global";
 export default function WorkspaceList({ navigation }) {
   const [workspaceList, setWorkspaceList] = useState([]);
   const isFocused = useIsFocused();
@@ -23,6 +24,7 @@ export default function WorkspaceList({ navigation }) {
           );
         }
         renderWorkspaceList();
+				setGlobalUser();
       }
     },
     [isFocused]

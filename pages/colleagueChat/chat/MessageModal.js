@@ -4,14 +4,16 @@ import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
+import { userSignedIn } from "../../../globalVar/global";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 export default function MessageModal(
-  { connection, selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
-    richTextRef, userIdRef, selectedUserRef, setSendDisabled, setIsEdit }
+  {  selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
+    richTextRef,  selectedUserRef, setSendDisabled, setIsEdit }
 ) {
 
   async function onDeleteMessage() {
-    const response = await connection.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
+    const response = await connectionChatColleague.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
       return console.error(err.toString());
     });
     if (typeof response == "string") {
@@ -27,13 +29,13 @@ export default function MessageModal(
   function onEditMessage() {
     const editMessage = messages.find(message => message.id == selectedMessageId);
     richTextRef.current.initialFocus = true;
-    if (editMessage.content && editMessage.content.html) {
-      richTextRef.current.setContentHTML(editMessage.content.html);
+    if (editMessage.content && editMessage.content) {
+      richTextRef.current.setContentHTML(editMessage.content);
     }
     else {
       richTextRef.current.setContentHTML("");
     }
-    richTextRef.text = editMessage.content.html;
+    richTextRef.text = editMessage.content;
     setSendDisabled(false);
     setModalVisible({
       message: false,
@@ -66,7 +68,7 @@ export default function MessageModal(
           >
             <Icon size={30} name="minus-thick" style={styles.close} />
           </Pressable>
-          {selectedUserRef.current == userIdRef.current ? (
+          {selectedUserRef.current == userSignedIn.id ? (
             <>
               <TouchableOpacity style={styles.component} onPress={onEditMessage}>
                 <Icon size={24} name="pencil" style={styles.icon} />

@@ -8,11 +8,9 @@ import { Avatar } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { messageState } from "../../../utils/messageState";
-import { useState } from "react";
 
 export default function Message({
-  connection,
+  reactionCount,
   colleagueId,
   navigation,
   state,
@@ -31,17 +29,31 @@ export default function Message({
   let time = (new Date(sendAt)).toLocaleString();
   function onPressReply() {
     navigation.navigate("ChatThreadUser", {
-      connection: connection,
       colleagueId: colleagueId,
       parentMessageId: id,
-			parentContent: content,
-			parentSendAt: sendAt,
-			parentSenderId: senderId,
-			parentSenderName: senderName,
-			parentState: state,
-			parentAvatar: senderAvatar,
+      parentContent: content,
+      parentSendAt: sendAt,
+      parentSenderId: senderId,
+      parentSenderName: senderName,
+      parentState: state,
+      parentAvatar: senderAvatar,
 
     })
+  }
+  function RenderEmoji() {
+    if (!reactionCount) return <></>;
+    const emojis = Object.entries(reactionCount);
+    return (
+      <>
+        {emojis.map(emoji => {
+          return (
+            <View style={styles.emoji}>
+              <Text>{emoji[0]} {emoji[1]}  </Text>
+            </View>
+          )
+        })}
+      </>
+    )
   }
   return (
     <>
@@ -81,14 +93,8 @@ export default function Message({
               <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
-          <RenderHtml contentWidth={width} source={content} />
+          <RenderHtml contentWidth={width} source={{html:	content}} />
           <View style={styles.emojiContainer}>
-            <View style={styles.emoji}>
-              <Text>😪 1</Text>
-            </View>
-            <View style={styles.emoji}>
-              <Text>😀 1 </Text>
-            </View>
             <View style={styles.emoji}>
               <TouchableOpacity
                 style={{ flexDirection: "row" }}
@@ -105,6 +111,7 @@ export default function Message({
                 <Icon name="plus" size={17} />
               </TouchableOpacity>
             </View>
+            <RenderEmoji />
           </View>
           <TouchableOpacity style={styles.replyContainer} onPress={onPressReply}>
             <Text style={styles.childCount}>{childCount} replies</Text>

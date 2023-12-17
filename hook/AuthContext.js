@@ -1,6 +1,8 @@
 import { createContext } from "react";
 import signInApi from "../api/authApi/signIn.api";
 import * as SecureStore from "expo-secure-store";
+import getUserByIdApi from "../api/userApi/getUserById.api";
+import { setGlobalUserSignedIn } from "../globalVar/global";
 
 export const AuthContext = createContext();
 
@@ -19,6 +21,18 @@ export function authFunctions(dispatch) {
 
       await SecureStore.setItemAsync("userToken", response.token);
 			await SecureStore.setItemAsync("userId", response.userId);
+			const userInformation = await getUserByIdApi(response.userId);
+			setGlobalUserSignedIn({
+				id: userInformation.id,
+				username: userInformation.username,
+				email: userInformation.email,
+				firstName: userInformation.firstName,
+				lastName: userInformation.lastName,
+				picture: userInformation.picture,
+				gender: userInformation.gender,
+				phone: userInformation.phone,
+				birthDay: userInformation.birthDay,
+			});
 
       dispatch({ type: "SIGN_IN", token: response.token });
     },

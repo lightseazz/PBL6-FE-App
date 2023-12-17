@@ -1,5 +1,5 @@
-import { StatusBar, View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useRef, useState } from "react";
+import { StatusBar, View, Text, TouchableOpacity, ScrollView, PlatformColor } from "react-native";
+import { useCallback, useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect } from "react";
@@ -13,6 +13,8 @@ import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
+import { userSignedIn } from "../../../globalVar/global";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
@@ -22,8 +24,6 @@ export default function ChatColleague({ navigation, route }) {
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
   const [connection, setConnection] = useState();
-  const [userName, setUserName] = useState("");
-  const [userAvatar, setUserAvatar] = useState();
   const [loadingMore, setLoadingMore] = useState(false);
   const [modalVisible, setModalVisible] = useState({
     message: false,
@@ -33,17 +33,8 @@ export default function ChatColleague({ navigation, route }) {
   const [isEdit, setIsEdit] = useState(false);
   const richTextRef = useRef();
   const flatListRef = useRef();
-  const userIdRef = useRef("");
   const selectedUserRef = useRef("");
   useEffect(function () {
-    async function getUserInformation() {
-      const userId = await SecureStore.getItemAsync("userId");
-      userIdRef.current = userId;
-      const user = await getUserByIdApi(userId);
-      setUserName(user.firstName + " " + user.lastName);
-      setUserAvatar(user.picture);
-
-    }
     async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
       setColleagueName(colleague.firstName + " " + colleague.lastName)
@@ -56,6 +47,7 @@ export default function ChatColleague({ navigation, route }) {
         buildMessage({
           id: message.id,
           childCount: message.childCount,
+          reactionCount: message.reactionCount,
           senderId: message.senderId,
           content: message.content,
           senderAvatar: message.senderAvatar,
@@ -65,55 +57,58 @@ export default function ChatColleague({ navigation, route }) {
       ))
       setMessages(initMessages);
     }
-    async function connectHub() {
-      let baseUrl = "https://api.firar.live";
-      const userToken = await SecureStore.getItemAsync("userToken");
-      let connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
-        // .configureLogging(signalR.LogLevel.Information)
-        .withAutomaticReconnect()
-        .build()
-      setConnection(connection);
-
-      connection.on("Error", function (message) {
-        console.log("signalR Connection Error: ", message);
+    function receiveMessage() {
+      connectionChatColleague.on("receive_message", function (message) {
+        if (message.isChannel) return;
+        if (message.senderId != colleagueId) return;
+        const MessagesAfterReceived = [...messages];
+        MessagesAfterReceived.unshift(
+          (
+            buildMessage({
+              id: message.id,
+              childCount: message.childCount,
+              reactionCount: message.reactionCount,
+              senderId: message.senderId,
+              content: message.content,
+              senderAvatar: message.senderAvatar,
+              senderName: message.senderName,
+              sendAt: message.sendAt,
+            })
+          )
+        )
+        setMessages(MessagesAfterReceived);
       });
-      connection.start().then(function () {
-      })
-        .catch(function (err) {
-          return console.error(err.toString());
-        });
     }
-    getUserInformation();
-    connectHub();
+    function receiveDelete() {
+      connectionChatColleague.on("delete_message", function (message) {
+        if (message.isChannel) return;
+        if (message.senderId != colleagueId) return;
+
+        const deleteMessage = messages.find(msg => msg.id == message.id);
+        deleteMessage.state = messageState.isDeleted;
+        setMessages([...messages]);
+      })
+    }
+
     getColleague();
     getInitMessages();
+    receiveMessage();
+    receiveDelete();
   }, [])
 
-  // receive message
-  useEffect(function () {
-    if (!connection) return;
-    connection.on("receive_message", function (message) {
+
+  const receiveUpdate = useCallback(() => {
+    connectionChatColleague.on("update_message", function (message) {
+			console.log("hello");
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
-      const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage({
-            id: message.id,
-            childCount: message.childCount,
-            senderId: message.senderId,
-            content: message.content,
-            senderAvatar: message.senderAvatar,
-            senderName: message.senderName,
-            sendAt: message.sendAt,
-          })
-        )
-      )
-      setMessages(MessagesAfterReceived);
-    });
-
-  }, [connection, messages]);
+      const updateMessage = messages.find(msg => msg.id == message.id);
+      updateMessage.content = message.content;
+      updateMessage.reactionCount = message.reactionCount;
+      setMessages([...messages]);
+    })
+  }, [])
+	receiveUpdate();
 
   function sendMessage() {
     if (isEdit == false) {
@@ -124,11 +119,11 @@ export default function ChatColleague({ navigation, route }) {
       messagesAfterSending.unshift(
         buildMessage({
           id: tempId,
-          senderId: userIdRef.current,
-					childCount: 0,
+          senderId: userSignedIn.id,
+          childCount: 0,
           content,
-          senderAvatar: userAvatar,
-          senderName: userName,
+          senderAvatar: userSignedIn.picture,
+          senderName: userSignedIn.firstName + " " + userSignedIn.lastName,
           sendAt: currentTime,
           state: messageState.isSending,
         })
@@ -145,7 +140,7 @@ export default function ChatColleague({ navigation, route }) {
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending) {
-    const response = await connection.invoke("SendMessageAsync", {
+    const response = await connectionChatColleague.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       Content: content,
       IsChannel: false,
@@ -161,7 +156,7 @@ export default function ChatColleague({ navigation, route }) {
     setMessages(tempMessages);
   }
   async function updateMessageToServer() {
-    const response = await connection.invoke("UpdateMessageAsync", {
+    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
@@ -169,7 +164,7 @@ export default function ChatColleague({ navigation, route }) {
       return console.error(err.toString());
     });
     const editMessage = messages.find(message => message.id == selectedMessageId);
-    editMessage.content = { html: `${richTextRef.text}` };
+    editMessage.content = richTextRef.text;
     editMessage.state = messageState.isEdited;
     setMessages([...messages]);
     richTextRef.current.setContentHTML("");
@@ -203,9 +198,10 @@ export default function ChatColleague({ navigation, route }) {
     const loadMoreMessage = [...messages];
     response.map(message => loadMoreMessage.push({
       id: message.id,
-			childCount: message.childCount,
+      childCount: message.childCount,
+      reactionCount: message.reactionCount,
       senderId: message.senderId,
-      content: { html: `${message.content}` },
+      content: message.content,
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
       sendAt: message.sendAt,
@@ -259,16 +255,16 @@ export default function ChatColleague({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
-							connection={connection}
-							colleagueId={colleagueId}
-							navigation={navigation}
-							childCount={item.childCount}
+              colleagueId={colleagueId}
+              navigation={navigation}
+              childCount={item.childCount}
               senderId={item.senderId}
               selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
               id={item.id}
+              reactionCount={item.reactionCount}
               content={item.content}
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
@@ -279,14 +275,12 @@ export default function ChatColleague({ navigation, route }) {
         />
       </View>
       <MessageModal
-        connection={connection}
         messages={messages}
         setMessages={setMessages}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         richTextRef={richTextRef}
         selectedUserRef={selectedUserRef}
-        userIdRef={userIdRef}
         setIsEdit={setIsEdit}
         setSendDisabled={setSendDisabled}
         selectedMessageId={selectedMessageId}
@@ -295,6 +289,8 @@ export default function ChatColleague({ navigation, route }) {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         selectedMessageId={selectedMessageId}
+        messages={messages}
+        setMessages={setMessages}
       />
 
       <ScrollView>
@@ -341,12 +337,13 @@ export default function ChatColleague({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, childCount, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, childCount, reactionCount, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     childCount,
+    reactionCount,
     senderId,
-    content: { html: `${content}` },
+    content,
     senderAvatar,
     senderName,
     sendAt,
