@@ -23,7 +23,6 @@ export default function ChatColleague({ navigation, route }) {
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
-  const [connection, setConnection] = useState();
   const [loadingMore, setLoadingMore] = useState(false);
   const [modalVisible, setModalVisible] = useState({
     message: false,
@@ -57,49 +56,35 @@ export default function ChatColleague({ navigation, route }) {
       ))
       setMessages(initMessages);
     }
-    function receiveMessage() {
-      connectionChatColleague.on("receive_message", function (message) {
-        if (message.isChannel) return;
-        if (message.senderId != colleagueId) return;
-        const MessagesAfterReceived = [...messages];
-        MessagesAfterReceived.unshift(
-          (
-            buildMessage({
-              id: message.id,
-              childCount: message.childCount,
-              reactionCount: message.reactionCount,
-              senderId: message.senderId,
-              content: message.content,
-              senderAvatar: message.senderAvatar,
-              senderName: message.senderName,
-              sendAt: message.sendAt,
-            })
-          )
-        )
-        setMessages(MessagesAfterReceived);
-      });
-    }
-    function receiveDelete() {
-      connectionChatColleague.on("delete_message", function (message) {
-        if (message.isChannel) return;
-        if (message.senderId != colleagueId) return;
-
-        const deleteMessage = messages.find(msg => msg.id == message.id);
-        deleteMessage.state = messageState.isDeleted;
-        setMessages([...messages]);
-      })
-    }
-
     getColleague();
     getInitMessages();
-    receiveMessage();
-    receiveDelete();
   }, [])
-
-
-  const receiveUpdate = useCallback(() => {
+  function receiveMessage() {
+		connectionChatColleague.off("receive_message");
+    connectionChatColleague.on("receive_message", function (message) {
+      if (message.isChannel) return;
+      if (message.senderId != colleagueId) return;
+      const MessagesAfterReceived = [...messages];
+      MessagesAfterReceived.unshift(
+        (
+          buildMessage({
+            id: message.id,
+            childCount: message.childCount,
+            reactionCount: message.reactionCount,
+            senderId: message.senderId,
+            content: message.content,
+            senderAvatar: message.senderAvatar,
+            senderName: message.senderName,
+            sendAt: message.sendAt,
+          })
+        )
+      )
+      setMessages(MessagesAfterReceived);
+    });
+  }
+  function receiveUpdate() {
+    connectionChatColleague.off("update_message");
     connectionChatColleague.on("update_message", function (message) {
-			console.log("hello");
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
       const updateMessage = messages.find(msg => msg.id == message.id);
@@ -107,8 +92,21 @@ export default function ChatColleague({ navigation, route }) {
       updateMessage.reactionCount = message.reactionCount;
       setMessages([...messages]);
     })
-  }, [])
-	receiveUpdate();
+  }
+  function receiveDelete() {
+    connectionChatColleague.off("delete_message");
+    connectionChatColleague.on("delete_message", function (message) {
+      if (message.isChannel) return;
+      if (message.senderId != colleagueId) return;
+
+      const deleteMessage = messages.find(msg => msg.id == message.id);
+      deleteMessage.state = messageState.isDeleted;
+      setMessages([...messages]);
+    })
+  }
+	receiveMessage();
+  receiveUpdate();
+	receiveDelete();
 
   function sendMessage() {
     if (isEdit == false) {

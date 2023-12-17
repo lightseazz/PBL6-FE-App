@@ -33,7 +33,7 @@ export default function ChatThreadUser({ navigation, route }) {
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
-   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [modalVisible, setModalVisible] = useState({
     message: false,
     emoji: false,
@@ -47,7 +47,7 @@ export default function ChatThreadUser({ navigation, route }) {
   const flatListRef = useRef();
   const selectedUserRef = useRef("");
   useEffect(function () {
-     async function getColleague() {
+    async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
       setColleagueName(colleague.firstName + " " + colleague.lastName)
     }
@@ -71,57 +71,54 @@ export default function ChatThreadUser({ navigation, route }) {
     getInitMessages();
   }, [])
 
-  // receive message
-  useEffect(function () {
-    if (!connectionChatColleague) return;
-    function receiveMessage() {
-      connectionChatColleague.on("receive_message", function (message) {
-        if (message.isChannel) return;
-        if (message.parentId != parentMessageId) return;
-        const MessagesAfterReceived = [...messages];
-        MessagesAfterReceived.unshift(
-          (
-            buildMessage({
-              id: message.id,
-              senderId: message.senderId,
-              content: message.content,
-              senderAvatar: message.senderAvatar,
-              senderName: message.senderName,
-              sendAt: message.sendAt,
-            })
-          )
+  function receiveMessage() {
+		connectionChatColleague.off("receive_message");
+    connectionChatColleague.on("receive_message", function (message) {
+      if (message.isChannel) return;
+      if (message.parentId != parentMessageId) return;
+      const MessagesAfterReceived = [...messages];
+      MessagesAfterReceived.unshift(
+        (
+          buildMessage({
+            id: message.id,
+            senderId: message.senderId,
+            content: message.content,
+            senderAvatar: message.senderAvatar,
+            senderName: message.senderName,
+            sendAt: message.sendAt,
+          })
         )
-        setMessages(MessagesAfterReceived);
-      })
-    };
-    function receiveDelete() {
-      connectionChatColleague.on("delete_message", function (message) {
-        if (message.isChannel) return;
-        if (message.senderId != colleagueId) return;
+      )
+      setMessages(MessagesAfterReceived);
+    })
+  };
+  function receiveDelete() {
+		connectionChatColleague.off("delete_message");
+    connectionChatColleague.on("delete_message", function (message) {
+      if (message.isChannel) return;
+      if (message.senderId != colleagueId) return;
 
-        const deleteMessage = messages.find(msg => msg.id == message.id);
-        deleteMessage.state = messageState.isDeleted;
-        setMessages([...messages]);
-      })
-    }
-    function reiceiveUpdate() {
-      connectionChatColleague.on("update_message", function (message) {
-        if (message.isChannel) return;
-        if (message.senderId != colleagueId) return;
-        console.log("new", message.content);
-        const updateMessage = messages.find(msg => msg.id == message.id);
-        console.log("old", updateMessage.content);
-        if (updateMessage.content != message.content)
-          updateMessage.state = messageState.isEdited;
-        updateMessage.content = message.content;
-        updateMessage.reactionCount = message.reactionCount;
-        setMessages([...messages]);
-      })
-    }
-    receiveMessage();
-		reiceiveUpdate();
-		receiveDelete();
-  }, [connectionChatColleague]);
+      const deleteMessage = messages.find(msg => msg.id == message.id);
+      deleteMessage.state = messageState.isDeleted;
+      setMessages([...messages]);
+    })
+  }
+  function reiceiveUpdate() {
+		connectionChatColleague.off("update_message");
+    connectionChatColleague.on("update_message", function (message) {
+      if (message.isChannel) return;
+      if (message.senderId != colleagueId) return;
+      const updateMessage = messages.find(msg => msg.id == message.id);
+      if (updateMessage.content != message.content)
+        updateMessage.state = messageState.isEdited;
+      updateMessage.content = message.content;
+      updateMessage.reactionCount = message.reactionCount;
+      setMessages([...messages]);
+    })
+  }
+  receiveMessage();
+  reiceiveUpdate();
+  receiveDelete();
 
   function sendMessage() {
     if (isEdit == false) {
@@ -135,7 +132,7 @@ export default function ChatThreadUser({ navigation, route }) {
           senderId: userSignedIn.id,
           content,
           senderAvatar: userSignedIn.picture,
-          senderName: userSignedIn.firstName+" "+userSignedIn.lastName,
+          senderName: userSignedIn.firstName + " " + userSignedIn.lastName,
           sendAt: currentTime,
           state: messageState.isSending,
         })
