@@ -15,24 +15,27 @@ import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
+import { useIsFocused } from "@react-navigation/native";
 
 const tempText = { html: `<p>Lorem amet</p>`, };
 
 export default function ChatColleague({ navigation, route }) {
+  const isFocused = useIsFocused();
   const { colleagueId } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [modalVisible, setModalVisible] = useState({
-    message: false,
-    emoji: false,
-  });
+  const [modalVisible, setModalVisible] = useState({ message: false, emoji: false, });
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
   const richTextRef = useRef();
   const flatListRef = useRef();
   const selectedUserRef = useRef("");
+  const resetParentMessageRef = useRef({
+    isChanging: false, whatChange: "", id: 0,
+    content: "", state: "", childCount: 0, reactionCount: null,
+  });
   useEffect(function () {
     async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
@@ -61,11 +64,36 @@ export default function ChatColleague({ navigation, route }) {
     getColleague();
     getInitMessages();
   }, [])
+
+  useEffect(function () {
+    if (resetParentMessageRef.current.isChanging == true) {
+      resetParentMessageRef.current.isChanging == false;
+      const resetParentMessage = messages.find(msg => msg.id == resetParentMessageRef.current.id);
+      resetParentMessage.content = resetParentMessageRef.current.content;
+      resetParentMessage.state = resetParentMessageRef.current.state;
+      resetParentMessage.childCount = resetParentMessageRef.current.childCount;
+      resetParentMessage.reactionCount = resetParentMessageRef.current.reactionCount;
+			setMessages([...messages]);
+    }
+  }, [resetParentMessageRef.current.isChanging])
+
+  if (isFocused == true) {
+    receiveMessage();
+    receiveUpdate();
+    receiveDelete();
+  }
+
   function receiveMessage() {
     connectionChatColleague.off("receive_message");
     connectionChatColleague.on("receive_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
+      if (message.parentId) {
+        const updateChildCountMessage = messages.find(msg => msg.id == message.parentId)
+        updateChildCountMessage.childCount += 1;
+        setMessages([...messages]);
+        return;
+      }
       const MessagesAfterReceived = [...messages];
       MessagesAfterReceived.unshift(
         (
@@ -91,10 +119,11 @@ export default function ChatColleague({ navigation, route }) {
     connectionChatColleague.off("update_message");
     connectionChatColleague.on("update_message", function (message) {
       if (message.isChannel) return;
-      if (message.senderId != colleagueId) return;
+      if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
       const updateMessage = messages.find(msg => msg.id == message.id);
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
+      updateMessage.childCount = message.childCount;
       updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
@@ -103,17 +132,18 @@ export default function ChatColleague({ navigation, route }) {
     connectionChatColleague.off("delete_message");
     connectionChatColleague.on("delete_message", function (message) {
       if (message.isChannel) return;
-      if (message.senderId != colleagueId) return;
-
+      if (message.parentId) {
+        const updateChildCountMessage = messages.find(msg => msg.id == message.parentId)
+        updateChildCountMessage.childCount -= 1;
+        setMessages([...messages]);
+        return;
+      }
+      if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
       const deleteMessage = messages.find(msg => msg.id == message.id);
       deleteMessage.state = messageState.isDeleted;
       setMessages([...messages]);
     })
   }
-  receiveMessage();
-  receiveUpdate();
-  receiveDelete();
-
   function sendMessage() {
     if (isEdit == false) {
       let tempId = Date.now();
@@ -167,10 +197,6 @@ export default function ChatColleague({ navigation, route }) {
     }).catch(function (err) {
       return console.error(err.toString());
     });
-    const editMessage = messages.find(message => message.id == selectedMessageId);
-    editMessage.content = richTextRef.text;
-    editMessage.state = messageState.isEdited;
-    setMessages([...messages]);
     richTextRef.current.setContentHTML("");
     setSendDisabled(true);
   }
@@ -262,15 +288,16 @@ export default function ChatColleague({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
+              resetParentMessageRef={resetParentMessageRef}
               colleagueId={colleagueId}
               navigation={navigation}
-              childCount={item.childCount}
-              senderId={item.senderId}
               selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
               id={item.id}
+              childCount={item.childCount}
+              senderId={item.senderId}
               reactionCount={item.reactionCount}
               content={item.content}
               senderAvatar={item.senderAvatar}

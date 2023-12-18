@@ -10,6 +10,7 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
+	resetParentMessageRef,
   reactionCount,
   colleagueId,
   navigation,
@@ -29,6 +30,7 @@ export default function Message({
   let time = (new Date(sendAt)).toLocaleString();
   function onPressReply() {
     navigation.navigate("ChatThreadUser", {
+			resetParentMessageRef: resetParentMessageRef,
       colleagueId: colleagueId,
       parentMessageId: id,
       parentContent: content,
@@ -38,6 +40,7 @@ export default function Message({
       parentState: state,
       parentAvatar: senderAvatar,
 			parentReactionCount: reactionCount,
+			parentChildCount: childCount,
     })
   }
   function RenderEmoji() {
@@ -151,6 +154,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 3,
     paddingLeft: 10,
+		width: 200,
+		marginTop: 10,
   },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
   deleteMessage: { fontStyle: "italic" },

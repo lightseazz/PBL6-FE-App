@@ -1,5 +1,5 @@
-import { StatusBar, View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useRef, useState } from "react";
+import { StatusBar, View, Text, TouchableOpacity, ScrollView, PlatformColor } from "react-native";
+import { useCallback, useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect } from "react";
@@ -9,28 +9,18 @@ import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
 import { ActivityIndicator } from "react-native-paper";
-import getMessageChildApi from "../../../api/chatApi/getMessageChild.api";
+import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
 
-export default function ChatThreadUser({ navigation, route }) {
-  const
-    {
-      resetParentMessageRef,
-      colleagueId,
-      parentMessageId,
-      parentContent,
-      parentSendAt,
-      parentSenderId,
-      parentSenderName,
-      parentState,
-      parentAvatar,
-      parentReactionCount,
-      parentChildCount,
-    } = route.params;
+const tempText = { html: `<p>Lorem amet</p>`, };
+
+export default function ChatColleague({ navigation, route }) {
+  const { colleagueId } = route.params;
+  const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -40,61 +30,55 @@ export default function ChatThreadUser({ navigation, route }) {
   });
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
-  const [isSelectParentMessage, setIsSelectParentMessage] = useState(false);
-  const [currentParentContent, setCurentParentContent] = useState(parentContent);
-  const [currentParentState, setCurrentParentState] = useState(parentState);
-  const [currentParentReactionCount, setCurrentParentReactionCount] = useState(parentReactionCount);
-  const [currentParentChildCount, setCurrentParentChildCount] = useState(parentChildCount);
-  //   
-  resetParentMessageRef.current.id = parentMessageId;
-  resetParentMessageRef.current.content = currentParentContent;
-  resetParentMessageRef.current.reactionCount = currentParentReactionCount;
-  resetParentMessageRef.current.state = currentParentState;
-  resetParentMessageRef.current.childCount = currentParentChildCount;
-  //
   const richTextRef = useRef();
   const flatListRef = useRef();
   const selectedUserRef = useRef("");
   useEffect(function () {
-    resetParentMessageRef.current.isChanging = false;
+    async function getColleague() {
+      const colleague = await getUserByIdApi(colleagueId);
+      setColleagueName(colleague.firstName + " " + colleague.lastName)
+    }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageChildApi(currentTime, 7, parentMessageId, colleagueId);
+      const messagesResponse = await getMessageUserApi(currentTime, 7, colleagueId);
       const initMessages = [];
       messagesResponse.map(message => initMessages.push(
         buildMessage({
           id: message.id,
+          childCount: message.childCount,
+          reactionCount: message.reactionCount,
           senderId: message.senderId,
           content: message.content,
           senderAvatar: message.senderAvatar,
           senderName: message.senderName,
           sendAt: message.sendAt,
-          reactionCount: message.reactionCount,
           isEdited: message.isEdited,
           state: message.isEdited ? messageState.isEdited : "",
         })
       ))
       setMessages(initMessages);
     }
+    getColleague();
     getInitMessages();
   }, [])
-
   function receiveMessage() {
     connectionChatColleague.off("receive_message");
     connectionChatColleague.on("receive_message", function (message) {
       if (message.isChannel) return;
-      if (message.parentId != parentMessageId) return;
+      if (message.senderId != colleagueId) return;
+			if(message.parentId) return;
       const MessagesAfterReceived = [...messages];
       MessagesAfterReceived.unshift(
         (
           buildMessage({
             id: message.id,
+            childCount: message.childCount,
+            reactionCount: message.reactionCount,
             senderId: message.senderId,
             content: message.content,
             senderAvatar: message.senderAvatar,
             senderName: message.senderName,
             sendAt: message.sendAt,
-            reactionCount: message.reactionCount,
             isEdited: message.isEdited,
             state: message.isEdited ? messageState.isEdited : "",
 
@@ -102,45 +86,34 @@ export default function ChatThreadUser({ navigation, route }) {
         )
       )
       setMessages(MessagesAfterReceived);
-      resetParentMessageRef.current.isChanging = true;
-      setCurrentParentChildCount(currentParentChildCount + 1)
+    });
+  }
+  function receiveUpdate() {
+    connectionChatColleague.off("update_message");
+    connectionChatColleague.on("update_message", function (message) {
+      if (message.isChannel) return;
+      if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
+      const updateMessage = messages.find(msg => msg.id == message.id);
+      updateMessage.content = message.content;
+      updateMessage.reactionCount = message.reactionCount;
+			updateMessage.childCount = message.childCount;
+      updateMessage.state = message.isEdited ? messageState.isEdited : "";
+      setMessages([...messages]);
     })
-  };
+  }
   function receiveDelete() {
     connectionChatColleague.off("delete_message");
     connectionChatColleague.on("delete_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
+
       const deleteMessage = messages.find(msg => msg.id == message.id);
       deleteMessage.state = messageState.isDeleted;
       setMessages([...messages]);
-      resetParentMessageRef.current.isChanging = true;
-			setCurrentParentChildCount(currentParentChildCount-1);
-    })
-  }
-  function reiceiveUpdate() {
-    connectionChatColleague.off("update_message");
-    connectionChatColleague.on("update_message", function (message) {
-      if (message.isChannel) return;
-      if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
-      if (message.id == parentMessageId) {
-        setCurentParentContent(message.content);
-        setCurrentParentReactionCount(message.reactionCount);
-        setCurrentParentState(message.isEdited ? messageState.isEdited : "");
-      }
-      if (message.id != parentMessageId) {
-        const updateMessage = messages.find(msg => msg.id == message.id);
-        updateMessage.content = message.content;
-        updateMessage.reactionCount = message.reactionCount;
-        updateMessage.isEdited = message.isEdited;
-        updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
-        setMessages([...messages]);
-      }
-      resetParentMessageRef.current.isChanging = true;
     })
   }
   receiveMessage();
-  reiceiveUpdate();
+  receiveUpdate();
   receiveDelete();
 
   function sendMessage() {
@@ -153,6 +126,7 @@ export default function ChatThreadUser({ navigation, route }) {
         buildMessage({
           id: tempId,
           senderId: userSignedIn.id,
+          childCount: 0,
           content,
           senderAvatar: userSignedIn.picture,
           senderName: userSignedIn.firstName + " " + userSignedIn.lastName,
@@ -166,18 +140,14 @@ export default function ChatThreadUser({ navigation, route }) {
       setSendDisabled(true);
       sendMessageToServer(content, messagesAfterSending);
     }
-    if (isEdit == true && isSelectParentMessage == false) {
+    if (isEdit == true) {
       updateMessageToServer();
-    }
-    if (isEdit == true && isSelectParentMessage == true) {
-      updateParentMessageToServer();
     }
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending) {
     const response = await connectionChatColleague.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
-      ReplyTo: parentMessageId,
       Content: content,
       IsChannel: false,
     }).catch(function (err) {
@@ -190,8 +160,6 @@ export default function ChatThreadUser({ navigation, route }) {
     tempMessages[0].id = response;
     tempMessages[0].state = "";
     setMessages(tempMessages);
-    resetParentMessageRef.current.isChanging = true;
-    setCurrentParentChildCount(currentParentChildCount + 1);
   }
   async function updateMessageToServer() {
     const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
@@ -204,22 +172,6 @@ export default function ChatThreadUser({ navigation, route }) {
     richTextRef.current.setContentHTML("");
     setSendDisabled(true);
   }
-  async function updateParentMessageToServer() {
-    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
-      Id: selectedMessageId,
-      Content: richTextRef.text,
-      IsChannel: false,
-    }).catch(function (err) {
-      return console.error(err.toString());
-    });
-    setCurentParentContent(richTextRef.text);
-    setCurrentParentState(messageState.isEdited);
-    setMessages([...messages]);
-    richTextRef.current.setContentHTML("");
-    setSendDisabled(true);
-    resetParentMessageRef.current.isChanging = true;
-  }
-
   function cancelEdit() {
     richTextRef.current.setContentHTML("");
     richTextRef.current.initialFocus = false;
@@ -243,17 +195,18 @@ export default function ChatThreadUser({ navigation, route }) {
     const oldestMessage = messages[messages.length - 1];
     let oldestTime = new Date(oldestMessage.sendAt);
     oldestTime = oldestTime.toISOString();
-    const response = await getMessageChildApi(oldestTime, 5, parentMessageId, colleagueId);
+    const response = await getMessageUserApi(oldestTime, 5, colleagueId);
 
     const loadMoreMessage = [...messages];
     response.map(message => loadMoreMessage.push({
       id: message.id,
+      childCount: message.childCount,
+      reactionCount: message.reactionCount,
       senderId: message.senderId,
       content: message.content,
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
       sendAt: message.sendAt,
-      reactionCount: message.reactionCount,
       isEdited: message.isEdited,
       state: message.isEdited ? messageState.isEdited : "",
 
@@ -269,6 +222,7 @@ export default function ChatThreadUser({ navigation, route }) {
     <View style={{ flex: 1 }}>
       <View
         style={{
+          height: 60,
           marginTop: StatusBar.currentHeight,
           borderBottomWidth: 1,
           alignItems: "center",
@@ -282,23 +236,7 @@ export default function ChatThreadUser({ navigation, route }) {
         >
           <Icon name="arrow-left" size={28} />
         </TouchableOpacity>
-        {/* Parent Message  */}
-        <Message
-          isParent={true}
-          setIsSelectParentMessage={setIsSelectParentMessage}
-          senderId={parentSenderId}
-          selectedUserRef={selectedUserRef}
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          setModalId={setSelectedMessageId}
-          id={parentMessageId}
-          content={currentParentContent}
-          senderAvatar={parentAvatar}
-          senderName={parentSenderName}
-          sendAt={parentSendAt}
-          state={currentParentState}
-          reactionCount={currentParentReactionCount}
-        />
+        <Text style={{ marginLeft: 30, fontSize: 20 }}>{colleagueName}</Text>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -322,15 +260,16 @@ export default function ChatThreadUser({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
-              isParent={false}
-              setIsSelectParentMessage={setIsSelectParentMessage}
+              colleagueId={colleagueId}
+              navigation={navigation}
+              childCount={item.childCount}
               senderId={item.senderId}
               selectedUserRef={selectedUserRef}
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
-              reactionCount={item.reactionCount}
               id={item.id}
+              reactionCount={item.reactionCount}
               content={item.content}
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
@@ -341,11 +280,6 @@ export default function ChatThreadUser({ navigation, route }) {
         />
       </View>
       <MessageModal
-				resetParentMessageRef={resetParentMessageRef}
-				currentParentChildCount={currentParentChildCount}
-				setCurrentParentChildCount={setCurrentParentChildCount}
-        parentContent={currentParentContent}
-        isSelectParentMessage={isSelectParentMessage}
         messages={messages}
         setMessages={setMessages}
         modalVisible={modalVisible}
@@ -408,9 +342,12 @@ export default function ChatThreadUser({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, reactionCount, isEdit, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, childCount, isEdited, reactionCount, senderId,
+  content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
+    isEdited,
+    childCount,
     reactionCount,
     senderId,
     content,

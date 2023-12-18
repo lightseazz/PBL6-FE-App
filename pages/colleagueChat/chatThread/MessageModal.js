@@ -5,10 +5,12 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 import { userSignedIn } from "../../../globalVar/global";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 export default function MessageModal(
-  {  selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
-    richTextRef, selectedUserRef, setSendDisabled, setIsEdit, isSelectParentMessage, parentContent }
+  { selectedMessageId, modalVisible, setModalVisible, messages, setMessages, resetParentMessageRef,
+    richTextRef, selectedUserRef, setSendDisabled, setCurrentParentChildCount, currentParentChildCount, 
+		setIsEdit, isSelectParentMessage, parentContent }
 ) {
 
   async function onDeleteMessage() {
@@ -24,6 +26,8 @@ export default function MessageModal(
       message: false,
       emoji: false,
     });
+		resetParentMessageRef.current.isChanging = true;
+		setCurrentParentChildCount(currentParentChildCount-1);
   }
   function onEditMessage() {
     if (isSelectParentMessage) onEditParent()
