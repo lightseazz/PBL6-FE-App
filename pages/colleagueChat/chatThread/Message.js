@@ -11,7 +11,8 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
   state,
-	parentState,
+  reactionCount,
+  parentState,
   isParent,
   setIsSelectParentMessage,
   setModalId,
@@ -26,6 +27,22 @@ export default function Message({
 }) {
   const { width } = useWindowDimensions();
   let time = (new Date(sendAt)).toLocaleString();
+  function RenderEmoji() {
+    if (!reactionCount) return <></>;
+    const emojis = Object.entries(reactionCount);
+    return (
+      <>
+        {emojis.map((emoji, index) => {
+          return (
+            <View key={index} style={styles.emoji}>
+              <Text>{emoji[0]} {emoji[1]}  </Text>
+            </View>
+          )
+        })}
+      </>
+    )
+  }
+
   return (
     <>
       {state == "deleted" ? (
@@ -65,18 +82,15 @@ export default function Message({
               <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
-          <RenderHtml contentWidth={width} source={{html: content}} />
+          <RenderHtml contentWidth={width} source={{ html: content }} />
           <View style={styles.emojiContainer}>
-            <View style={styles.emoji}>
-              <Text>😪 1</Text>
-            </View>
-            <View style={styles.emoji}>
-              <Text>😀 1 </Text>
-            </View>
             <View style={styles.emoji}>
               <TouchableOpacity
                 style={{ flexDirection: "row" }}
                 onPress={() => {
+                  if (isParent) setIsSelectParentMessage(true)
+                  else setIsSelectParentMessage(false)
+                  selectedUserRef.current = senderId;
                   setModalId(id);
                   setModalVisible({
                     message: false,
@@ -89,6 +103,7 @@ export default function Message({
                 <Icon name="plus" size={17} />
               </TouchableOpacity>
             </View>
+            <RenderEmoji />
           </View>
         </TouchableOpacity>
       )}

@@ -3,22 +3,29 @@ import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 const emojis = [];
-for (i = 128512; i <= 128567; i++) {
+for (i = 128512; i <= 128540; i++) {
   emojis.push({
     key: i,
     code: i,
   });
 }
 
-const emojiRenders = emojis.map((emoji) => (
-  <TouchableOpacity key={emoji.key} style={{ margin: 5 }}>
-    <Text style={{ fontSize: 25 }}>{String.fromCodePoint(emoji.code)}</Text>
-  </TouchableOpacity>
-));
+export default function EmojiModal({ modalVisible, setModalVisible, selectedMessageId, messages, setMessages }) {
+  function EmojiRenders() {
+    return emojis.map((emoji) => (
+      <TouchableOpacity key={emoji.key} style={{ margin: 5 }} onPress=
+        {async function () {
+          const response = await sendEmojiToServer(selectedMessageId, emoji.code);
+        }}
+      >
+        <Text style={{ fontSize: 25 }}>{String.fromCodePoint(emoji.code)}</Text>
+      </TouchableOpacity>
+    ))
+  }
 
-export default function EmojiModal({ modalVisible, setModalVisible }) {
   return (
     <Modal
       animationType="fade"
@@ -44,7 +51,9 @@ export default function EmojiModal({ modalVisible, setModalVisible }) {
           >
             <Icon size={30} name="minus-thick" style={styles.close} />
           </Pressable>
-          <View style={styles.emojiContainer}>{emojiRenders}</View>
+          <View style={styles.emojiContainer}>
+            <EmojiRenders />
+          </View>
         </View>
       </View>
     </Modal>
@@ -80,3 +89,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
+
+async function sendEmojiToServer(messageId, emoji) {
+  if (!connectionChatColleague) {
+    console.log("hub is not connection");
+  }
+  const response = await connectionChatColleague.invoke("ReactMessageAsync", {
+    MessageId: messageId,
+    Emoji: String.fromCodePoint(emoji),
+  });
+  return response;
+}

@@ -29,6 +29,7 @@ export default function ChatThreadUser({ navigation, route }) {
       parentSenderName,
       parentState,
       parentAvatar,
+      parentReactionCount,
     } = route.params;
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
@@ -43,6 +44,7 @@ export default function ChatThreadUser({ navigation, route }) {
   const [isSelectParentMessage, setIsSelectParentMessage] = useState(false);
   const [currentParentContent, setCurentParentContent] = useState(parentContent);
   const [currentParentState, setCurrentParentState] = useState(parentState);
+  const [currentParentReactionCount, setCurrentParentReactionCount] = useState(parentReactionCount);
   const richTextRef = useRef();
   const flatListRef = useRef();
   const selectedUserRef = useRef("");
@@ -63,6 +65,9 @@ export default function ChatThreadUser({ navigation, route }) {
           senderAvatar: message.senderAvatar,
           senderName: message.senderName,
           sendAt: message.sendAt,
+          reactionCount: message.reactionCount,
+          isEdited: message.isEdited,
+          state: message.isEdited ? messageState.isEdited : "",
         })
       ))
       setMessages(initMessages);
@@ -72,7 +77,7 @@ export default function ChatThreadUser({ navigation, route }) {
   }, [])
 
   function receiveMessage() {
-		connectionChatColleague.off("receive_message");
+    connectionChatColleague.off("receive_message");
     connectionChatColleague.on("receive_message", function (message) {
       if (message.isChannel) return;
       if (message.parentId != parentMessageId) return;
@@ -86,6 +91,10 @@ export default function ChatThreadUser({ navigation, route }) {
             senderAvatar: message.senderAvatar,
             senderName: message.senderName,
             sendAt: message.sendAt,
+            reactionCount: message.reactionCount,
+            isEdited: message.isEdited,
+            state: message.isEdited ? messageState.isEdited : "",
+
           })
         )
       )
@@ -93,7 +102,7 @@ export default function ChatThreadUser({ navigation, route }) {
     })
   };
   function receiveDelete() {
-		connectionChatColleague.off("delete_message");
+    connectionChatColleague.off("delete_message");
     connectionChatColleague.on("delete_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
@@ -104,16 +113,23 @@ export default function ChatThreadUser({ navigation, route }) {
     })
   }
   function reiceiveUpdate() {
-		connectionChatColleague.off("update_message");
+    connectionChatColleague.off("update_message");
     connectionChatColleague.on("update_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
-      const updateMessage = messages.find(msg => msg.id == message.id);
-      if (updateMessage.content != message.content)
-        updateMessage.state = messageState.isEdited;
-      updateMessage.content = message.content;
-      updateMessage.reactionCount = message.reactionCount;
-      setMessages([...messages]);
+      if (message.id == parentMessageId) {
+        setCurentParentContent(message.content);
+        setCurrentParentReactionCount(message.reactionCount);
+        setCurrentParentState(message.state ? messageState.isEdited : "");
+      }
+      if (message.id != parentMessageId) {
+        const updateMessage = messages.find(msg => msg.id == message.id);
+        updateMessage.content = message.content;
+        updateMessage.reactionCount = message.reactionCount;
+        updateMessage.isEdited = message.isEdited;
+        updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
+        setMessages([...messages]);
+      }
     })
   }
   receiveMessage();
@@ -230,6 +246,10 @@ export default function ChatThreadUser({ navigation, route }) {
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
       sendAt: message.sendAt,
+      reactionCount: message.reactionCount,
+      isEdited: message.isEdited,
+      state: message.isEdited ? messageState.isEdited : "",
+
     }))
     setMessages(loadMoreMessage);
     // reach to oldest message in database
@@ -255,6 +275,7 @@ export default function ChatThreadUser({ navigation, route }) {
         >
           <Icon name="arrow-left" size={28} />
         </TouchableOpacity>
+        {/* Parent Message  */}
         <Message
           isParent={true}
           setIsSelectParentMessage={setIsSelectParentMessage}
@@ -269,6 +290,7 @@ export default function ChatThreadUser({ navigation, route }) {
           senderName={parentSenderName}
           sendAt={parentSendAt}
           state={currentParentState}
+          reactionCount={currentParentReactionCount}
         />
         <View
           style={{
@@ -300,6 +322,7 @@ export default function ChatThreadUser({ navigation, route }) {
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
+              reactionCount={item.reactionCount}
               id={item.id}
               content={item.content}
               senderAvatar={item.senderAvatar}
@@ -327,6 +350,8 @@ export default function ChatThreadUser({ navigation, route }) {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         selectedMessageId={selectedMessageId}
+        messages={messages}
+        setMessages={setMessages}
       />
 
       <ScrollView>
@@ -373,9 +398,10 @@ export default function ChatThreadUser({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, reactionCount, isEdit, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
+    reactionCount,
     senderId,
     content,
     senderAvatar,

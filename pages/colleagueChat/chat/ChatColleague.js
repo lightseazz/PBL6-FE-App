@@ -52,6 +52,8 @@ export default function ChatColleague({ navigation, route }) {
           senderAvatar: message.senderAvatar,
           senderName: message.senderName,
           sendAt: message.sendAt,
+          isEdited: message.isEdited,
+          state: message.isEdited ? messageState.isEdited : "",
         })
       ))
       setMessages(initMessages);
@@ -60,7 +62,7 @@ export default function ChatColleague({ navigation, route }) {
     getInitMessages();
   }, [])
   function receiveMessage() {
-		connectionChatColleague.off("receive_message");
+    connectionChatColleague.off("receive_message");
     connectionChatColleague.on("receive_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
@@ -76,6 +78,9 @@ export default function ChatColleague({ navigation, route }) {
             senderAvatar: message.senderAvatar,
             senderName: message.senderName,
             sendAt: message.sendAt,
+            isEdited: message.isEdited,
+            state: message.isEdited ? messageState.isEdited : "",
+
           })
         )
       )
@@ -90,6 +95,7 @@ export default function ChatColleague({ navigation, route }) {
       const updateMessage = messages.find(msg => msg.id == message.id);
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
+      updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
   }
@@ -104,9 +110,9 @@ export default function ChatColleague({ navigation, route }) {
       setMessages([...messages]);
     })
   }
-	receiveMessage();
+  receiveMessage();
   receiveUpdate();
-	receiveDelete();
+  receiveDelete();
 
   function sendMessage() {
     if (isEdit == false) {
@@ -203,6 +209,9 @@ export default function ChatColleague({ navigation, route }) {
       senderAvatar: message.senderAvatar,
       senderName: message.senderName,
       sendAt: message.sendAt,
+      isEdited: message.isEdited,
+      state: message.isEdited ? messageState.isEdited : "",
+
     }))
     setMessages(loadMoreMessage);
     // reach to oldest message in database
@@ -335,9 +344,11 @@ export default function ChatColleague({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, childCount, reactionCount, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, childCount, isEdited, reactionCount, senderId,
+  content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
+    isEdited,
     childCount,
     reactionCount,
     senderId,

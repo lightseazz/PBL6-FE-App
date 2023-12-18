@@ -37,7 +37,7 @@ export default function Message({
       parentSenderName: senderName,
       parentState: state,
       parentAvatar: senderAvatar,
-
+			parentReactionCount: reactionCount,
     })
   }
   function RenderEmoji() {
@@ -45,9 +45,9 @@ export default function Message({
     const emojis = Object.entries(reactionCount);
     return (
       <>
-        {emojis.map(emoji => {
+        {emojis.map((emoji, index) => {
           return (
-            <View style={styles.emoji}>
+            <View key={index} style={styles.emoji}>
               <Text>{emoji[0]} {emoji[1]}  </Text>
             </View>
           )
@@ -93,7 +93,7 @@ export default function Message({
               <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
-          <RenderHtml contentWidth={width} source={{html:	content}} />
+          <RenderHtml contentWidth={width} source={{ html: content }} />
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <TouchableOpacity
