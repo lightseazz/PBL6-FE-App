@@ -17,8 +17,6 @@ import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
 import { useIsFocused } from "@react-navigation/native";
 
-const tempText = { html: `<p>Lorem amet</p>`, };
-
 export default function ChatColleague({ navigation, route }) {
   const isFocused = useIsFocused();
   const { colleagueId } = route.params;
@@ -62,8 +60,8 @@ export default function ChatColleague({ navigation, route }) {
       setMessages(initMessages);
     }
     getColleague();
-    getInitMessages();
-  }, [])
+    if (isFocused) getInitMessages();
+  }, [isFocused])
 
   useEffect(function () {
     if (resetParentMessageRef.current.isChanging == true) {
@@ -73,7 +71,7 @@ export default function ChatColleague({ navigation, route }) {
       resetParentMessage.state = resetParentMessageRef.current.state;
       resetParentMessage.childCount = resetParentMessageRef.current.childCount;
       resetParentMessage.reactionCount = resetParentMessageRef.current.reactionCount;
-			setMessages([...messages]);
+      setMessages([...messages]);
     }
   }, [resetParentMessageRef.current.isChanging])
 
