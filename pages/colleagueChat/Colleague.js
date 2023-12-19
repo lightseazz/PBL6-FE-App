@@ -1,20 +1,24 @@
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
+import RenderHtml from "react-native-render-html";
 
 export default function Colleague({
-  colleagueId,
-  username,
+  id,
+  name,
   avatar,
-  time,
+  lastMessageTime,
+  lastMessageSender,
+  lastMessage,
   navigation,
-  previewText,
 }) {
+  const { width } = useWindowDimensions();
   return (
+
     <TouchableOpacity
       style={styles.container}
       onPress={() => navigation.navigate("ChatColleague", {
-        colleagueId: colleagueId
+        colleagueId: id
       })}
     >
       <View style={styles.secondContainer}>
@@ -25,11 +29,11 @@ export default function Colleague({
           }}
         />
         <View style={styles.leftContainer}>
-          <Text style={styles.usernameText}>{username}</Text>
-          <Text>{previewText}</Text>
+          <Text style={styles.usernameText}>{name}</Text>
+          <RenderHtml contentWidth={width} source={{ html: lastMessage }} />
         </View>
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{time}</Text>
+          <Text style={styles.timeText}>{new Date(lastMessageTime).toLocaleString()}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -54,5 +58,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 15,
   },
-  timeText: { fontSize: 12, alignSelf: "flex-end" },
+  timeText: {
+    fontSize: 12,
+    alignSelf: "flex-end",
+    fontStyle: 'italic',
+  },
 });

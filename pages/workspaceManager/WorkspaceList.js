@@ -5,13 +5,40 @@ import getAllWpApi from "../../api/workspaceApi/getAllWp.api";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { setGlobalUser } from "../../globalVar/global";
+import { setConnectionChatChannel } from "../../globalVar/global";
+import * as SecureStore from "expo-secure-store";
+import * as signalR from "@microsoft/signalr";
+
 export default function WorkspaceList({ navigation }) {
   const [workspaceList, setWorkspaceList] = useState([]);
   const isFocused = useIsFocused();
 
+  // hub connection chat channel
+  useEffect(function () {
+
+  }, [isFocused])
+
   useEffect(
     function () {
       if (isFocused) {
+        async function connectHub() {
+          let baseUrl = "https://api.firar.live";
+          const userToken = await SecureStore.getItemAsync("userToken");
+          let connection = new signalR.HubConnectionBuilder()
+            .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
+            .withAutomaticReconnect()
+            .build()
+
+          connection.on("Error", function (message) {
+            console.log("signalR Connection Error: ", message);
+          });
+          connection.start().then(function () {
+          })
+            .catch(function (err) {
+              return console.error(err.toString());
+            });
+          setConnectionChatChannel(connection);
+        }
         async function renderWorkspaceList() {
           const response = await getAllWpApi();
           setWorkspaceList(
@@ -24,7 +51,8 @@ export default function WorkspaceList({ navigation }) {
           );
         }
         renderWorkspaceList();
-				setGlobalUser();
+        setGlobalUser();
+        connectHub();
       }
     },
     [isFocused]

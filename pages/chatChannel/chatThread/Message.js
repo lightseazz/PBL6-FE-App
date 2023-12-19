@@ -1,0 +1,142 @@
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  TouchableOpacity,
+} from "react-native";
+import { Avatar } from "react-native-paper";
+import RenderHtml from "react-native-render-html";
+import { StyleSheet } from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+export default function Message({
+  state,
+  reactionCount,
+  parentState,
+  isParent,
+  setIsSelectParentMessage,
+  setModalId,
+  id,
+  setModalVisible,
+  content,
+  senderId,
+  selectedUserRef,
+  senderAvatar,
+  senderName,
+  sendAt,
+}) {
+  const { width } = useWindowDimensions();
+  let time = (new Date(sendAt)).toLocaleString();
+  function RenderEmoji() {
+    if (!reactionCount) return <></>;
+    const emojis = Object.entries(reactionCount);
+    return (
+      <>
+        {emojis.map((emoji, index) => {
+          return (
+            <View key={index} style={styles.emoji}>
+              <Text>{emoji[0]} {emoji[1]}  </Text>
+            </View>
+          )
+        })}
+      </>
+    )
+  }
+
+  return (
+    <>
+      {state == "deleted" ? (
+        <View style={styles.containerDelete}>
+          <Text style={styles.deleteMessage}>Message is Deleted</Text>
+        </View>) : (
+        <TouchableOpacity
+          style={styles.messageContainer}
+          delayLongPress={50}
+          onLongPress={() => {
+            if (isParent) setIsSelectParentMessage(true)
+            else setIsSelectParentMessage(false)
+            selectedUserRef.current = senderId;
+            setModalId(id);
+            setModalVisible({
+              message: true,
+              emoji: false,
+            })
+          }
+          }
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Avatar.Image
+              size={40}
+              source={{
+                uri: senderAvatar,
+              }}
+            />
+            <View>
+              {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
+              <Text style={styles.usernameText}>{senderName}</Text>
+              <Text style={styles.timeText}>{time}</Text>
+            </View>
+          </View>
+          <RenderHtml contentWidth={width} source={{ html: content }} />
+          <View style={styles.emojiContainer}>
+            <View style={styles.emoji}>
+              <TouchableOpacity
+                style={{ flexDirection: "row" }}
+                onPress={() => {
+                  if (isParent) setIsSelectParentMessage(true)
+                  else setIsSelectParentMessage(false)
+                  selectedUserRef.current = senderId;
+                  setModalId(id);
+                  setModalVisible({
+                    message: false,
+                    emoji: true,
+                  })
+                }
+                }
+              >
+                <Icon name="emoticon-outline" size={21} />
+                <Icon name="plus" size={17} />
+              </TouchableOpacity>
+            </View>
+            <RenderEmoji />
+          </View>
+        </TouchableOpacity>
+      )}
+    </>
+
+  );
+}
+
+const styles = StyleSheet.create({
+  messageContainer: {
+    padding: 13,
+    alignSelf: "flex-start",
+    borderRadius: 5,
+  },
+  containerDelete: {
+    padding: 13,
+    height: 50,
+  },
+  emojiContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  emoji: {
+    alignSelf: "flex-start",
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 3,
+    margin: 5,
+    padding: 3,
+    backgroundColor: "#d3e6e8",
+  },
+  usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
+  deleteMessage: { fontStyle: "italic" },
+  isSending: { marginLeft: 20, fontSize: 15 },
+  timeText: { marginLeft: 20, fontSize: 12 },
+});

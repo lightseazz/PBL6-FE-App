@@ -1,6 +1,6 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import RightDrawerContent from "./RightDrawerContent";
-import ChatChannel from "../chatChannel/ChatChannel";
+import ChatChannel from "../chatChannel/chat/ChatChannel"; 
 
 const RightDrawer = createDrawerNavigator();
 

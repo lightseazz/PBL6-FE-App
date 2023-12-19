@@ -44,3 +44,9 @@ export let connectionChatColleague = null
 export function setConnectionChatColleague(connection) {
   connectionChatColleague = connection;
 }
+
+export let connectionChatChannel = null
+
+export function setConnectionChatChannel(connection) {
+  connectionChatChannel = connection;
+}

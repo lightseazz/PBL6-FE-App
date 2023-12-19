@@ -7,28 +7,15 @@ import { buttonColor, textInputColor } from "../../styles/colorScheme";
 import * as SecureStore from "expo-secure-store"
 import * as signalR from "@microsoft/signalr"
 import { useIsFocused } from "@react-navigation/native";
-import { connectionChatColleague } from "../../globalVar/global";
 import { setConnectionChatColleague } from "../../globalVar/global";
+import getUserByIdApi from "../../api/userApi/getUserById.api";
+import getUsersConversationApi from "../../api/chatApi/getUsersConversation.api";
+import { FlashList } from "@shopify/flash-list";
 
-const avatar =
-  "https://images.unsplash.com/photo-1529397938791-2aba4681454f?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-// const hardCodeIds = ["5fbad663-f3f4-46cc-adf5-08dbe02fb464", "998e45bf-fd1a-410a-f209-08dbf7e30ee4"];
-const hardCodeData = [{
-  id: "88400134-e738-47dd-9785-08dbfe952cc3",
-  // avatar: avatar,
-  username: "h1",
-  // time: "24/10 12:00 PM",
-  // previewText: "to day is good day ...",
-},
-{
-  id: "5289bf4a-09c2-4c8a-9786-08dbfe952cc3",
-  // avatar: avatar,
-  username: "h2",
-  // time: "24/10 12:00 PM",
-  // previewText: "to day is good day ...",
-},];
 export default function ColleagueChat({ navigation }) {
+  const [colleagues, setColleagues] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [search, setSearch] = useState("");
   const isFocused = useIsFocused();
   useEffect(function () {
     async function connectHub() {
@@ -49,9 +36,19 @@ export default function ColleagueChat({ navigation }) {
         });
       setConnectionChatColleague(connection);
     }
+    async function getInitColleagues() {
+      const colleagues = await getUsersConversationApi("", 0, 5);
+      setColleagues([...colleagues])
+
+    }
     if (isFocused == true)
       connectHub();
+    getInitColleagues();
   }, [isFocused])
+  async function addColleagues() {
+    setModalVisible(true);
+
+  }
   return (
     <View style={styles.container}>
       <Searchbar
@@ -59,30 +56,39 @@ export default function ColleagueChat({ navigation }) {
         mode="bar"
         style={styles.searchInput}
         placeholder="Search User"
+        onChangeText={setSearch}
       />
       <Button
         {...buttonColor}
         icon="plus"
         mode="contained-tonal"
         style={styles.addButton}
-        onPress={() => setModalVisible(true)}
+        onPress={addColleagues}
       >
         Add
       </Button>
-      <FlatList
-        data={hardCodeData}
+      <FlashList
+        estimatedItemSize={200}
+        data={colleagues}
         renderItem={({ item }) => (
           <Colleague
             navigation={navigation}
-            colleagueId={item.id}
+            id={item.id}
             avatar={item.avatar}
-            username={item.username}
-            time={item.time}
-            previewText={item.previewText}
+            name={item.name}
+            lastMessage={item.lastMessage}
+            lastMessageTime={item.lastMessageTime}
+            lastMessageSender={item.lastMessageSender}
           />
         )}
       />
-      <AddModal modalVisible={modalVisible} setModalVisible={setModalVisible} />
+      <AddModal
+        modalVisible={modalVisible}
+				setModalVisible={setModalVisible}
+				colleagues={colleagues}
+				setColleagues={setColleagues}
+      />
+
     </View>
   );
 }

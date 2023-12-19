@@ -2,7 +2,7 @@ import WorkspaceList from "./WorkspaceList";
 import WorkspaceCreate from "./WorkspaceCreate";
 import { header } from "../../utils/common";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ChatChannel from "../chatChannel/ChatChannel";
+import ChatChannel from "../chatChannel/chat/ChatChannel"; 
 
 const Stack = createNativeStackNavigator();
 

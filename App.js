@@ -19,6 +19,7 @@ import ChannelMemberManagement from "./pages/channel/ChannelMemberManagement";
 import { header } from "./utils/common";
 import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
 import ChatThreadUser from "./pages/colleagueChat/chatThread/ChatThreadUser";
+import ChatThreadChannel from "./pages/chatChannel/chatThread/ChatThreadChannel";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -39,7 +40,7 @@ export default function App() {
 
       try {
         userToken = await SecureStore.getItemAsync("userToken");
-      
+
       } catch (e) {
         // Restoring token failed
       }
@@ -140,6 +141,11 @@ export default function App() {
                   name="ChatThreadUser"
                   component={ChatThreadUser}
                 />
+                <Stack.Screen
+                  name="ChatThreadChannel"
+                  component={ChatThreadChannel}
+                />
+
                 <Stack.Screen
                   name="ChangePassword"
                   component={ChangePassword}
