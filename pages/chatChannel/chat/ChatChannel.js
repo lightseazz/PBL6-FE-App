@@ -67,10 +67,10 @@ export default function ChatChannel({ navigation, route }) {
       renderChannelName();
 
     }
-    if (currentChannelId) {
+    if (currentChannelId && isFocused) {
       getInitMessages();
     }
-  }, [currentChannelId])
+  }, [currentChannelId, isFocused])
 
   useEffect(function () {
     if (resetParentMessageRef.current.isChanging == true) {
