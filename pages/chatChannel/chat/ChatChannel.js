@@ -38,9 +38,11 @@ export default function ChatChannel({ navigation, route }) {
     isChanging: false, whatChange: "", id: 0,
     content: "", state: "", childCount: 0, reactionCount: null,
   });
-
-
   useEffect(function () {
+    async function renderChannelName() {
+      const channel = await getChannelByIdApi(currentChannelId);
+      setNameChannel(channel.name);
+    };
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
       const messagesResponse = await getMessageChannelApi(currentTime, 7, currentChannelId);
@@ -56,18 +58,15 @@ export default function ChatChannel({ navigation, route }) {
           senderName: message.senderName,
           sendAt: message.sendAt,
           isEdited: message.isEdited,
+          isPined: message.isPined,
           state: message.isEdited ? messageState.isEdited : "",
         })
       ))
-      const renderChannelName = async () => {
-        const channel = await getChannelByIdApi(currentChannelId);
-        setNameChannel(channel.name);
-      };
       setMessages(initMessages);
-      renderChannelName();
-
     }
+
     if (currentChannelId && isFocused) {
+      renderChannelName();
       getInitMessages();
     }
   }, [currentChannelId, isFocused])
@@ -114,6 +113,7 @@ export default function ChatChannel({ navigation, route }) {
             senderName: message.senderName,
             sendAt: message.sendAt,
             isEdited: message.isEdited,
+            isPined: message.isPined,
             state: message.isEdited ? messageState.isEdited : "",
 
           })
@@ -131,6 +131,7 @@ export default function ChatChannel({ navigation, route }) {
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
       updateMessage.childCount = message.childCount;
+      updateMessage.isPined = message.isPined;
       updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
@@ -243,6 +244,7 @@ export default function ChatChannel({ navigation, route }) {
       senderName: message.senderName,
       sendAt: message.sendAt,
       isEdited: message.isEdited,
+      isPined: message.isPined,
       state: message.isEdited ? messageState.isEdited : "",
 
     }))
@@ -283,6 +285,14 @@ export default function ChatChannel({ navigation, route }) {
           >
             <Icon name="cog" size={20} />
           </TouchableOpacity>
+          <TouchableOpacity
+						style={{marginRight: 15}}
+            onPress={() => navigation.navigate("PinChannel", {
+							currentChannelId: currentChannelId,
+						})}
+          >
+            <Icon name="pin" size={20} />
+          </TouchableOpacity>
         </View>
       </View>
       <View
@@ -300,7 +310,7 @@ export default function ChatChannel({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
-							currentChannelId={currentChannelId}
+              currentChannelId={currentChannelId}
               resetParentMessageRef={resetParentMessageRef}
               navigation={navigation}
               selectedUserRef={selectedUserRef}
@@ -315,6 +325,7 @@ export default function ChatChannel({ navigation, route }) {
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
               sendAt={item.sendAt}
+              isPined={item.isPined}
               state={item.state}
             />
           )}
@@ -383,7 +394,7 @@ export default function ChatChannel({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, childCount, isEdited, reactionCount, senderId,
+function buildMessage({ id, childCount, isEdited, reactionCount, senderId, isPined,
   content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
@@ -396,5 +407,6 @@ function buildMessage({ id, childCount, isEdited, reactionCount, senderId,
     senderName,
     sendAt,
     state,
+    isPined,
   }
 }

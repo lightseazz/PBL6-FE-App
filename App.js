@@ -20,6 +20,7 @@ import { header } from "./utils/common";
 import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
 import ChatThreadUser from "./pages/colleagueChat/chatThread/ChatThreadUser";
 import ChatThreadChannel from "./pages/chatChannel/chatThread/ChatThreadChannel";
+import PinChannel from "./pages/chatChannel/chat/PinChannel";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -145,7 +146,11 @@ export default function App() {
                   name="ChatThreadChannel"
                   component={ChatThreadChannel}
                 />
-
+                <Stack.Screen
+                  name="PinChannel"
+                  component={PinChannel}
+                  options={header({ title: "Pin Messages" })}
+                />
                 <Stack.Screen
                   name="ChangePassword"
                   component={ChangePassword}

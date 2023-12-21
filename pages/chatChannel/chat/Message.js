@@ -10,8 +10,8 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
-	currentChannelId,
-	resetParentMessageRef,
+  currentChannelId,
+  resetParentMessageRef,
   reactionCount,
   navigation,
   state,
@@ -24,14 +24,15 @@ export default function Message({
   selectedUserRef,
   senderAvatar,
   senderName,
+  isPined,
   sendAt,
 }) {
   const { width } = useWindowDimensions();
   let time = (new Date(sendAt)).toLocaleString();
   function onPressReply() {
     navigation.navigate("ChatThreadChannel", {
-			currentChannelId: currentChannelId,
-			resetParentMessageRef: resetParentMessageRef,
+      currentChannelId: currentChannelId,
+      resetParentMessageRef: resetParentMessageRef,
       parentMessageId: id,
       parentContent: content,
       parentSendAt: sendAt,
@@ -39,8 +40,8 @@ export default function Message({
       parentSenderName: senderName,
       parentState: state,
       parentAvatar: senderAvatar,
-			parentReactionCount: reactionCount,
-			parentChildCount: childCount,
+      parentReactionCount: reactionCount,
+      parentChildCount: childCount,
     })
   }
   function RenderEmoji() {
@@ -95,6 +96,8 @@ export default function Message({
               <Text style={styles.usernameText}>{senderName}</Text>
               <Text style={styles.timeText}>{time}</Text>
             </View>
+            {isPined ? (<Icon name="pin" size={20} color={"red"} style={{ marginLeft: 10 }} />
+            ) : <></>}
           </View>
           <RenderHtml contentWidth={width} source={{ html: content }} />
           <View style={styles.emojiContainer}>
@@ -154,8 +157,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 3,
     paddingLeft: 10,
-		width: 200,
-		marginTop: 10,
+    width: 200,
+    marginTop: 10,
   },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
   deleteMessage: { fontStyle: "italic" },
