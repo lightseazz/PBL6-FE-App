@@ -10,10 +10,11 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Message({
-	resetParentMessageRef,
+  resetParentMessageRef,
   reactionCount,
   colleagueId,
   navigation,
+  isPined,
   state,
   childCount,
   setModalId,
@@ -30,7 +31,7 @@ export default function Message({
   let time = (new Date(sendAt)).toLocaleString();
   function onPressReply() {
     navigation.navigate("ChatThreadUser", {
-			resetParentMessageRef: resetParentMessageRef,
+      resetParentMessageRef: resetParentMessageRef,
       colleagueId: colleagueId,
       parentMessageId: id,
       parentContent: content,
@@ -39,8 +40,9 @@ export default function Message({
       parentSenderName: senderName,
       parentState: state,
       parentAvatar: senderAvatar,
-			parentReactionCount: reactionCount,
-			parentChildCount: childCount,
+      parentReactionCount: reactionCount,
+      parentChildCount: childCount,
+			parentIsPined: isPined,
     })
   }
   function RenderEmoji() {
@@ -95,6 +97,8 @@ export default function Message({
               <Text style={styles.usernameText}>{senderName}</Text>
               <Text style={styles.timeText}>{time}</Text>
             </View>
+            {isPined ? (<Icon name="pin" size={20} color={"red"} style={{ marginLeft: 10 }} />
+            ) : <></>}
           </View>
           <RenderHtml contentWidth={width} source={{ html: content }} />
           <View style={styles.emojiContainer}>
@@ -154,8 +158,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 3,
     paddingLeft: 10,
-		width: 200,
-		marginTop: 10,
+    width: 200,
+    marginTop: 10,
   },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
   deleteMessage: { fontStyle: "italic" },

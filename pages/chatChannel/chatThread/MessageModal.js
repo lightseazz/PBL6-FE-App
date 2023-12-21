@@ -9,8 +9,8 @@ import { connectionChatChannel } from "../../../globalVar/global";
 
 export default function MessageModal(
   { selectedMessageId, modalVisible, setModalVisible, messages, setMessages, resetParentMessageRef,
-    richTextRef, selectedUserRef, setSendDisabled, setCurrentParentChildCount, currentParentChildCount, 
-		setIsEdit, isSelectParentMessage, parentContent }
+    richTextRef, selectedUserRef, setSendDisabled, setCurrentParentChildCount, currentParentChildCount,
+    setIsEdit, isSelectParentMessage, parentContent }
 ) {
 
   async function onDeleteMessage() {
@@ -26,8 +26,8 @@ export default function MessageModal(
       message: false,
       emoji: false,
     });
-		resetParentMessageRef.current.isChanging = true;
-		setCurrentParentChildCount(currentParentChildCount-1);
+    resetParentMessageRef.current.isChanging = true;
+    setCurrentParentChildCount(currentParentChildCount - 1);
   }
   function onEditMessage() {
     if (isSelectParentMessage) onEditParent()
@@ -61,6 +61,21 @@ export default function MessageModal(
     });
     setIsEdit(true);
   }
+  async function onPin() {
+    if (isSelectParentMessage) return;
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+    const pinMessage = messages.find(message => message.id == selectedMessageId);
+    const response = await connectionChatChannel.invoke("PinMessage", selectedMessageId, !pinMessage.isPined)
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
+    setMessages([...messages]);
+
+
+  }
   return (
     <Modal
       animationType="fade"
@@ -93,10 +108,13 @@ export default function MessageModal(
                 <Text>Edit Message</Text>
               </TouchableOpacity>
               {!isSelectParentMessage ? (
-                <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
-                  <Icon size={24} name="delete" style={styles.icon} />
-                  <Text>Delete Message</Text>
-                </TouchableOpacity>
+                <>
+                  <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
+                    <Icon size={24} name="delete" style={styles.icon} />
+                    <Text>Delete Message</Text>
+                  </TouchableOpacity>
+
+                </>
               ) : <></>}
             </>
           ) : <></>}
@@ -104,10 +122,12 @@ export default function MessageModal(
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.component}>
-            <Icon size={24} name="pin" style={styles.icon} />
-            <Text>Pin Message</Text>
-          </TouchableOpacity>
+          {!isSelectParentMessage ? (
+            <TouchableOpacity style={styles.component} onPress={onPin}>
+              <Icon size={24} name="pin" style={styles.icon} />
+              <Text>Pin Message</Text>
+            </TouchableOpacity>
+          ) : <></>}
         </View>
       </View>
     </Modal>

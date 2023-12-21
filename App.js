@@ -21,6 +21,7 @@ import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
 import ChatThreadUser from "./pages/colleagueChat/chatThread/ChatThreadUser";
 import ChatThreadChannel from "./pages/chatChannel/chatThread/ChatThreadChannel";
 import PinChannel from "./pages/chatChannel/chat/PinChannel";
+import PinColleague from "./pages/colleagueChat/chat/PinColleague"; 
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -149,6 +150,11 @@ export default function App() {
                 <Stack.Screen
                   name="PinChannel"
                   component={PinChannel}
+                  options={header({ title: "Pin Messages" })}
+                />
+                <Stack.Screen
+                  name="PinColleague"
+                  component={PinColleague}
                   options={header({ title: "Pin Messages" })}
                 />
                 <Stack.Screen

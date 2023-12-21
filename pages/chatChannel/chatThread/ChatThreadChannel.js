@@ -30,6 +30,7 @@ export default function ChatThreadChannel({ navigation, route }) {
       parentAvatar,
       parentReactionCount,
       parentChildCount,
+      parentIsPined,
     } = route.params;
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -45,6 +46,7 @@ export default function ChatThreadChannel({ navigation, route }) {
   const [currentParentState, setCurrentParentState] = useState(parentState);
   const [currentParentReactionCount, setCurrentParentReactionCount] = useState(parentReactionCount);
   const [currentParentChildCount, setCurrentParentChildCount] = useState(parentChildCount);
+  const [currentParentIsPined, setCurrentParentIsPined] = useState(parentIsPined);
   //   
   resetParentMessageRef.current.id = parentMessageId;
   resetParentMessageRef.current.content = currentParentContent;
@@ -71,6 +73,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           sendAt: message.sendAt,
           reactionCount: message.reactionCount,
           isEdited: message.isEdited,
+					isPined: message.isPined,
           state: message.isEdited ? messageState.isEdited : "",
         })
       ))
@@ -96,6 +99,7 @@ export default function ChatThreadChannel({ navigation, route }) {
             sendAt: message.sendAt,
             reactionCount: message.reactionCount,
             isEdited: message.isEdited,
+						isPined: message.isPined,
             state: message.isEdited ? messageState.isEdited : "",
 
           })
@@ -127,12 +131,14 @@ export default function ChatThreadChannel({ navigation, route }) {
         setCurentParentContent(message.content);
         setCurrentParentReactionCount(message.reactionCount);
         setCurrentParentState(message.isEdited ? messageState.isEdited : "");
+				setCurrentParentIsPined(message.isPined);
       }
       if (message.id != parentMessageId) {
         const updateMessage = messages.find(msg => msg.id == message.id);
         updateMessage.content = message.content;
         updateMessage.reactionCount = message.reactionCount;
         updateMessage.isEdited = message.isEdited;
+				updateMessage.isPined = message.isPined;
         updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
         setMessages([...messages]);
       }
@@ -255,6 +261,7 @@ export default function ChatThreadChannel({ navigation, route }) {
       sendAt: message.sendAt,
       reactionCount: message.reactionCount,
       isEdited: message.isEdited,
+			isPined: message.isPined,
       state: message.isEdited ? messageState.isEdited : "",
 
     }))
@@ -293,6 +300,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           setModalId={setSelectedMessageId}
           id={parentMessageId}
           content={currentParentContent}
+					isPined={currentParentIsPined}
           senderAvatar={parentAvatar}
           senderName={parentSenderName}
           sendAt={parentSendAt}
@@ -330,6 +338,7 @@ export default function ChatThreadChannel({ navigation, route }) {
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
               reactionCount={item.reactionCount}
+							isPined={item.isPined}
               id={item.id}
               content={item.content}
               senderAvatar={item.senderAvatar}
@@ -408,11 +417,13 @@ export default function ChatThreadChannel({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, reactionCount, isEdit, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, reactionCount,isPined, isEdited, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     reactionCount,
     senderId,
+		isPined,
+		isEdited,
     content,
     senderAvatar,
     senderName,

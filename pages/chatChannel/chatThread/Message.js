@@ -23,6 +23,7 @@ export default function Message({
   selectedUserRef,
   senderAvatar,
   senderName,
+  isPined,
   sendAt,
 }) {
   const { width } = useWindowDimensions();
@@ -81,6 +82,8 @@ export default function Message({
               <Text style={styles.usernameText}>{senderName}</Text>
               <Text style={styles.timeText}>{time}</Text>
             </View>
+            {isPined ? (<Icon name="pin" size={20} color={"red"} style={{ marginLeft: 10 }} />
+            ) : <></>}
           </View>
           <RenderHtml contentWidth={width} source={{ html: content }} />
           <View style={styles.emojiContainer}>

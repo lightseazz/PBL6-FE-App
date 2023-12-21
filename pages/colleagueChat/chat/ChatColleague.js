@@ -47,6 +47,7 @@ export default function ChatColleague({ navigation, route }) {
         buildMessage({
           id: message.id,
           childCount: message.childCount,
+					isPined: message.isPined,
           reactionCount: message.reactionCount,
           senderId: message.senderId,
           content: message.content,
@@ -99,6 +100,7 @@ export default function ChatColleague({ navigation, route }) {
             id: message.id,
             childCount: message.childCount,
             reactionCount: message.reactionCount,
+						isPined: message.isPined,
             senderId: message.senderId,
             content: message.content,
             senderAvatar: message.senderAvatar,
@@ -122,6 +124,7 @@ export default function ChatColleague({ navigation, route }) {
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
       updateMessage.childCount = message.childCount;
+			updateMessage.isPined = message.isPined,
       updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
@@ -228,6 +231,7 @@ export default function ChatColleague({ navigation, route }) {
       id: message.id,
       childCount: message.childCount,
       reactionCount: message.reactionCount,
+			isPined: message.isPined,
       senderId: message.senderId,
       content: message.content,
       senderAvatar: message.senderAvatar,
@@ -269,6 +273,14 @@ export default function ChatColleague({ navigation, route }) {
             flex: 1,
           }}
         >
+          <TouchableOpacity
+            style={{ marginRight: 15 }}
+            onPress={() => navigation.navigate("PinColleague", {
+              colleagueId: colleagueId,
+            })}
+          >
+            <Icon name="pin" size={20} />
+          </TouchableOpacity>
         </View>
       </View>
       <View
@@ -295,6 +307,7 @@ export default function ChatColleague({ navigation, route }) {
               setModalId={setSelectedMessageId}
               id={item.id}
               childCount={item.childCount}
+							isPined={item.isPined}
               senderId={item.senderId}
               reactionCount={item.reactionCount}
               content={item.content}
@@ -369,11 +382,12 @@ export default function ChatColleague({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, childCount, isEdited, reactionCount, senderId,
+function buildMessage({ id, childCount, isEdited, isPined, reactionCount, senderId,
   content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     isEdited,
+		isPined,
     childCount,
     reactionCount,
     senderId,

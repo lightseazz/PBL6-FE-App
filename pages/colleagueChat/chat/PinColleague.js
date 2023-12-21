@@ -10,22 +10,22 @@ import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect, useState } from "react";
-import getMessagePinChannelApi from "../../../api/chatApi/getMessagePinChannel.api";
+import getMessagePinUserApi from "../../../api/chatApi/getMessagePinUser.api";
 
-export default function PinChannel({ navigation, route }) {
-  const { currentChannelId } = route.params;
+export default function PinColleague({ navigation, route }) {
+  const { colleagueId } = route.params;
   const [pinMessages, setPinMessages] = useState([]);
   useEffect(function () {
     try {
       async function initPinMessages() {
-        const response = await getMessagePinChannelApi(currentChannelId, 0, 10);
+        const response = await getMessagePinUserApi(colleagueId, 0, 20);
+				console.log(response);
         setPinMessages([...response]);
       }
       initPinMessages();
     } catch {
 
     }
-
   }, [])
 
   return (

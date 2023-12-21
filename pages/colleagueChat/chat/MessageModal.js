@@ -8,8 +8,8 @@ import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
 
 export default function MessageModal(
-  {  selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
-    richTextRef,  selectedUserRef, setSendDisabled, setIsEdit }
+  { selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
+    richTextRef, selectedUserRef, setSendDisabled, setIsEdit }
 ) {
 
   async function onDeleteMessage() {
@@ -20,7 +20,7 @@ export default function MessageModal(
       const deleteMessage = messages.find(message => message.id == response);
       deleteMessage.state = messageState.isDeleted;
     }
-		setMessages([...messages]);
+    setMessages([...messages]);
     setModalVisible({
       message: false,
       emoji: false,
@@ -42,6 +42,20 @@ export default function MessageModal(
       emoji: false,
     });
     setIsEdit(true);
+  }
+  async function onPin() {
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+    const pinMessage = messages.find(message => message.id == selectedMessageId);
+    const response = await connectionChatColleague.invoke("PinMessage", selectedMessageId, !pinMessage.isPined)
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
+    setMessages([...messages]);
+
+
   }
   return (
     <Modal
@@ -84,7 +98,7 @@ export default function MessageModal(
             <Icon size={24} name="content-copy" style={styles.icon} />
             <Text>Copy Text</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.component}>
+          <TouchableOpacity style={styles.component} onPress={onPin}>
             <Icon size={24} name="pin" style={styles.icon} />
             <Text>Pin Message</Text>
           </TouchableOpacity>

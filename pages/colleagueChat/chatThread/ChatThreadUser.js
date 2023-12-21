@@ -30,6 +30,7 @@ export default function ChatThreadUser({ navigation, route }) {
       parentAvatar,
       parentReactionCount,
       parentChildCount,
+      parentIsPined,
     } = route.params;
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -45,6 +46,7 @@ export default function ChatThreadUser({ navigation, route }) {
   const [currentParentState, setCurrentParentState] = useState(parentState);
   const [currentParentReactionCount, setCurrentParentReactionCount] = useState(parentReactionCount);
   const [currentParentChildCount, setCurrentParentChildCount] = useState(parentChildCount);
+  const [currentParentIsPined, setCurrentParentIsPined] = useState(parentIsPined);
   //   
   resetParentMessageRef.current.id = parentMessageId;
   resetParentMessageRef.current.content = currentParentContent;
@@ -71,6 +73,7 @@ export default function ChatThreadUser({ navigation, route }) {
           sendAt: message.sendAt,
           reactionCount: message.reactionCount,
           isEdited: message.isEdited,
+					isPined: message.isPined,
           state: message.isEdited ? messageState.isEdited : "",
         })
       ))
@@ -90,6 +93,7 @@ export default function ChatThreadUser({ navigation, route }) {
           buildMessage({
             id: message.id,
             senderId: message.senderId,
+						isPined: message.isPined,
             content: message.content,
             senderAvatar: message.senderAvatar,
             senderName: message.senderName,
@@ -115,7 +119,7 @@ export default function ChatThreadUser({ navigation, route }) {
       deleteMessage.state = messageState.isDeleted;
       setMessages([...messages]);
       resetParentMessageRef.current.isChanging = true;
-			setCurrentParentChildCount(currentParentChildCount-1);
+      setCurrentParentChildCount(currentParentChildCount - 1);
     })
   }
   function reiceiveUpdate() {
@@ -127,12 +131,14 @@ export default function ChatThreadUser({ navigation, route }) {
         setCurentParentContent(message.content);
         setCurrentParentReactionCount(message.reactionCount);
         setCurrentParentState(message.isEdited ? messageState.isEdited : "");
+				setCurrentParentIsPined(message.isPined);
       }
       if (message.id != parentMessageId) {
         const updateMessage = messages.find(msg => msg.id == message.id);
         updateMessage.content = message.content;
         updateMessage.reactionCount = message.reactionCount;
         updateMessage.isEdited = message.isEdited;
+				updateMessage.isPined = message.isPined;
         updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
         setMessages([...messages]);
       }
@@ -255,6 +261,7 @@ export default function ChatThreadUser({ navigation, route }) {
       sendAt: message.sendAt,
       reactionCount: message.reactionCount,
       isEdited: message.isEdited,
+			isPined: message.isPined,
       state: message.isEdited ? messageState.isEdited : "",
 
     }))
@@ -293,6 +300,7 @@ export default function ChatThreadUser({ navigation, route }) {
           setModalId={setSelectedMessageId}
           id={parentMessageId}
           content={currentParentContent}
+					isPined={currentParentIsPined}
           senderAvatar={parentAvatar}
           senderName={parentSenderName}
           sendAt={parentSendAt}
@@ -331,6 +339,7 @@ export default function ChatThreadUser({ navigation, route }) {
               setModalId={setSelectedMessageId}
               reactionCount={item.reactionCount}
               id={item.id}
+							isPined={item.isPined}
               content={item.content}
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
@@ -341,9 +350,9 @@ export default function ChatThreadUser({ navigation, route }) {
         />
       </View>
       <MessageModal
-				resetParentMessageRef={resetParentMessageRef}
-				currentParentChildCount={currentParentChildCount}
-				setCurrentParentChildCount={setCurrentParentChildCount}
+        resetParentMessageRef={resetParentMessageRef}
+        currentParentChildCount={currentParentChildCount}
+        setCurrentParentChildCount={setCurrentParentChildCount}
         parentContent={currentParentContent}
         isSelectParentMessage={isSelectParentMessage}
         messages={messages}
@@ -408,11 +417,12 @@ export default function ChatThreadUser({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, reactionCount, isEdit, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, reactionCount, isPined, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     reactionCount,
     senderId,
+		isPined,
     content,
     senderAvatar,
     senderName,

@@ -286,10 +286,10 @@ export default function ChatChannel({ navigation, route }) {
             <Icon name="cog" size={20} />
           </TouchableOpacity>
           <TouchableOpacity
-						style={{marginRight: 15}}
+            style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinChannel", {
-							currentChannelId: currentChannelId,
-						})}
+              currentChannelId: currentChannelId,
+            })}
           >
             <Icon name="pin" size={20} />
           </TouchableOpacity>
@@ -394,11 +394,12 @@ export default function ChatChannel({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, childCount, isEdited, reactionCount, senderId, isPined,
+function buildMessage({ id, childCount, isPined, isEdited, reactionCount, senderId,
   content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     isEdited,
+    isPined,
     childCount,
     reactionCount,
     senderId,
@@ -407,6 +408,5 @@ function buildMessage({ id, childCount, isEdited, reactionCount, senderId, isPin
     senderName,
     sendAt,
     state,
-    isPined,
   }
 }

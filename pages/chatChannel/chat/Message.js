@@ -42,6 +42,7 @@ export default function Message({
       parentAvatar: senderAvatar,
       parentReactionCount: reactionCount,
       parentChildCount: childCount,
+			parentIsPined: isPined,
     })
   }
   function RenderEmoji() {
