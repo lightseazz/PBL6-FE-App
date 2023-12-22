@@ -145,7 +145,7 @@ export default function ChatChannel({ navigation, route }) {
           state: messageState.isSending,
         })
       )
-      // setMessages(messagesAfterSending);
+      setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
       setSendDisabled(true);
@@ -164,11 +164,11 @@ export default function ChatChannel({ navigation, route }) {
     }).catch(function (err) {
       return console.error(err.toString());
     });
-    if (typeof response != 'string' || !response instanceof String) {
+    if (response.length <= 0) {
       return;
     }
     const tempMessages = [...messagesAfterSending]
-    tempMessages[0].id = response;
+    tempMessages[0].id = response.id;
     tempMessages[0].state = "";
     setMessages(tempMessages);
   }

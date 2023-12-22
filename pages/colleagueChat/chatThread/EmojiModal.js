@@ -20,6 +20,10 @@ export default function EmojiModal({ modalVisible, setModalVisible, selectedMess
     return emojis.map((emoji) => (
       <TouchableOpacity key={emoji.key} style={{ margin: 5 }} onPress=
         {async function () {
+          setModalVisible({
+            message: false,
+            emoji: false,
+          })
           const response = await sendEmojiToServer(selectedMessageId, emoji.code);
         }}
       >

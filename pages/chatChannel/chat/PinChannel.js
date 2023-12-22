@@ -21,7 +21,7 @@ export default function PinChannel({ navigation, route }) {
   useEffect(function () {
     try {
       async function initPinMessages() {
-        const response = await getMessagePinChannelApi(currentChannelId, 0, 10);
+        const response = await getMessagePinChannelApi(currentChannelId, 0, 20);
         setPinMessages([...response]);
       }
       initPinMessages();
@@ -113,14 +113,11 @@ function PinMessage({
         let response = await getMessageJumpApi(id);
         response = response.sort(compareSendAt);
         setMessages([...response]);
-				const  index = response.findIndex(item => item.id == id)
+        const index = response.findIndex(item => item.id == id)
         flatListRef.current.scrollToIndex({ animated: true, index: index })
         navigation.goBack();
       }
-    } catch {
-
-
-    }
+    } catch { }
   }
   return (
     <TouchableOpacity

@@ -51,7 +51,7 @@ export default function ChatColleague({ navigation, route }) {
     }
     getColleague();
     if (isFocused) getInitMessages();
-  }, [isFocused])
+  }, [])
 
   useEffect(function () {
     if (resetParentMessageRef.current.isChanging == true) {
@@ -155,11 +155,11 @@ export default function ChatColleague({ navigation, route }) {
     }).catch(function (err) {
       return console.error(err.toString());
     });
-    if (typeof response != 'string' || !response instanceof String) {
+    if (response.length <= 0) {
       return;
     }
     const tempMessages = [...messagesAfterSending]
-    tempMessages[0].id = response;
+    tempMessages[0].id = response.id;
     tempMessages[0].state = "";
     setMessages(tempMessages);
   }
@@ -211,6 +211,20 @@ export default function ChatColleague({ navigation, route }) {
       return;
     }
   }
+  async function handleBottomReach() {
+    const newestMessage = messages[0];
+    let newestTime = new Date(newestMessage.sendAt).toISOString();
+    let response = await getMessageUserApi(newestTime, 5, colleagueId, false);
+    response.pop();
+    if (!response.length || response.length <= 0) return;
+    let loadMoreMessage = [...messages];
+    response.map(message => {
+      message.state = message.isEdited ? messageState.isEdited : "";
+    })
+    loadMoreMessage = response.concat(loadMoreMessage);
+    setMessages(loadMoreMessage);
+
+  }
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -239,6 +253,7 @@ export default function ChatColleague({ navigation, route }) {
           <TouchableOpacity
             style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinColleague", {
+              flatListRef: flatListRef,
               colleagueId: colleagueId,
               messages: messages,
               setMessages: setMessages,
@@ -257,6 +272,8 @@ export default function ChatColleague({ navigation, route }) {
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
+          refreshing={false}
+          onRefresh={handleBottomReach}
           onEndReachedThreshold={0.1}
           estimatedItemSize={200}
           inverted

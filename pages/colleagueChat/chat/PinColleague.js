@@ -11,16 +11,17 @@ import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect, useState } from "react";
 import getMessagePinUserApi from "../../../api/chatApi/getMessagePinUser.api";
+import getMessageJumpApi from "../../../api/chatApi/getMessageJump.api";
 import { connectionChatColleague } from "../../../globalVar/global";
+import { compareSendAt } from "../../../utils/common";
 
 export default function PinColleague({ navigation, route }) {
-  const { colleagueId, setMessages, messages } = route.params;
+  const { colleagueId, setMessages, messages, flatListRef } = route.params;
   const [pinMessages, setPinMessages] = useState([]);
   useEffect(function () {
     try {
       async function initPinMessages() {
         const response = await getMessagePinUserApi(colleagueId, 0, 20);
-        console.log(response);
         setPinMessages([...response]);
       }
       initPinMessages();
@@ -36,6 +37,8 @@ export default function PinColleague({ navigation, route }) {
         estimatedItemSize={200}
         renderItem={({ item }) => (
           <PinMessage
+            flatListRef={flatListRef}
+            navigation={navigation}
             pinMessages={pinMessages}
             setPinMessages={setPinMessages}
             messages={messages}
@@ -58,6 +61,8 @@ export default function PinColleague({ navigation, route }) {
 
 
 function PinMessage({
+  flatListRef,
+  navigation,
   pinMessages,
   setPinMessages,
   messages,
@@ -101,11 +106,23 @@ function PinMessage({
     pinMsg.isPined = !pinMsg.isPined;
     setPinMessages([...pinMessages]);
   }
+  async function jumpMessage() {
+    try {
+      const pinMessage = pinMessages.find(message => message.id == id);
+      if (!pinMessage.parentId) {
+        let response = await getMessageJumpApi(id);
+        response = response.sort(compareSendAt);
+        setMessages([...response]);
+        const index = response.findIndex(item => item.id == id)
+        flatListRef.current.scrollToIndex({ animated: true, index: index })
+        navigation.goBack();
+      }
+    } catch { }
+  }
   return (
     <TouchableOpacity
-      delayLongPress={50}
       style={styles.messageContainer}
-    // onPress={}
+      onPress={jumpMessage}
 
     >
       <View
