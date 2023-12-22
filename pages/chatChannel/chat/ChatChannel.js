@@ -18,6 +18,7 @@ import { setConnectionChatChannel } from "../../../globalVar/global";
 import { connectionChatChannel } from "../../../globalVar/global";
 import getChannelByIdApi from "../../../api/channelApi/getChannelById.api";
 
+
 const tempText = { html: `<p>Lorem amet</p>`, };
 
 export default function ChatChannel({ navigation, route }) {
@@ -69,7 +70,7 @@ export default function ChatChannel({ navigation, route }) {
       renderChannelName();
       getInitMessages();
     }
-  }, [currentChannelId, isFocused])
+  }, [currentChannelId])
 
   useEffect(function () {
     if (resetParentMessageRef.current.isChanging == true) {
@@ -170,7 +171,7 @@ export default function ChatChannel({ navigation, route }) {
           state: messageState.isSending,
         })
       )
-      setMessages(messagesAfterSending);
+      // setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
       setSendDisabled(true);
@@ -255,6 +256,10 @@ export default function ChatChannel({ navigation, route }) {
       return;
     }
   }
+	async function handleBottomReach(){
+		console.log("hello");
+
+	}
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -288,7 +293,10 @@ export default function ChatChannel({ navigation, route }) {
           <TouchableOpacity
             style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinChannel", {
+							flatListRef: flatListRef,
               currentChannelId: currentChannelId,
+							messages: messages,
+              setMessages: setMessages,
             })}
           >
             <Icon name="pin" size={20} />
@@ -304,6 +312,8 @@ export default function ChatChannel({ navigation, route }) {
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
+					refreshing={false}
+					onRefresh={handleBottomReach}
           onEndReachedThreshold={0.1}
           estimatedItemSize={200}
           inverted

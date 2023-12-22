@@ -56,8 +56,6 @@ export default function MessageModal(
         return console.error(err.toString());
       });
     setMessages([...messages]);
-
-
   }
   return (
     <Modal

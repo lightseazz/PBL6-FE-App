@@ -277,6 +277,8 @@ export default function ChatColleague({ navigation, route }) {
             style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinColleague", {
               colleagueId: colleagueId,
+							messages: messages,
+							setMessages: setMessages,
             })}
           >
             <Icon name="pin" size={20} />

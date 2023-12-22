@@ -93,3 +93,9 @@ function validateEmail(email) {
   let format = /\S+@\S+\.\S+/;
   return format.test(email);
 }
+
+export function compareSendAt (msg1, msg2){
+	if (msg1.sendAt > msg2.sendAt) return -1;
+	if (msg1.sendAt < msg2.sendAt) return 1;
+	return 0;
+}

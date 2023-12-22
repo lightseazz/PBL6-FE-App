@@ -166,7 +166,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           state: messageState.isSending,
         })
       )
-      setMessages(messagesAfterSending);
+      // setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
       setSendDisabled(true);

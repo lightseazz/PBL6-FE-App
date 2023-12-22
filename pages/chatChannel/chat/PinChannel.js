@@ -5,15 +5,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { Avatar, Button } from "react-native-paper";
+import { Avatar, Button, Divider } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect, useState } from "react";
 import getMessagePinChannelApi from "../../../api/chatApi/getMessagePinChannel.api";
+import { connectionChatChannel } from "../../../globalVar/global";
+import getMessageJumpApi from "../../../api/chatApi/getMessageJump.api";
+import { compareSendAt } from "../../../utils/common";
 
 export default function PinChannel({ navigation, route }) {
-  const { currentChannelId } = route.params;
+  const { currentChannelId, setMessages, messages, flatListRef } = route.params;
   const [pinMessages, setPinMessages] = useState([]);
   useEffect(function () {
     try {
@@ -35,6 +38,12 @@ export default function PinChannel({ navigation, route }) {
         estimatedItemSize={200}
         renderItem={({ item }) => (
           <PinMessage
+            flatListRef={flatListRef}
+            navigation={navigation}
+            pinMessages={pinMessages}
+            setPinMessages={setPinMessages}
+            messages={messages}
+            setMessages={setMessages}
             id={item.id}
             senderName={item.senderName}
             senderAvatar={item.senderAvatar}
@@ -46,13 +55,18 @@ export default function PinChannel({ navigation, route }) {
           />
         )}
       />
-
     </View>
   )
 }
 
 
 function PinMessage({
+  flatListRef,
+  navigation,
+  pinMessages,
+  setPinMessages,
+  messages,
+  setMessages,
   id,
   senderName,
   senderAvatar,
@@ -78,11 +92,41 @@ function PinMessage({
       </>
     )
   }
+  async function onPin() {
+    const response = await connectionChatChannel.invoke("PinMessage", id, false)
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
+    // render chat channel
+    const pinMessage = messages.find(message => message.id == id);
+    if (pinMessage)
+      setMessages([...messages]);
+    // render pin channel
+    const pinMsg = pinMessages.find(message => message.id == id);
+    pinMsg.isPined = !pinMsg.isPined;
+    setPinMessages([...pinMessages]);
+  }
+  async function jumpMessage() {
+    try {
+      const pinMessage = pinMessages.find(message => message.id == id);
+      if (!pinMessage.parentId) {
+        let response = await getMessageJumpApi(id);
+        response = response.sort(compareSendAt);
+        setMessages([...response]);
+				const  index = response.findIndex(item => item.id === id)
+        flatListRef.current.scrollToIndex({ animated: true, index: index })
+        navigation.goBack();
+      }
+    } catch {
+
+
+    }
+  }
   return (
     <TouchableOpacity
       delayLongPress={50}
       style={styles.messageContainer}
-    // onPress={}
+      onPress={jumpMessage}
 
     >
       <View
@@ -102,8 +146,8 @@ function PinMessage({
           <Text style={styles.timeText}>{new Date(sendAt).toLocaleString()}</Text>
         </View>
         {isPined ? (
-          <TouchableOpacity style={styles.pin}>
-            <Icon name="pin" size={20} color={"red"} ></Icon>
+          <TouchableOpacity style={styles.pin} onPress={onPin}>
+            <Icon name="pin" size={15} color={"red"} >unpin</Icon>
           </TouchableOpacity>
         ) : <></>}
       </View>
@@ -111,6 +155,7 @@ function PinMessage({
       <View style={styles.emojiContainer}>
         <RenderEmoji />
       </View>
+      <Divider bold />
     </TouchableOpacity>
   )
 }
@@ -123,8 +168,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: 5,
     borderRadius: 10,
-    width: "85%",
-    backgroundColor: "#E3E5E7",
+    width: "95%",
   },
   containerDelete: {
     padding: 13,
@@ -158,10 +202,10 @@ const styles = StyleSheet.create({
   pin: {
     alignSelf: 'flex-start',
     borderRadius: 15,
-		padding: 5,
-		borderWidth: 1,
-		backgroundColor: "white",
-		marginLeft: 10,
+    padding: 5,
+    borderWidth: 1,
+    backgroundColor: "white",
+    marginLeft: 10,
   }
 });
 

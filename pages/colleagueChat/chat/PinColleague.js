@@ -5,21 +5,22 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { Avatar, Button } from "react-native-paper";
+import { Avatar, Button, Divider } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect, useState } from "react";
 import getMessagePinUserApi from "../../../api/chatApi/getMessagePinUser.api";
+import { connectionChatColleague } from "../../../globalVar/global";
 
 export default function PinColleague({ navigation, route }) {
-  const { colleagueId } = route.params;
+  const { colleagueId, setMessages, messages } = route.params;
   const [pinMessages, setPinMessages] = useState([]);
   useEffect(function () {
     try {
       async function initPinMessages() {
         const response = await getMessagePinUserApi(colleagueId, 0, 20);
-				console.log(response);
+        console.log(response);
         setPinMessages([...response]);
       }
       initPinMessages();
@@ -35,6 +36,10 @@ export default function PinColleague({ navigation, route }) {
         estimatedItemSize={200}
         renderItem={({ item }) => (
           <PinMessage
+            pinMessages={pinMessages}
+            setPinMessages={setPinMessages}
+            messages={messages}
+            setMessages={setMessages}
             id={item.id}
             senderName={item.senderName}
             senderAvatar={item.senderAvatar}
@@ -53,6 +58,10 @@ export default function PinColleague({ navigation, route }) {
 
 
 function PinMessage({
+  pinMessages,
+  setPinMessages,
+  messages,
+  setMessages,
   id,
   senderName,
   senderAvatar,
@@ -78,6 +87,20 @@ function PinMessage({
       </>
     )
   }
+  async function onPin() {
+    const response = await connectionChatColleague.invoke("PinMessage", id, false)
+      .catch(function (err) {
+        return console.error(err.toString());
+      });
+    // render chat channel
+    const pinMessage = messages.find(message => message.id == id);
+    if (pinMessage)
+      setMessages([...messages]);
+    // render pin channel
+    const pinMsg = pinMessages.find(message => message.id == id);
+    pinMsg.isPined = !pinMsg.isPined;
+    setPinMessages([...pinMessages]);
+  }
   return (
     <TouchableOpacity
       delayLongPress={50}
@@ -102,8 +125,8 @@ function PinMessage({
           <Text style={styles.timeText}>{new Date(sendAt).toLocaleString()}</Text>
         </View>
         {isPined ? (
-          <TouchableOpacity style={styles.pin}>
-            <Icon name="pin" size={20} color={"red"} ></Icon>
+          <TouchableOpacity style={styles.pin} onPress={onPin}>
+            <Icon name="pin" size={15} color={"red"} >unpin</Icon>
           </TouchableOpacity>
         ) : <></>}
       </View>
@@ -111,6 +134,7 @@ function PinMessage({
       <View style={styles.emojiContainer}>
         <RenderEmoji />
       </View>
+      <Divider bold />
     </TouchableOpacity>
   )
 }
@@ -123,8 +147,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: 5,
     borderRadius: 10,
-    width: "85%",
-    backgroundColor: "#E3E5E7",
+    width: "100%"
   },
   containerDelete: {
     padding: 13,
@@ -158,10 +181,10 @@ const styles = StyleSheet.create({
   pin: {
     alignSelf: 'flex-start',
     borderRadius: 15,
-		padding: 5,
-		borderWidth: 1,
-		backgroundColor: "white",
-		marginLeft: 10,
+    padding: 5,
+    borderWidth: 1,
+    backgroundColor: "white",
+    marginLeft: 10,
   }
 });
 

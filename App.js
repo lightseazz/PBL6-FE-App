@@ -32,6 +32,8 @@ import { authReducer, initialAuthState } from "./hook/authReducer";
 import { PaperProvider } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import { setGlobalUserSignedIn } from "./globalVar/global";
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state',]);
 
 const Stack = createNativeStackNavigator();
 export default function App() {
