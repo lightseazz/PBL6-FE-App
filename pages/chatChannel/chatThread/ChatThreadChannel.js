@@ -63,20 +63,10 @@ export default function ChatThreadChannel({ navigation, route }) {
       let currentTime = (new Date()).toLocaleString();
       const messagesResponse = await getMessageChildChannelApi(currentTime, 7, parentMessageId, currentChannelId);
       const initMessages = [];
-      messagesResponse.map(message => initMessages.push(
-        buildMessage({
-          id: message.id,
-          senderId: message.senderId,
-          content: message.content,
-          senderAvatar: message.senderAvatar,
-          senderName: message.senderName,
-          sendAt: message.sendAt,
-          reactionCount: message.reactionCount,
-          isEdited: message.isEdited,
-					isPined: message.isPined,
-          state: message.isEdited ? messageState.isEdited : "",
-        })
-      ))
+      messagesResponse.map(message => {
+        message.state = message.isEdited ? messageState.isEdited : "";
+        initMessages.push(message);
+      })
       setMessages(initMessages);
     }
     getInitMessages();
@@ -88,23 +78,8 @@ export default function ChatThreadChannel({ navigation, route }) {
       if (!message.isChannel) return;
       if (message.parentId != parentMessageId) return;
       const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage({
-            id: message.id,
-            senderId: message.senderId,
-            content: message.content,
-            senderAvatar: message.senderAvatar,
-            senderName: message.senderName,
-            sendAt: message.sendAt,
-            reactionCount: message.reactionCount,
-            isEdited: message.isEdited,
-						isPined: message.isPined,
-            state: message.isEdited ? messageState.isEdited : "",
-
-          })
-        )
-      )
+      message.state = message.isEdited ? messageState.isEdited : "";
+      MessagesAfterReceived.unshift(message);
       setMessages(MessagesAfterReceived);
       resetParentMessageRef.current.isChanging = true;
       setCurrentParentChildCount(currentParentChildCount + 1)
@@ -131,14 +106,14 @@ export default function ChatThreadChannel({ navigation, route }) {
         setCurentParentContent(message.content);
         setCurrentParentReactionCount(message.reactionCount);
         setCurrentParentState(message.isEdited ? messageState.isEdited : "");
-				setCurrentParentIsPined(message.isPined);
+        setCurrentParentIsPined(message.isPined);
       }
       if (message.id != parentMessageId) {
         const updateMessage = messages.find(msg => msg.id == message.id);
         updateMessage.content = message.content;
         updateMessage.reactionCount = message.reactionCount;
         updateMessage.isEdited = message.isEdited;
-				updateMessage.isPined = message.isPined;
+        updateMessage.isPined = message.isPined;
         updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
         setMessages([...messages]);
       }
@@ -252,19 +227,11 @@ export default function ChatThreadChannel({ navigation, route }) {
     const response = await getMessageChildChannelApi(oldestTime, 5, parentMessageId, currentChannelId);
 
     const loadMoreMessage = [...messages];
-    response.map(message => loadMoreMessage.push({
-      id: message.id,
-      senderId: message.senderId,
-      content: message.content,
-      senderAvatar: message.senderAvatar,
-      senderName: message.senderName,
-      sendAt: message.sendAt,
-      reactionCount: message.reactionCount,
-      isEdited: message.isEdited,
-			isPined: message.isPined,
-      state: message.isEdited ? messageState.isEdited : "",
-
-    }))
+    response.map(message => {
+      message.state = message.isEdited ? messageState.isEdited : "";
+      loadMoreMessage.push(message);
+    }
+    )
     setMessages(loadMoreMessage);
     // reach to oldest message in database
     if (response.length == 0) {
@@ -300,7 +267,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           setModalId={setSelectedMessageId}
           id={parentMessageId}
           content={currentParentContent}
-					isPined={currentParentIsPined}
+          isPined={currentParentIsPined}
           senderAvatar={parentAvatar}
           senderName={parentSenderName}
           sendAt={parentSendAt}
@@ -338,7 +305,7 @@ export default function ChatThreadChannel({ navigation, route }) {
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
               reactionCount={item.reactionCount}
-							isPined={item.isPined}
+              isPined={item.isPined}
               id={item.id}
               content={item.content}
               senderAvatar={item.senderAvatar}
@@ -417,13 +384,13 @@ export default function ChatThreadChannel({ navigation, route }) {
   );
 }
 
-function buildMessage({ id, reactionCount,isPined, isEdited, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
+function buildMessage({ id, reactionCount, isPined, isEdited, senderId, content, senderAvatar, senderName, sendAt, state = "" }) {
   return {
     id,
     reactionCount,
     senderId,
-		isPined,
-		isEdited,
+    isPined,
+    isEdited,
     content,
     senderAvatar,
     senderName,

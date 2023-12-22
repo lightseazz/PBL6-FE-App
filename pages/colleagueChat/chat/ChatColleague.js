@@ -43,21 +43,10 @@ export default function ChatColleague({ navigation, route }) {
       let currentTime = (new Date()).toLocaleString();
       const messagesResponse = await getMessageUserApi(currentTime, 7, colleagueId);
       const initMessages = [];
-      messagesResponse.map(message => initMessages.push(
-        buildMessage({
-          id: message.id,
-          childCount: message.childCount,
-					isPined: message.isPined,
-          reactionCount: message.reactionCount,
-          senderId: message.senderId,
-          content: message.content,
-          senderAvatar: message.senderAvatar,
-          senderName: message.senderName,
-          sendAt: message.sendAt,
-          isEdited: message.isEdited,
-          state: message.isEdited ? messageState.isEdited : "",
-        })
-      ))
+      messagesResponse.map(message => {
+        message.state = message.isEdited ? messageState.isEdited : "";
+        initMessages.push(message);
+      })
       setMessages(initMessages);
     }
     getColleague();
@@ -94,24 +83,8 @@ export default function ChatColleague({ navigation, route }) {
         return;
       }
       const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage({
-            id: message.id,
-            childCount: message.childCount,
-            reactionCount: message.reactionCount,
-						isPined: message.isPined,
-            senderId: message.senderId,
-            content: message.content,
-            senderAvatar: message.senderAvatar,
-            senderName: message.senderName,
-            sendAt: message.sendAt,
-            isEdited: message.isEdited,
-            state: message.isEdited ? messageState.isEdited : "",
-
-          })
-        )
-      )
+      message.state = message.isEdited ? messageState.isEdited : "";
+      MessagesAfterReceived.unshift(message);
       setMessages(MessagesAfterReceived);
     });
   }
@@ -124,8 +97,8 @@ export default function ChatColleague({ navigation, route }) {
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
       updateMessage.childCount = message.childCount;
-			updateMessage.isPined = message.isPined,
-      updateMessage.state = message.isEdited ? messageState.isEdited : "";
+      updateMessage.isPined = message.isPined,
+        updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
   }
@@ -227,20 +200,10 @@ export default function ChatColleague({ navigation, route }) {
     const response = await getMessageUserApi(oldestTime, 5, colleagueId);
 
     const loadMoreMessage = [...messages];
-    response.map(message => loadMoreMessage.push({
-      id: message.id,
-      childCount: message.childCount,
-      reactionCount: message.reactionCount,
-			isPined: message.isPined,
-      senderId: message.senderId,
-      content: message.content,
-      senderAvatar: message.senderAvatar,
-      senderName: message.senderName,
-      sendAt: message.sendAt,
-      isEdited: message.isEdited,
-      state: message.isEdited ? messageState.isEdited : "",
-
-    }))
+    response.map(message => {
+      message.state = message.isEdited ? messageState.isEdited : "";
+      loadMoreMessage.push(message);
+    })
     setMessages(loadMoreMessage);
     // reach to oldest message in database
     if (response.length == 0) {
@@ -277,8 +240,8 @@ export default function ChatColleague({ navigation, route }) {
             style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinColleague", {
               colleagueId: colleagueId,
-							messages: messages,
-							setMessages: setMessages,
+              messages: messages,
+              setMessages: setMessages,
             })}
           >
             <Icon name="pin" size={20} />
@@ -309,7 +272,7 @@ export default function ChatColleague({ navigation, route }) {
               setModalId={setSelectedMessageId}
               id={item.id}
               childCount={item.childCount}
-							isPined={item.isPined}
+              isPined={item.isPined}
               senderId={item.senderId}
               reactionCount={item.reactionCount}
               content={item.content}
@@ -389,7 +352,7 @@ function buildMessage({ id, childCount, isEdited, isPined, reactionCount, sender
   return {
     id,
     isEdited,
-		isPined,
+    isPined,
     childCount,
     reactionCount,
     senderId,

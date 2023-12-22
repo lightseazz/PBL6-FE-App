@@ -1,10 +1,11 @@
 import { apiKey, baseUrl } from "../constant.api";
 import * as SecureStore from "expo-secure-store";
 
-export default async (timeCursor, count, toChannelId) => {
+export default async (timeCursor, count, toChannelId, isBefore = true) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-    const response = await fetch(baseUrl + `Messages?TimeCursor=${timeCursor}&Count=${count}&ToChannelId=${toChannelId}`, {
+    const response = await fetch(baseUrl +
+      `Messages?TimeCursor=${timeCursor}&Count=${count}&ToChannelId=${toChannelId}&IsBefore=${isBefore}`, {
       method: "GET",
       headers: {
         "x-apikey": apiKey,
@@ -14,6 +15,7 @@ export default async (timeCursor, count, toChannelId) => {
         "TimeCursor": timeCursor,
         "Count": count,
         "ToChannelId": toChannelId,
+        "IsBefore": isBefore,
       }
     });
     return response.json();

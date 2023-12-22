@@ -48,21 +48,11 @@ export default function ChatChannel({ navigation, route }) {
       let currentTime = (new Date()).toLocaleString();
       const messagesResponse = await getMessageChannelApi(currentTime, 7, currentChannelId);
       const initMessages = [];
-      messagesResponse.map(message => initMessages.push(
-        buildMessage({
-          id: message.id,
-          childCount: message.childCount,
-          reactionCount: message.reactionCount,
-          senderId: message.senderId,
-          content: message.content,
-          senderAvatar: message.senderAvatar,
-          senderName: message.senderName,
-          sendAt: message.sendAt,
-          isEdited: message.isEdited,
-          isPined: message.isPined,
-          state: message.isEdited ? messageState.isEdited : "",
-        })
-      ))
+      messagesResponse.map(message => {
+        message.state = message.isEdited ? messageState.isEdited : "",
+          initMessages.push(message);
+      }
+      )
       setMessages(initMessages);
     }
 
@@ -102,24 +92,8 @@ export default function ChatChannel({ navigation, route }) {
         return;
       }
       const MessagesAfterReceived = [...messages];
-      MessagesAfterReceived.unshift(
-        (
-          buildMessage({
-            id: message.id,
-            childCount: message.childCount,
-            reactionCount: message.reactionCount,
-            senderId: message.senderId,
-            content: message.content,
-            senderAvatar: message.senderAvatar,
-            senderName: message.senderName,
-            sendAt: message.sendAt,
-            isEdited: message.isEdited,
-            isPined: message.isPined,
-            state: message.isEdited ? messageState.isEdited : "",
-
-          })
-        )
-      )
+      message.state = message.isEdited ? messageState.isEdited : "",
+        MessagesAfterReceived.unshift(message);
       setMessages(MessagesAfterReceived);
     });
   }
@@ -235,20 +209,10 @@ export default function ChatChannel({ navigation, route }) {
     const response = await getMessageChannelApi(oldestTime, 5, currentChannelId);
 
     const loadMoreMessage = [...messages];
-    response.map(message => loadMoreMessage.push({
-      id: message.id,
-      childCount: message.childCount,
-      reactionCount: message.reactionCount,
-      senderId: message.senderId,
-      content: message.content,
-      senderAvatar: message.senderAvatar,
-      senderName: message.senderName,
-      sendAt: message.sendAt,
-      isEdited: message.isEdited,
-      isPined: message.isPined,
-      state: message.isEdited ? messageState.isEdited : "",
-
-    }))
+    response.map(message => {
+      message.state = message.isEdited ? messageState.isEdited : "";
+      loadMoreMessage.push(message);
+    })
     setMessages(loadMoreMessage);
     // reach to oldest message in database
     if (response.length == 0) {
@@ -256,10 +220,20 @@ export default function ChatChannel({ navigation, route }) {
       return;
     }
   }
-	async function handleBottomReach(){
-		console.log("hello");
+  async function handleBottomReach() {
+    const newestMessage = messages[0];
+    let newestTime = new Date(newestMessage.sendAt).toISOString();
+    let response = await getMessageChannelApi(newestTime, 5, currentChannelId, false);
+    response.pop();
+    if (!response.length || response.length <= 0) return;
+    let loadMoreMessage = [...messages];
+    response.map(message => {
+      message.state = message.isEdited ? messageState.isEdited : "";
+    })
+		loadMoreMessage = response.concat(loadMoreMessage);
+    setMessages(loadMoreMessage);
 
-	}
+  }
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -293,9 +267,9 @@ export default function ChatChannel({ navigation, route }) {
           <TouchableOpacity
             style={{ marginRight: 15 }}
             onPress={() => navigation.navigate("PinChannel", {
-							flatListRef: flatListRef,
+              flatListRef: flatListRef,
               currentChannelId: currentChannelId,
-							messages: messages,
+              messages: messages,
               setMessages: setMessages,
             })}
           >
@@ -312,8 +286,8 @@ export default function ChatChannel({ navigation, route }) {
           ref={flatListRef}
           ListFooterComponent={() => loadingMore && <ActivityIndicator color="black" size={30} />}
           onEndReached={handleOnEndReached}
-					refreshing={false}
-					onRefresh={handleBottomReach}
+          refreshing={false}
+          onRefresh={handleBottomReach}
           onEndReachedThreshold={0.1}
           estimatedItemSize={200}
           inverted
