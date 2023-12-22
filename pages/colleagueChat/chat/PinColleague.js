@@ -109,14 +109,14 @@ function PinMessage({
   async function jumpMessage() {
     try {
       const pinMessage = pinMessages.find(message => message.id == id);
-      if (!pinMessage.parentId) {
-        let response = await getMessageJumpApi(id);
-        response = response.sort(compareSendAt);
-        setMessages([...response]);
-        const index = response.findIndex(item => item.id == id)
-        flatListRef.current.scrollToIndex({ animated: true, index: index })
-        navigation.goBack();
-      }
+      let response;
+      if (!pinMessage.parentId) response = await getMessageJumpApi(id);
+      if (pinMessage.parentId) response = await getMessageJumpApi(pinMessage.parentId);
+      response = response.sort(compareSendAt);
+      setMessages([...response]);
+      const index = response.findIndex(item => item.id == pinMessage.parentId)
+      flatListRef.current.scrollToIndex({ animated: true, index: index })
+      navigation.goBack();
     } catch { }
   }
   return (
