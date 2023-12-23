@@ -15,7 +15,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+			"buildNumber": "1",
+      "bundleIdentifier": "com.example.shoppingList"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +32,16 @@
     "extra": {
       "eas": {
         "projectId": "e227058f-156f-4e8a-8e75-1549c2834c24"
+      },
+			"oneSignalAppId": "b5a83523-6070-449e-82e1-fcb738376a7d"
+    },
+		"plugins": [
+    [
+      "onesignal-expo-plugin",
+      {
+        "mode": "development",
       }
-    }
+    ]
+  ]
   }
 }

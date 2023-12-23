@@ -311,6 +311,7 @@ export default function ChatChannel({ navigation, route }) {
               sendAt={item.sendAt}
               isPined={item.isPined}
               state={item.state}
+							files={item.files}
             />
           )}
         />

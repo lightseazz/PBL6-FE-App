@@ -21,7 +21,7 @@ import ChatColleague from "./pages/colleagueChat/chat/ChatColleague";
 import ChatThreadUser from "./pages/colleagueChat/chatThread/ChatThreadUser";
 import ChatThreadChannel from "./pages/chatChannel/chatThread/ChatThreadChannel";
 import PinChannel from "./pages/chatChannel/chat/PinChannel";
-import PinColleague from "./pages/colleagueChat/chat/PinColleague"; 
+import PinColleague from "./pages/colleagueChat/chat/PinColleague";
 import MyAccount from "./pages/userSetting/MyAccount";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -34,10 +34,22 @@ import * as SecureStore from "expo-secure-store";
 import { setGlobalUserSignedIn } from "./globalVar/global";
 import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state',]);
+// import { LogLevel, OneSignal } from 'react-native-onesignal';
+// import Constants from "expo-constants";
+
 
 const Stack = createNativeStackNavigator();
 export default function App() {
+	// // onesignal
+ //  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+ //  OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
+	// //
+	//
+ //  // Also need enable notifications to complete OneSignal setup
+ //  OneSignal.Notifications.requestPermission(true);
+
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
+
   useEffect(() => {
     const bootstrapAsync = async () => {
       let userToken;
@@ -48,9 +60,7 @@ export default function App() {
       } catch (e) {
         // Restoring token failed
       }
-
       // After restoring token, we may need to validate it in production apps
-
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       dispatch({ type: "RESTORE_TOKEN", token: userToken });

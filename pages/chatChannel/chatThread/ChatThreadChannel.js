@@ -31,6 +31,7 @@ export default function ChatThreadChannel({ navigation, route }) {
       parentReactionCount,
       parentChildCount,
       parentIsPined,
+      parentFiles,
     } = route.params;
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -273,6 +274,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           sendAt={parentSendAt}
           state={currentParentState}
           reactionCount={currentParentReactionCount}
+					files={parentFiles}
         />
         <View
           style={{
@@ -312,6 +314,7 @@ export default function ChatThreadChannel({ navigation, route }) {
               senderName={item.senderName}
               sendAt={item.sendAt}
               state={item.state}
+							files={item.files}
             />
           )}
         />

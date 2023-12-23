@@ -296,6 +296,7 @@ export default function ChatColleague({ navigation, route }) {
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
               sendAt={item.sendAt}
+							files={item.files}
               state={item.state}
             />
           )}

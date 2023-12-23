@@ -3,8 +3,10 @@ import {
   Text,
   useWindowDimensions,
   TouchableOpacity,
+	Image,
 } from "react-native";
 import { Avatar } from "react-native-paper";
+import { SvgUri } from "react-native-svg";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -25,6 +27,7 @@ export default function Message({
   senderAvatar,
   senderName,
   sendAt,
+	files,
 }) {
   const { width } = useWindowDimensions();
   let time = (new Date(sendAt)).toLocaleString();
@@ -44,6 +47,79 @@ export default function Message({
     )
   }
 
+  function RenderFiles() {
+    const iconUri = {
+      doc: "https://chat.zalo.me/assets/icon-word.d7db8ecee5824ba530a5b74c5dd69110.svg",
+      pdf: "https://chat.zalo.me/assets/icon-pdf.53e522c77f7bb0de2eb682fe4a39acc3.svg",
+      xls: "https://chat.zalo.me/assets/icon-excel.fe93010062660a8332b5f5c7bb2a43b1.svg",
+      zip: "https://chat.zalo.me/assets/icon-zip.e1e9b9936e66e90d774fcb804f39167f.svg",
+      default: "https://chat.zalo.me/assets/icon-file-empty.6796cfae2f36f6d44242f7af6104f2bb.svg",
+    }
+		if(!files || files.length <=0) return;
+    return (
+      <>
+        {
+          files.map((file, index) => {
+            const typeFile = file.name.split(".")[1]
+              ? file.name.split(".").pop().slice(0, 3).toUpperCase()
+              : "";
+            console.log(typeFile);
+            if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
+              return (
+                <TouchableOpacity key={index}>
+                  <Image source={{ uri: file.url }} style={{ width: 150, height: 150 }} />
+                </TouchableOpacity>
+              )
+            }
+            if (typeFile == "DOC") {
+              return (
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                  <SvgUri uri={iconUri.doc} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+            }
+            if (typeFile == "XLS") {
+              return (
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                  <SvgUri uri={iconUri.xls} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if (typeFile == "PDF") {
+              return (
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                  <SvgUri uri={iconUri.pdf} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if (typeFile == "ZIP" || typeFile == "RAR") {
+              return (
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                  <SvgUri uri={iconUri.zip} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if(!file.url) {
+              return (
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                  <SvgUri uri={iconUri.default} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+            }
+          })
+        }
+      </>
+    )
+
+  }
   return (
     <>
       {state == "deleted" ? (
@@ -86,6 +162,7 @@ export default function Message({
             ) : <></>}
           </View>
           <RenderHtml contentWidth={width} source={{ html: content }} />
+          <RenderFiles />
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <TouchableOpacity
