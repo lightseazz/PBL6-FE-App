@@ -1,18 +1,19 @@
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import { general } from "../../styles/styles";
 import { TextInput } from "react-native-paper";
 import { useState } from "react";
 import { checkCorrectPassword } from "../../utils/common";
-import changePassApi from "../../api/authApi/changePass.api";
+import changePasswordApi from "../../api/authApi/changePassword.api";
+import getOtpApi from "../../api/authApi/getOtp.api";
 import {
   buttonColor,
   linkColor,
   textInputColor,
 } from "../../styles/colorScheme";
+import { userSignedIn } from "../../globalVar/global";
 
 export default function ChangePassword({ navigation, route }) {
-  //   const { email } = route.params;
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -21,6 +22,7 @@ export default function ChangePassword({ navigation, route }) {
   const [pressError, setPressError] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState([true, true]);
   const [clicked, setClicked] = useState(false);
+  const [otpText, setOtpText] = useState("");
 
   const onChangePassword = (text) => {
     setCurrentPassword(text);
@@ -40,31 +42,51 @@ export default function ChangePassword({ navigation, route }) {
     ) {
       {
         setClicked(false);
-        setSignUpError("Invalid format entry above");
         return;
       }
     }
-    if (currentPassword != newPassword) {
+    if (currentPassword == newPassword) {
+			setPressError("password must not the same");
       setClicked(false);
-      setSignUpError("please type the same password");
       return;
     }
 
-    const response = await changePassApi(email, currentPassword, otp);
-
+    console.log("hello");
+    const response = await changePasswordApi(currentPassword, newPassword, otp);
     if (response.status != 200) {
       setClicked(false);
       setPressError(response.title);
+      setClicked(true);
       return;
     }
-    navigation.navigate("SuccessPage", {
-      text: "You change pass successfully",
-    });
+    Alert.alert("Successful change password");
+
+  }
+
+  async function onGetOtp() {
+    const response = await getOtpApi(2, userSignedIn.email);
+    console.log(response.status);
+    if (response.status == 200) {
+      setOtpText("successful otp send to " + userSignedIn.email);
+    }
+    else {
+      setOtpText("failed send otp");
+    }
   }
 
   return (
     <View style={general.centerView}>
       <View style={styles.input}>
+        <Button
+          style={{ width: "50%", }}
+          mode="elevated"
+          onPress={onGetOtp}
+          disabled={clicked}
+          {...buttonColor}
+        >
+          get Otp
+        </Button>
+        <Text style={{ marginBottom: 50, }}>{otpText}</Text>
         <TextInput
           {...textInputColor}
           style={{ backgroundColor: "white" }}

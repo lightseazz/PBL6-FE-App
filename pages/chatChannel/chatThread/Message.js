@@ -10,6 +10,7 @@ import RenderHtml from "react-native-render-html";
 import { SvgUri } from "react-native-svg";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import * as Linking from 'expo-linking';
 
 export default function Message({
   state,
@@ -47,6 +48,9 @@ export default function Message({
     )
   }
   function RenderFiles() {
+    const openLink = (url) => {
+      Linking.openURL(url);
+    }
     const iconUri = {
       doc: "https://chat.zalo.me/assets/icon-word.d7db8ecee5824ba530a5b74c5dd69110.svg",
       pdf: "https://chat.zalo.me/assets/icon-pdf.53e522c77f7bb0de2eb682fe4a39acc3.svg",
@@ -62,17 +66,18 @@ export default function Message({
             const typeFile = file.name.split(".")[1]
               ? file.name.split(".").pop().slice(0, 3).toUpperCase()
               : "";
-            console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
-                <TouchableOpacity key={index}>
+                <TouchableOpacity key={index} onPress={() => openLink(file.url)}>
                   <Image source={{ uri: file.url }} style={{ width: 150, height: 150 }} />
                 </TouchableOpacity>
               )
             }
             if (typeFile == "DOC") {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
+									onPress={() => openLink(file.url)}
+									>
                   <SvgUri uri={iconUri.doc} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -80,7 +85,9 @@ export default function Message({
             }
             if (typeFile == "XLS") {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
+									onPress={() => openLink(file.url)}
+									>
                   <SvgUri uri={iconUri.xls} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -89,7 +96,9 @@ export default function Message({
             }
             if (typeFile == "PDF") {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
+									onPress={() => openLink(file.url)}
+									>
                   <SvgUri uri={iconUri.pdf} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -98,7 +107,9 @@ export default function Message({
             }
             if (typeFile == "ZIP" || typeFile == "RAR") {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
+									onPress={() => openLink(file.url)}
+									>
                   <SvgUri uri={iconUri.zip} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -107,7 +118,9 @@ export default function Message({
             }
             if (!file.url) {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}>
+                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
+									onPress={() => openLink(file.url)}
+									>
                   <SvgUri uri={iconUri.default} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
