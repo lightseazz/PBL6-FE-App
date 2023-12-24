@@ -107,6 +107,7 @@ export default function ChatChannel({ navigation, route }) {
       updateMessage.reactionCount = message.reactionCount;
       updateMessage.childCount = message.childCount;
       updateMessage.isPined = message.isPined;
+      updateMessage.files = message.files;
       updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })

@@ -15,6 +15,7 @@ export default function ChannelInvite({ route }) {
       try {
         const findUsers = async () => {
           const response = await getUserNotInChannelApi(workspaceId, channelId);
+          console.log("Channel", response);
           const allUsers = response.map(user => (
             {
               id: user.id,
@@ -38,6 +39,7 @@ export default function ChannelInvite({ route }) {
       const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
       console.log(selectedUserIds);
       const response = await addMembersChannelApi(channelId, selectedUserIds);
+      console.log(response);
       console.log(response);
       if (response.status == 500) {
         Alert.alert(response.title)
@@ -63,10 +65,10 @@ export default function ChannelInvite({ route }) {
   return (
     <View style={styles.container}>
       <Searchbar style={styles.searchBar} placeholder="Search" onChangeText={setSearch} />
-			<View style={{ flexDirection: 'row-reverse', width: '100%', marginTop: 15 }}>
-				<Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
-				<Button {...buttonColor} style={styles.butShowAll} onPress={showAll}>show All</Button>
-			</View>
+      <View style={{ flexDirection: 'row-reverse', width: '100%', marginTop: 15 }}>
+        <Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
+        <Button {...buttonColor} style={styles.butShowAll} onPress={showAll}>show All</Button>
+      </View>
       <View style={{ flex: 6, width: '100%' }}>
         <FlatList
           data={users}
@@ -141,11 +143,11 @@ const styles = StyleSheet.create({
     width: '30%',
     borderRadius: 10,
   },
-	butShowAll: {
-		width: '30%',
-		borderRadius: 10,
-		marginRight: 10,
-	},
+  butShowAll: {
+    width: '30%',
+    borderRadius: 10,
+    marginRight: 10,
+  },
   buttonAdd: {
     width: "30%",
     borderRadius: 10,

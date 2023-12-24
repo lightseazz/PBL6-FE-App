@@ -12,6 +12,7 @@ export default async (workspaceId) => {
         accept: "application/json",
         authorization: "Bearer " + userToken,
 				"workspaceid": workspaceId,
+				"workspace-id": workspaceId,
       },
     });
     if (response.ok) return response.json();

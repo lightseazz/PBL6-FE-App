@@ -32,7 +32,9 @@ export default function WorkspaceInvite({ route }) {
 	async function addUsers() {
 		try {
 			const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
-			const response = await addMembersWpApi(workspaceId, selectedUserIds);
+			const selectedUserEmails = users.filter(user => user.selected == true).map(user => user.email)
+			console.log(selectedUserEmails);
+			const response = await addMembersWpApi(workspaceId, selectedUserEmails);
 			if (response.status == 500) {
 				Alert.alert(response.title)
 				return;

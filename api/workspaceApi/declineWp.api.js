@@ -4,8 +4,8 @@ import * as SecureStore from "expo-secure-store";
 export default async (workspaceId) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-    const response = await fetch(baseUrl + "Workspace/" + workspaceId, {
-      method: "DELETE",
+    const response = await fetch(baseUrl + "Workspace/" + workspaceId+"/decline", {
+      method: "POST",
       headers: {
         "x-apikey": apiKey,
         "content-type": "application/json",
@@ -14,6 +14,9 @@ export default async (workspaceId) => {
         "workspaceid": workspaceId,
         "workspace-id": workspaceId,
       },
+      body: JSON.stringify({
+        workspaceId: workspaceId,
+      }),
     });
     return response;
   } catch (error) {

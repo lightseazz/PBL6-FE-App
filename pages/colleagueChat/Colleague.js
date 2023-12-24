@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { TouchableOpacity, View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
+import { connectionChatChannel } from "../../globalVar/global";
 
 export default function Colleague({
   id,

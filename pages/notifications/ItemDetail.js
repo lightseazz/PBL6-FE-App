@@ -1,39 +1,98 @@
-import { View, StyleSheet, Text, StatusBar } from "react-native";
-import { Avatar, Divider } from "react-native-paper";
+import { View, StyleSheet, Text, StatusBar, Alert } from "react-native";
+import { Avatar, Button, Divider } from "react-native-paper";
+import acceptWpApi from "../../api/workspaceApi/acceptWp.api";
+import declineWpApi from "../../api/workspaceApi/declineWp.api";
 
-const icon =
-  "https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
-const tempData = {
-  id: 1,
-  icon: icon,
-  type: "Workspace 1",
-  time: "24/10 12:00 PM",
-  title: "You have meeting at Workspace 1",
-  text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia nobis reprehenderit sequi illo minima quibusdam cum! Veniam officiis aperiam possimus exercitationem recusandae, dignissimos voluptatem soluta repellat rerum. Sed, ab qui?",
-};
 
-export default function ItemDetail() {
+
+export default function ItemDetail({ navigation, route }) {
+  const { id, title, content, createAt, isRead, type, data } = route.params;
+  let dataJson = JSON.parse(data);
+  let dataDetailJson = JSON.parse(dataJson.Detail);
+  console.log(dataDetailJson)
+  function AcceptWsp() {
+    return (
+      <Button mode="contained"
+        style={{ backgroundColor: 'green', width: '30%', marginBottom: 10 }}
+        onPress={acceptWsp}
+      >Accept</Button>
+    )
+  }
+  function DeclineWsp() {
+    return (
+      <Button mode="contained" style={{ backgroundColor: 'red', width: '30%' }}
+        onPress={declineWsp}
+      >Decline</Button>
+    )
+  }
+  function AcceptChannel() {
+    return (
+      <Button mode="contained" style={{ backgroundColor: 'green', width: '30%', marginBottom: 10 }}
+        onPress={acceptChannel}
+      >Accept</Button>
+    )
+  }
+  function DeclineChannel() {
+    return (
+      <Button mode="contained" style={{ backgroundColor: 'red', width: '30%' }}
+        onPress={declineChannel}
+      >Decline</Button>
+    )
+  }
+  async function acceptWsp() {
+    console.log(dataDetailJson.GroupId);
+    const response = await acceptWpApi(dataDetailJson.GroupId);
+		if(response.status == 400){
+			Alert.alert("you are in workspace");
+		}
+		else{
+			Alert.alert("you are successful");
+		}
+  }
+  async function declineWsp() {
+    const response = await declineWpApi(dataDetailJson.GroupId);
+		if(response.status == 400){
+			Alert.alert("you have declined")
+		}
+
+  }
+  async function acceptChannel() {
+
+  }
+  async function declineChannel() {
+
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{tempData.title}</Text>
+      <Text style={styles.title}>{title}</Text>
       <View style={styles.secondContainer}>
         <Avatar.Image
-          style={{ borderRadius: 10 }}
+          style={{ borderRadius: 10, backgroundColor: "white" }}
           size={40}
           source={{
-            uri: tempData.icon,
+            uri: icon,
           }}
         />
-        <View style={styles.leftContainer}>
-          <Text style={styles.typeText}>{tempData.type}</Text>
-        </View>
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{tempData.time}</Text>
+          <Text style={styles.timeText}>{createAt}</Text>
         </View>
       </View>
       <Divider bold={true} style={styles.divider} />
-      <Text style={styles.text}>{tempData.text}</Text>
+      <Text style={styles.text}>{content}</Text>
+      {type == 6 ? (
+        <>
+          <AcceptWsp />
+          <DeclineWsp />
+        </>
+      ) : <></>}
+      {type == 4 ? (
+        <>
+          <AcceptChannel />
+          <DeclineChannel />
+        </>
+      ) : <></>}
     </View>
   );
 }
@@ -71,5 +130,6 @@ const styles = StyleSheet.create({
   },
   text: {
     marginTop: 20,
+    marginBottom: 20,
   },
 });

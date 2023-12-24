@@ -116,7 +116,7 @@ export default function Message({
               )
 
             }
-            if (!file.url) {
+            if (file.url) {
               return (
                 <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
 									onPress={() => openLink(file.url)}

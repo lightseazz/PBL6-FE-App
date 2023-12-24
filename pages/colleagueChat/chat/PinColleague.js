@@ -114,7 +114,10 @@ function PinMessage({
       if (pinMessage.parentId) response = await getMessageJumpApi(pinMessage.parentId);
       response = response.sort(compareSendAt);
       setMessages([...response]);
-      const index = response.findIndex(item => item.id == pinMessage.parentId)
+      if (!pinMessage.parentId)
+        index = response.findIndex(item => item.id == id);
+      if (pinMessage.parentId)
+        index = response.findIndex(item => item.id == pinMessage.parentId);
       flatListRef.current.scrollToIndex({ animated: true, index: index })
       navigation.goBack();
     } catch { }

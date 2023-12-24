@@ -22,6 +22,8 @@ export function authFunctions(dispatch) {
 
       await SecureStore.setItemAsync("userToken", response.token);
 			await SecureStore.setItemAsync("userId", response.userId);
+			await SecureStore.setItemAsync("refreshToken", response.refreshToken);
+			await SecureStore.setItemAsync("tokenTimeOut", response.tokenTimeOut);
 			// // onesignal
 			// OneSignal.login(response.userId);
 

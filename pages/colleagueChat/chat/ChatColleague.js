@@ -18,8 +18,10 @@ import { connectionChatColleague } from "../../../globalVar/global";
 import { useIsFocused } from "@react-navigation/native";
 
 export default function ChatColleague({ navigation, route }) {
+
   const isFocused = useIsFocused();
   const { colleagueId } = route.params;
+  
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -97,8 +99,9 @@ export default function ChatColleague({ navigation, route }) {
       updateMessage.content = message.content;
       updateMessage.reactionCount = message.reactionCount;
       updateMessage.childCount = message.childCount;
-      updateMessage.isPined = message.isPined,
-        updateMessage.state = message.isEdited ? messageState.isEdited : "";
+      updateMessage.isPined = message.isPined;
+      updateMessage.files = message.files;
+      updateMessage.state = message.isEdited ? messageState.isEdited : "";
       setMessages([...messages]);
     })
   }
@@ -225,6 +228,10 @@ export default function ChatColleague({ navigation, route }) {
     setMessages(loadMoreMessage);
 
   }
+  async function onAddImage() {
+    console.log("hello");
+
+  }
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -296,7 +303,7 @@ export default function ChatColleague({ navigation, route }) {
               senderAvatar={item.senderAvatar}
               senderName={item.senderName}
               sendAt={item.sendAt}
-							files={item.files}
+              files={item.files}
               state={item.state}
             />
           )}
@@ -329,13 +336,14 @@ export default function ChatColleague({ navigation, route }) {
           style={{ borderTopWidth: 1, borderColor: 'grey' }}
           ref={richTextRef}
           onChange={onChangeTextMessage}
+          onPressAddImage={onAddImage}
         />
       </ScrollView>
       <View style={{ flexDirection: 'row' }}>
         <RichToolbar
           editor={richTextRef}
           actions={[actions.setBold, actions.setItalic,
-          actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList]}
+          actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList, actions.insertImage]}
         />
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
           <TouchableOpacity

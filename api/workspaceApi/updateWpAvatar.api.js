@@ -20,6 +20,8 @@ export default async (workspaceId, imageUri) => {
           "content-type": "multipart/form-data",
           accept: "application/json",
           authorization: "Bearer " + userToken,
+          "workspaceid": workspaceId,
+          "workspace-id": workspaceId,
         },
         body: formData,
       }

@@ -4,9 +4,22 @@ import ConfirmAlert from "../ConfirmAlert";
 import deleteWpApi from "../../api/workspaceApi/deleteWp.api";
 import { Alert } from "react-native";
 import { buttonColor } from "../../styles/colorScheme";
+import { userSignedIn } from "../../globalVar/global";
+import getWpbyIdApi from "../../api/workspaceApi/getWpbyId.api";
+import { useEffect, useRef, useState } from "react";
 
 export default function WorkspaceSetting({ route, navigation }) {
   const { workspaceId } = route.params;
+  const [isUserOwner, setIsUserOwner] = useState(false);
+  useEffect(function () {
+    async function getIsUserOwner() {
+      const response = await getWpbyIdApi(workspaceId);
+      setIsUserOwner(response.ownerId == userSignedIn.id);
+    }
+    getIsUserOwner();
+
+  }, [])
+  console.log("isUserOwner", isUserOwner);
   async function onPressDelete() {
     const response = await deleteWpApi(workspaceId);
     if (response.status != 200) {
@@ -14,6 +27,9 @@ export default function WorkspaceSetting({ route, navigation }) {
       return;
     }
     navigation.navigate("WorkspaceList");
+  }
+  async function onLeave() {
+
   }
   return (
     <View style={{ flex: 1, alignItems: "center", padding: 20 }}>
@@ -35,7 +51,7 @@ export default function WorkspaceSetting({ route, navigation }) {
           Workspace Overview
         </Button>
         <Button
-					style = {{marginTop: 20}}
+          style={{ marginTop: 20 }}
           {...buttonColor}
           mode="elevated"
           onPress={() =>
@@ -55,8 +71,9 @@ export default function WorkspaceSetting({ route, navigation }) {
         }}
       >
         <Button
+          disabled={!isUserOwner}
           mode="contained"
-          style={{ backgroundColor: "#cc0000" }}
+          style={{ backgroundColor: isUserOwner ? "#cc0000" : "grey" }}
           onPress={ConfirmAlert({
             title: "Confirm Deletion",
             message: "are you sure want to delete this Workspace",
@@ -65,6 +82,19 @@ export default function WorkspaceSetting({ route, navigation }) {
           })}
         >
           Delete Workspace
+        </Button>
+        <Button
+          disabled={isUserOwner}
+          mode="contained"
+          style={{ backgroundColor: isUserOwner ? "grey" : "#cc0000", marginBottom: 20 }}
+          onPress={ConfirmAlert({
+            title: "Confirm Deletion",
+            message: "are you sure want to delete this Workspace",
+            OKText: "Delete",
+            onPressOK: onLeave,
+          })}
+        >
+          Leave
         </Button>
       </View>
     </View>

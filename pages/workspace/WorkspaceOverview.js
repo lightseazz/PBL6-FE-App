@@ -47,6 +47,7 @@ export default function WorkspaceOverview({ navigation, route }) {
     try {
       const getWorkspace = async () => {
         const workspace = await getWpbyIdApi(workspaceId);
+				console.log(workspace);
         setImage(workspace.avatarUrl);
         setName(workspace.name);
         setDescription(workspace.description);

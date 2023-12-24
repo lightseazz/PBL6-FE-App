@@ -2,37 +2,49 @@ import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
 
+const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png"
+
 export default function Item({
-  icon,
-  type,
-  time,
-  previewText,
-  previewTitle,
   navigation,
+  id,
+  title,
+  content,
+  createAt,
+  isRead,
+  type,
+  data,
+
 }) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate("ItemDetail")}
+      onPress={() => navigation.navigate("ItemDetail", {
+        id,
+        title,
+        content,
+        createAt,
+        isRead,
+        type,
+        data,
+      })}
     >
       <View style={styles.secondContainer}>
         <Avatar.Image
-          style={{ borderRadius: 10 }}
-          size={40}
+          style={{ borderRadius: 10, backgroundColor: 'white' }}
+          size={30}
           source={{
             uri: icon,
           }}
         />
         <View style={styles.leftContainer}>
-          <Text style={styles.typeText}>{type}</Text>
-          <Text style={styles.previewTitle}>{previewTitle}</Text>
-          <Text>{previewText}</Text>
+          <Text style={styles.previewTitle}>{title}</Text>
+          <Text>{content}</Text>
         </View>
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{time}</Text>
+          <Text style={styles.timeText}>{createAt}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableOpacity >
   );
 }
 const styles = StyleSheet.create({

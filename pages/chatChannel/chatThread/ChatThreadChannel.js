@@ -48,6 +48,7 @@ export default function ChatThreadChannel({ navigation, route }) {
   const [currentParentReactionCount, setCurrentParentReactionCount] = useState(parentReactionCount);
   const [currentParentChildCount, setCurrentParentChildCount] = useState(parentChildCount);
   const [currentParentIsPined, setCurrentParentIsPined] = useState(parentIsPined);
+  const [currentParentFiles, setCurrentParentFiles] = useState(parentFiles);
   //   
   resetParentMessageRef.current.id = parentMessageId;
   resetParentMessageRef.current.content = currentParentContent;
@@ -108,6 +109,7 @@ export default function ChatThreadChannel({ navigation, route }) {
         setCurrentParentReactionCount(message.reactionCount);
         setCurrentParentState(message.isEdited ? messageState.isEdited : "");
         setCurrentParentIsPined(message.isPined);
+				setCurrentParentFiles(message.files);
       }
       if (message.id != parentMessageId) {
         const updateMessage = messages.find(msg => msg.id == message.id);
@@ -115,6 +117,7 @@ export default function ChatThreadChannel({ navigation, route }) {
         updateMessage.reactionCount = message.reactionCount;
         updateMessage.isEdited = message.isEdited;
         updateMessage.isPined = message.isPined;
+        updateMessage.files = message.files;
         updateMessage.state = updateMessage.isEdited ? messageState.isEdited : "";
         setMessages([...messages]);
       }
@@ -274,7 +277,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           sendAt={parentSendAt}
           state={currentParentState}
           reactionCount={currentParentReactionCount}
-					files={parentFiles}
+          files={currentParentFiles}
         />
         <View
           style={{
@@ -314,7 +317,7 @@ export default function ChatThreadChannel({ navigation, route }) {
               senderName={item.senderName}
               sendAt={item.sendAt}
               state={item.state}
-							files={item.files}
+              files={item.files}
             />
           )}
         />

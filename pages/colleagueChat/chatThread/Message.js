@@ -67,7 +67,6 @@ export default function Message({
             const typeFile = file.name.split(".")[1]
               ? file.name.split(".").pop().slice(0, 3).toUpperCase()
               : "";
-            console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
                 <TouchableOpacity key={index} onPress={() => openLink(file.url)}
@@ -119,7 +118,7 @@ export default function Message({
               )
 
             }
-            if (!file.url) {
+            if (file.url) {
               return (
                 <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
                   onPress={() => openLink(file.url)}
@@ -133,7 +132,6 @@ export default function Message({
         }
       </>
     )
-
   }
   return (
     <>

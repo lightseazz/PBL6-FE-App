@@ -1,9 +1,11 @@
 import { apiKey, baseUrl } from "../constant.api";
 import * as SecureStore from "expo-secure-store";
+import refreshTokenApi from "../authApi/refreshToken.api";
 
 export default async () => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
+    const refreshToken = await SecureStore.getItemAsync("refreshToken");
 
     const response = await fetch(baseUrl + "Workspace", {
       method: "GET",
