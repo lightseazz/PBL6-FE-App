@@ -3,8 +3,10 @@ import {
   Text,
   useWindowDimensions,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import { SvgUri } from "react-native-svg";
 import { Avatar, Button, Divider } from "react-native-paper";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
@@ -14,6 +16,7 @@ import getMessagePinUserApi from "../../../api/chatApi/getMessagePinUser.api";
 import getMessageJumpApi from "../../../api/chatApi/getMessageJump.api";
 import { connectionChatColleague } from "../../../globalVar/global";
 import { compareSendAt } from "../../../utils/common";
+import * as Linking from 'expo-linking';
 
 export default function PinColleague({ navigation, route }) {
   const { colleagueId, setMessages, messages, flatListRef } = route.params;
@@ -51,6 +54,8 @@ export default function PinColleague({ navigation, route }) {
             isPined={item.isPined}
             childCount={item.childCount}
             reactionCount={item.reactionCount}
+            parentId={item.parentId}
+            files={item.files}
           />
         )}
       />
@@ -75,6 +80,7 @@ function PinMessage({
   childCount,
   reactionCount,
   isPined,
+  files,
 }) {
   const { width } = useWindowDimensions();
   function RenderEmoji() {
@@ -122,41 +128,147 @@ function PinMessage({
       navigation.goBack();
     } catch { }
   }
-  return (
-    <TouchableOpacity
-      style={styles.messageContainer}
-      onPress={jumpMessage}
+  function RenderFiles() {
+    const openLink = (url) => {
+      Linking.openURL(url);
+    }
+    const iconUri = {
+      doc: "https://chat.zalo.me/assets/icon-word.d7db8ecee5824ba530a5b74c5dd69110.svg",
+      pdf: "https://chat.zalo.me/assets/icon-pdf.53e522c77f7bb0de2eb682fe4a39acc3.svg",
+      xls: "https://chat.zalo.me/assets/icon-excel.fe93010062660a8332b5f5c7bb2a43b1.svg",
+      zip: "https://chat.zalo.me/assets/icon-zip.e1e9b9936e66e90d774fcb804f39167f.svg",
+      default: "https://chat.zalo.me/assets/icon-file-empty.6796cfae2f36f6d44242f7af6104f2bb.svg",
+    }
+    const fileStyles = StyleSheet.create({
+      container: {
+        flexDirection: 'row', borderWidth: 0.5,
+        borderRadius: 10, padding: 10,
+        marginBottom: 10,
+        alignItems: 'center',
+      }
+    })
 
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-        }}
+    if (!files || files.length <= 0) return;
+    return (
+      <>
+        {
+          files.map((file, index) => {
+            const typeFile = file.name.split(".")[1]
+              ? file.name.split(".").pop().slice(0, 3).toUpperCase()
+              : "";
+            console.log(typeFile);
+            if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
+              return (
+                <TouchableOpacity key={index} onPress={() => openLink(file.url)} style={{ marginBottom: 10 }}>
+                  <Image source={{ uri: file.url }} style={{ width: 150, height: 150 }} />
+                </TouchableOpacity>
+              )
+            }
+            if (typeFile == "DOC") {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
+                  <SvgUri uri={iconUri.doc} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+            }
+            if (typeFile == "XLS") {
+              return (
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
+                  <SvgUri uri={iconUri.xls} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if (typeFile == "PDF") {
+              return (
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
+                  <SvgUri uri={iconUri.pdf} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if (typeFile == "ZIP" || typeFile == "RAR") {
+              return (
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
+                  <SvgUri uri={iconUri.zip} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+
+            }
+            if (!file.url) {
+              return (
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
+                  <SvgUri uri={iconUri.default} width="35" height="35" />
+                  <Text>{file.name}</Text>
+                </TouchableOpacity>
+              )
+            }
+          })
+        }
+      </>
+    )
+  }
+  if (!isPined) return <></>;
+  return (
+    <View style={{ flexDirection: 'row', width: '90%', alignItems: 'center' }}>
+      <TouchableOpacity
+        delayLongPress={50}
+        style={styles.messageContainer}
+        onPress={jumpMessage}
+
       >
-        <Avatar.Image
-          size={40}
-          source={{
-            uri: senderAvatar,
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
           }}
-        />
-        <View>
-          <Text style={styles.usernameText}>{senderName}</Text>
-          <Text style={styles.timeText}>{new Date(sendAt).toLocaleString()}</Text>
+        >
+          <Avatar.Image
+            size={40}
+            source={{
+              uri: senderAvatar,
+            }}
+          />
+          <View>
+            <Text style={styles.usernameText}>{senderName}</Text>
+            <Text style={styles.timeText}>{new Date(sendAt).toLocaleString()}</Text>
+          </View>
         </View>
-        {isPined ? (
-          <TouchableOpacity style={styles.pin} onPress={onPin}>
-            <Icon name="pin" size={15} color={"red"} >unpin</Icon>
-          </TouchableOpacity>
-        ) : <></>}
-      </View>
-      <RenderHtml contentWidth={width} source={{ html: content }} />
-      <View style={styles.emojiContainer}>
-        <RenderEmoji />
-      </View>
-      <Divider bold />
-    </TouchableOpacity>
-  )
+        <RenderHtml contentWidth={width} source={{ html: content }} />
+        <RenderFiles />
+        <View style={styles.emojiContainer}>
+          <RenderEmoji />
+        </View>
+        <Divider bold />
+      </TouchableOpacity>
+      {isPined ? (
+        <TouchableOpacity onPress={onPin}>
+          <Icon name="pin-off" size={20} color={"red"}
+            style={{ transform: [{ rotateZ: '30deg' }] }}
+          ></Icon>
+        </TouchableOpacity>
+      ) : <></>}
+    </View>)
 }
 
 
@@ -167,7 +279,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderRadius: 5,
     borderRadius: 10,
-    width: "100%"
+    width: "95%"
   },
   containerDelete: {
     padding: 13,

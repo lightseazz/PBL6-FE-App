@@ -76,6 +76,15 @@ export default function Message({
       zip: "https://chat.zalo.me/assets/icon-zip.e1e9b9936e66e90d774fcb804f39167f.svg",
       default: "https://chat.zalo.me/assets/icon-file-empty.6796cfae2f36f6d44242f7af6104f2bb.svg",
     }
+
+    const fileStyles = StyleSheet.create({
+      container: {
+        flexDirection: 'row', borderWidth: 0.5,
+        borderRadius: 10, padding: 10,
+        marginBottom: 10,
+				alignItems: 'center',
+      }
+    })
     if (!files || files.length <= 0) return;
     return (
       <>
@@ -87,7 +96,7 @@ export default function Message({
             console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
-                <TouchableOpacity key={index} onPress={() => openLink(file.url)}>
+                <TouchableOpacity key={index} onPress={() => openLink(file.url)} style={{ marginBottom: 10 }}>
                   <Image source={{ uri: file.url }} style={{ width: 150, height: 150 }} />
                 </TouchableOpacity>
               )
@@ -96,9 +105,9 @@ export default function Message({
               return (
                 <TouchableOpacity
                   key={index}
-                  style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
-									onPress={() => openLink(file.url)}
-									>
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
                   <SvgUri uri={iconUri.doc} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -106,10 +115,10 @@ export default function Message({
             }
             if (typeFile == "XLS") {
               return (
-                <TouchableOpacity key={index} 
-									style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
-									onPress={() => openLink(file.url)}
-									>
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
                   <SvgUri uri={iconUri.xls} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -118,10 +127,10 @@ export default function Message({
             }
             if (typeFile == "PDF") {
               return (
-                <TouchableOpacity key={index} 
-									style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
-									onPress={() => openLink(file.url)}
-									>
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
                   <SvgUri uri={iconUri.pdf} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -130,9 +139,10 @@ export default function Message({
             }
             if (typeFile == "ZIP" || typeFile == "RAR") {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
-									onPress={() => openLink(file.url)}
-									>
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
                   <SvgUri uri={iconUri.zip} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -141,9 +151,10 @@ export default function Message({
             }
             if (!file.url) {
               return (
-                <TouchableOpacity key={index} style={{ flexDirection: 'row', backgroundColor: "#E3E5E7", padding: 10 }}
-									onPress={() => openLink(file.url)}
-									>
+                <TouchableOpacity key={index}
+                  style={fileStyles.container}
+                  onPress={() => openLink(file.url)}
+                >
                   <SvgUri uri={iconUri.default} width="35" height="35" />
                   <Text>{file.name}</Text>
                 </TouchableOpacity>
@@ -192,7 +203,9 @@ export default function Message({
               <Text style={styles.usernameText}>{senderName}</Text>
               <Text style={styles.timeText}>{time}</Text>
             </View>
-            {isPined ? (<Icon name="pin" size={20} color={"red"} style={{ marginLeft: 10 }} />
+            {isPined ? (<Icon name="pin" size={18}
+              color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
+            />
             ) : <></>}
           </View>
           <RenderHtml contentWidth={width} source={{ html: content }} />
@@ -210,15 +223,17 @@ export default function Message({
                 }
                 }
               >
-                <Icon name="emoticon-outline" size={21} />
-                <Icon name="plus" size={17} />
+                <Image source={require('../../../assets/addemoji.png')} style={{ width: 25, height: 25 }} />
               </TouchableOpacity>
             </View>
             <RenderEmoji />
           </View>
-          <TouchableOpacity style={styles.replyContainer} onPress={onPressReply}>
-            <Text style={styles.childCount}>{childCount} replies</Text>
-          </TouchableOpacity>
+          {childCount > 0 ? (
+            <TouchableOpacity style={styles.replyContainer} onPress={onPressReply}>
+              <Text style={styles.childCount}>{childCount} replies</Text>
+              <Icon name="arrow-right-thin" size={23} color="#2463B8" style={{ marginLeft: 8 }}></Icon>
+            </TouchableOpacity>
+          ) : <></>}
         </TouchableOpacity>
       )}
     </>
@@ -228,7 +243,7 @@ export default function Message({
 
 const styles = StyleSheet.create({
   messageContainer: {
-    padding: 13,
+    padding: 25,
     alignSelf: "flex-start",
     borderRadius: 5,
   },
@@ -237,6 +252,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   emojiContainer: {
+    marginTop: 10,
     flexDirection: "row",
     flexWrap: "wrap",
   },
@@ -244,22 +260,25 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     borderColor: "black",
     borderWidth: 1,
-    borderRadius: 3,
+    borderRadius: 10,
     margin: 5,
     padding: 3,
-    backgroundColor: "#d3e6e8",
+    backgroundColor: "#E3E5E7",
   },
   replyContainer: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#E3E5E7',
     borderRadius: 10,
-    padding: 3,
+    padding: 4,
     paddingLeft: 10,
-    width: 200,
+    paddingRight: 10,
     marginTop: 10,
   },
   usernameText: { marginLeft: 20, fontWeight: "bold", fontSize: 15 },
   deleteMessage: { fontStyle: "italic" },
   isSending: { marginLeft: 20, fontSize: 15 },
   timeText: { marginLeft: 20, fontSize: 12 },
-  childCount: { color: '#3B7DBB' }
+  childCount: { color: '#2463B8', fontWeight: '600', fontSize: 13 }
 });
