@@ -44,6 +44,7 @@ export default function ChatThreadUser({ navigation, route }) {
   });
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
+  const [isLoadingSend, setIsLoadingSend] = useState(false);
   const [isSelectParentMessage, setIsSelectParentMessage] = useState(false);
   const [currentParentContent, setCurentParentContent] = useState(parentContent);
   const [currentParentState, setCurrentParentState] = useState(parentState);
@@ -132,6 +133,7 @@ export default function ChatThreadUser({ navigation, route }) {
 
   async function sendMessage() {
     if (isEdit == false) {
+			setIsLoadingSend(true);
       let tempId = Date.now();
       let currentTime = new Date()
       let content = richTextRef.text;
@@ -185,6 +187,7 @@ export default function ChatThreadUser({ navigation, route }) {
     tempMessages[0].state = "";
     tempMessages[0].files = response.files;
     setMessages(tempMessages);
+		setIsLoadingSend(false);
     resetParentMessageRef.current.isChanging = true;
     setCurrentParentChildCount(currentParentChildCount + 1);
   }
@@ -440,15 +443,21 @@ export default function ChatThreadUser({ navigation, route }) {
         ) : <></>}
 
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
-          <TouchableOpacity
-            style={{
-              padding: 10, borderRadius: 20, marginRight: 15,
-              alignSelf: 'flex-end', backgroundColor: sendDisabled ? "rgba(52, 52, 52, 0)" : "black"
-            }}
-            disabled={sendDisabled}
-            onPress={sendMessage}>
-            <Icon name="send" size={23} color={sendDisabled ? "grey" : "white"} />
-          </TouchableOpacity>
+
+          {isLoadingSend ? (
+            <ActivityIndicator color="black" style={{marginRight: 15}} />
+          ) : (
+            <TouchableOpacity
+              style={{
+                padding: 10, borderRadius: 20, marginRight: 15,
+                alignSelf: 'flex-end', backgroundColor: sendDisabled ? "rgba(52, 52, 52, 0)" : "black"
+              }}
+              disabled={sendDisabled}
+              onPress={sendMessage}>
+              <Icon name="send" size={23} color={sendDisabled ? "grey" : "white"} />
+            </TouchableOpacity>
+          )}
+
           {isEdit ? (
             <TouchableOpacity
               style={{

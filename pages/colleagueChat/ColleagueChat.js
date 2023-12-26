@@ -81,6 +81,7 @@ export default function ColleagueChat({ navigation }) {
             lastMessage={item.lastMessage}
             lastMessageTime={item.lastMessageTime}
             lastMessageSender={item.lastMessageSender}
+						isOnline={item.isOnline}
           />
         )}
       />

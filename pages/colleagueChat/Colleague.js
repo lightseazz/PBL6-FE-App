@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TouchableOpacity, View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
-import RenderHtml from "react-native-render-html";
-import { connectionChatChannel } from "../../globalVar/global";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Colleague({
   id,
@@ -12,11 +11,23 @@ export default function Colleague({
   lastMessageTime,
   lastMessageSender,
   lastMessage,
+  isOnline,
   navigation,
 }) {
   const { width } = useWindowDimensions();
-  return (
+  const HTMLMessage = useRef();
+	const [truncateLastMessage, setTruncateLastMessage] = useState("");
+  useEffect(function () {
+    if (typeof lastMessage != "string") return;
+    let noHtmlContent = lastMessage.replace(/<[^>]+>/g, '');
+		if(noHtmlContent.length <= 10) {
+			setTruncateLastMessage(noHtmlContent);
+			return;
+		};
+		 setTruncateLastMessage(noHtmlContent.slice(0,10) + "...");
+  }, [])
 
+  return (
     <TouchableOpacity
       style={styles.container}
       onPress={() => navigation.navigate("ChatColleague", {
@@ -30,9 +41,17 @@ export default function Colleague({
             uri: avatar,
           }}
         />
-        <View style={styles.leftContainer}>
+        <Icon
+          name="circle"
+          style={{ alignSelf: 'flex-end', marginLeft: -2 }}
+          size={13}
+          color={isOnline ? "green" : "red"}
+        ></Icon>
+        <View ref={HTMLMessage} style={styles.leftContainer}>
           <Text style={styles.usernameText}>{name}</Text>
-          <RenderHtml contentWidth={width} source={{ html: lastMessage }} />
+          <View style={{ maxHeight: 50, maxWidth: 100 }}>
+            <Text>{truncateLastMessage}</Text>
+          </View>
         </View>
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{new Date(lastMessageTime).toLocaleString()}</Text>
