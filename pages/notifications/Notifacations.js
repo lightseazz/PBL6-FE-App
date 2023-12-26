@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import Item from "./Item";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ export default function Notifications({ navigation }) {
   const countOffset = useRef(11);
   const isFocus = useIsFocused();
   const [notis, setNotis] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
   useEffect(function () {
     async function initNotifications() {
       const response = await getNotificationApi(0, 10);
@@ -20,10 +21,12 @@ export default function Notifications({ navigation }) {
     initNotifications();
   }, [isFocus])
   async function loadMore() {
+		setIsLoading(true);
     const response = await getNotificationApi(countOffset.current, 5);
     let moreNotis = notis.concat(response);
     countOffset.current += 5;
     setNotis([...moreNotis]);
+		setIsLoading(false);
   }
   return (
     <View style={styles.container}>
@@ -44,10 +47,12 @@ export default function Notifications({ navigation }) {
         )}
       />
       <Button
-        mode="text"
-        style={{ width: '50%',  alignSelf: 'center' }}
+        mode="outlined"
+				textColor="black"
+        style={{ width: 150,  alignSelf: 'center' }}
         onPress={loadMore}
       >Load More</Button>
+			{isLoading ? <ActivityIndicator size={25} color="black" />: <></>}
     </View>
   );
 }

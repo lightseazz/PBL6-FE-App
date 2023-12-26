@@ -69,6 +69,7 @@ export default function LeftDrawerContent({ navigation }) {
 					onPress={() =>
 						navigation.navigate("CreateChannel", {
 							workspaceId: workspaceId,
+							setChannels: setChannels,
 						})
 					}
 				>

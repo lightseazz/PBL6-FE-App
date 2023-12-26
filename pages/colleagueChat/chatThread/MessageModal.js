@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
+import * as Clipboard from 'expo-clipboard';
 
 export default function MessageModal(
   { selectedMessageId, modalVisible, setModalVisible, messages, setMessages, resetParentMessageRef,
@@ -74,6 +75,20 @@ export default function MessageModal(
       });
     setMessages([...messages]);
   }
+
+  async function onCopyContent() {
+    const copyMessage = messages.find(message => message.id == selectedMessageId);
+    const copyContent = copyMessage.content;
+    console.log(copyContent);
+    await Clipboard.setStringAsync(copyContent, {
+      inputFormat: Clipboard.StringFormat.HTML = "html",
+    });
+    setModalVisible({
+      message: false,
+      emoji: false,
+    });
+  }
+
   return (
     <Modal
       animationType="fade"
@@ -113,16 +128,19 @@ export default function MessageModal(
               ) : <></>}
             </>
           ) : <></>}
-          <TouchableOpacity style={styles.component}>
-            <Icon size={24} name="content-copy" style={styles.icon} />
-            <Text>Copy Text</Text>
-          </TouchableOpacity>
           {!isSelectParentMessage ? (
-            <TouchableOpacity style={styles.component} onPress={onPin}>
-              <Icon size={24} name="pin" style={styles.icon} />
-              <Text>Pin Message</Text>
-            </TouchableOpacity>
-          ): <></>}
+            <>
+              <TouchableOpacity style={styles.component} onPress={onCopyContent}>
+                <Icon size={24} name="content-copy" style={styles.icon} />
+                <Text>Copy Text</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.component} onPress={onPin}>
+                <Icon size={24} name="pin" style={styles.icon} />
+                <Text>Pin Message</Text>
+              </TouchableOpacity>
+            </>
+          ) : <></>}
         </View>
       </View>
     </Modal>

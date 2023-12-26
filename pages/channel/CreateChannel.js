@@ -9,9 +9,10 @@ import {
   textInputColor,
   cancelButtonColor,
 } from "../../styles/colorScheme";
+import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
 
 export default function CreateChannel({ navigation, route }) {
-  const { workspaceId } = route.params;
+  const { workspaceId, channels, setChannels } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
@@ -39,6 +40,10 @@ export default function CreateChannel({ navigation, route }) {
         setClicked(false);
         return;
       }
+
+      const channels = await getAllChannelApi(workspaceId);
+			setChannels([...channels]);
+
       navigation.goBack();
       setClicked(false);
     } catch (error) {
