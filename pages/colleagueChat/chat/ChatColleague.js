@@ -8,7 +8,7 @@ import * as signalR from "@microsoft/signalr";
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Divider } from "react-native-paper";
 import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
@@ -16,12 +16,14 @@ import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatColleague } from "../../../globalVar/global";
 import { useIsFocused } from "@react-navigation/native";
+import * as DocumentPicker from 'expo-document-picker';
+import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
 
 export default function ChatColleague({ navigation, route }) {
 
   const isFocused = useIsFocused();
   const { colleagueId } = route.params;
-  
+
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -121,11 +123,16 @@ export default function ChatColleague({ navigation, route }) {
       setMessages([...messages]);
     })
   }
-  function sendMessage() {
+  async function sendMessage() {
     if (isEdit == false) {
       let tempId = Date.now();
       let currentTime = new Date()
       let content = richTextRef.text;
+      //  upload files
+      let toUploadFiles = null;
+      if (uploadFiles.length >= 0)
+        toUploadFiles = await uploadFilesApi(uploadFiles);
+      // 
       const messagesAfterSending = [...messages];
       messagesAfterSending.unshift(
         buildMessage({
@@ -142,19 +149,21 @@ export default function ChatColleague({ navigation, route }) {
       setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
+      setUploadFiles([]);
       setSendDisabled(true);
-      sendMessageToServer(content, messagesAfterSending);
+      sendMessageToServer(content, messagesAfterSending, toUploadFiles);
     }
     if (isEdit == true) {
       updateMessageToServer();
     }
     setIsEdit(false);
   }
-  async function sendMessageToServer(content, messagesAfterSending) {
+  async function sendMessageToServer(content, messagesAfterSending, toUploadFiles) {
     const response = await connectionChatColleague.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       Content: content,
       IsChannel: false,
+      Files: toUploadFiles.length ? [...toUploadFiles.map(file => file.id)] : [],
     }).catch(function (err) {
       return console.error(err.toString());
     });
@@ -164,6 +173,7 @@ export default function ChatColleague({ navigation, route }) {
     const tempMessages = [...messagesAfterSending]
     tempMessages[0].id = response.id;
     tempMessages[0].state = "";
+    tempMessages[0].files = response.files;
     setMessages(tempMessages);
   }
   async function updateMessageToServer() {
@@ -181,7 +191,7 @@ export default function ChatColleague({ navigation, route }) {
     richTextRef.current.setContentHTML("");
     richTextRef.current.initialFocus = false;
     setSendDisabled(true);
-    setIsEdit(true);
+    setIsEdit(false);
   }
   function onChangeTextMessage(text) {
     richTextRef.text = text;
@@ -228,10 +238,57 @@ export default function ChatColleague({ navigation, route }) {
     setMessages(loadMoreMessage);
 
   }
-  async function onAddImage() {
-    console.log("hello");
+
+  // upload file
+  const [uploadFiles, setUploadFiles] = useState([]);
+  function RenderUploadImages() {
+    if (!uploadFiles || uploadFiles.length <= 0) return <></>;
+    return (
+      <>
+        {uploadFiles.map((file, index) => {
+          return (
+            <View key={index} style={{
+              alignSelf: 'flex-start', position: 'relative', flexWrap: 'wrap',
+              flexDirection: 'row', margin: 10, borderWidth: 0.5, padding: 3, borderRadius: 15
+            }}>
+              <Icon name="file" size={23}></Icon>
+              <Text>{file.name}</Text>
+              <TouchableOpacity onPress={() => cancelUploadFile(file)}>
+                <Icon name="close" size={20}></Icon>
+              </TouchableOpacity>
+            </View>
+          )
+        })}
+      </>
+    )
+  }
+  function cancelUploadFile(file) {
+    let resetUploadfiles = uploadFiles;
+    let cancelFileIndex = resetUploadfiles.findIndex(
+      upLoadFile => file.uri == upLoadFile.uri && file.size == upLoadFile.size
+    );
+    resetUploadfiles.splice(cancelFileIndex, 1);
+    setUploadFiles([...resetUploadfiles]);
+    if (uploadFiles <= 0) setSendDisabled(true);
 
   }
+  async function onUploadFile() {
+    let result = await DocumentPicker.getDocumentAsync({
+      multiple: true,
+    });
+
+    if (!result.canceled) {
+      let newUploadFiles = uploadFiles;
+      result.assets.map(asset => {
+        newUploadFiles.push(asset);
+      });
+      setUploadFiles([...newUploadFiles]);
+      if (uploadFiles.length > 0) setSendDisabled(false);
+    }
+  }
+
+
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -328,6 +385,18 @@ export default function ChatColleague({ navigation, route }) {
         setMessages={setMessages}
       />
 
+      {!uploadFiles || uploadFiles.length <= 0 ? <></> : (
+        <>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ marginLeft: 10, color: 'grey', fontStyle: 'italic' }}>Upload files</Text>
+            <Divider style={{ flex: 1 }} bold />
+          </View>
+          <ScrollView style={{ maxHeight: 150 }}>
+            <RenderUploadImages />
+          </ScrollView>
+        </>
+      )}
+
       <ScrollView>
         <RichEditor
           editorStyle={{ backgroundColor: 'rgba(52, 52, 52, 0)' }}
@@ -336,15 +405,21 @@ export default function ChatColleague({ navigation, route }) {
           style={{ borderTopWidth: 1, borderColor: 'grey' }}
           ref={richTextRef}
           onChange={onChangeTextMessage}
-          onPressAddImage={onAddImage}
         />
       </ScrollView>
       <View style={{ flexDirection: 'row' }}>
         <RichToolbar
           editor={richTextRef}
           actions={[actions.setBold, actions.setItalic,
-          actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList, actions.insertImage]}
+          actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList]}
         />
+
+        {!isEdit ? (
+          <TouchableOpacity style={{ alignSelf: 'flex-start', padding: 10 }} onPress={onUploadFile}>
+            <Icon name="link" size={23}></Icon>
+          </TouchableOpacity>
+        ) : <></>}
+
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
           <TouchableOpacity
             style={{

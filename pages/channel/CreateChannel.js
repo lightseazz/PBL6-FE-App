@@ -34,7 +34,6 @@ export default function CreateChannel({ navigation, route }) {
         return;
       }
       const response = await createChannelApi(name, description, workspaceId);
-			console.log(response);
       if (response.status != 200) {
         setError("create channel failed");
         setClicked(false);

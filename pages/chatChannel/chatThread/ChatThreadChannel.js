@@ -8,13 +8,15 @@ import * as signalR from "@microsoft/signalr";
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Divider } from "react-native-paper";
 import getMessageChildChannelApi from "../../../api/chatApi/getMessageChildChannel.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatChannel } from "../../../globalVar/global";
+import * as DocumentPicker from 'expo-document-picker';
+import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
 
 export default function ChatThreadChannel({ navigation, route }) {
   const
@@ -109,7 +111,7 @@ export default function ChatThreadChannel({ navigation, route }) {
         setCurrentParentReactionCount(message.reactionCount);
         setCurrentParentState(message.isEdited ? messageState.isEdited : "");
         setCurrentParentIsPined(message.isPined);
-				setCurrentParentFiles(message.files);
+        setCurrentParentFiles(message.files);
       }
       if (message.id != parentMessageId) {
         const updateMessage = messages.find(msg => msg.id == message.id);
@@ -128,11 +130,17 @@ export default function ChatThreadChannel({ navigation, route }) {
   reiceiveUpdate();
   receiveDelete();
 
-  function sendMessage() {
+  async function sendMessage() {
     if (isEdit == false) {
       let tempId = Date.now();
       let currentTime = new Date()
       let content = richTextRef.text;
+      //  upload files
+      let toUploadFiles = null;
+      if (uploadFiles.length >= 0)
+        toUploadFiles = await uploadFilesApi(uploadFiles);
+      // 
+
       const messagesAfterSending = [...messages];
       messagesAfterSending.unshift(
         buildMessage({
@@ -148,8 +156,9 @@ export default function ChatThreadChannel({ navigation, route }) {
       setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
+      setUploadFiles([]);
       setSendDisabled(true);
-      sendMessageToServer(content, messagesAfterSending);
+      sendMessageToServer(content, messagesAfterSending, toUploadFiles);
     }
     if (isEdit == true && isSelectParentMessage == false) {
       updateMessageToServer();
@@ -159,12 +168,13 @@ export default function ChatThreadChannel({ navigation, route }) {
     }
     setIsEdit(false);
   }
-  async function sendMessageToServer(content, messagesAfterSending) {
+  async function sendMessageToServer(content, messagesAfterSending, toUploadFiles) {
     const response = await connectionChatChannel.invoke("SendMessageAsync", {
       ReceiverId: currentChannelId,
       ReplyTo: parentMessageId,
       Content: content,
       IsChannel: true,
+      Files: toUploadFiles.length ? [...toUploadFiles.map(file => file.id)] : [],
     }).catch(function (err) {
       return console.error(err.toString());
     });
@@ -174,6 +184,7 @@ export default function ChatThreadChannel({ navigation, route }) {
     const tempMessages = [...messagesAfterSending]
     tempMessages[0].id = response.id;
     tempMessages[0].state = "";
+    tempMessages[0].files = response.files;
     setMessages(tempMessages);
     resetParentMessageRef.current.isChanging = true;
     setCurrentParentChildCount(currentParentChildCount + 1);
@@ -209,7 +220,7 @@ export default function ChatThreadChannel({ navigation, route }) {
     richTextRef.current.setContentHTML("");
     richTextRef.current.initialFocus = false;
     setSendDisabled(true);
-    setIsEdit(true);
+    setIsEdit(false);
   }
   function onChangeTextMessage(text) {
     richTextRef.text = text;
@@ -243,6 +254,55 @@ export default function ChatThreadChannel({ navigation, route }) {
       return;
     }
   }
+
+  // upload file
+  const [uploadFiles, setUploadFiles] = useState([]);
+  function RenderUploadImages() {
+    if (!uploadFiles || uploadFiles.length <= 0) return <></>;
+    return (
+      <>
+        {uploadFiles.map((file, index) => {
+          return (
+            <View key={index} style={{
+              alignSelf: 'flex-start', position: 'relative', flexWrap: 'wrap',
+              flexDirection: 'row', margin: 10, borderWidth: 0.5, padding: 3, borderRadius: 15
+            }}>
+              <Icon name="file" size={23}></Icon>
+              <Text>{file.name}</Text>
+              <TouchableOpacity onPress={() => cancelUploadFile(file)}>
+                <Icon name="close" size={20}></Icon>
+              </TouchableOpacity>
+            </View>
+          )
+        })}
+      </>
+    )
+  }
+  function cancelUploadFile(file) {
+    let resetUploadfiles = uploadFiles;
+    let cancelFileIndex = resetUploadfiles.findIndex(
+      upLoadFile => file.uri == upLoadFile.uri && file.size == upLoadFile.size
+    );
+    resetUploadfiles.splice(cancelFileIndex, 1);
+    setUploadFiles([...resetUploadfiles]);
+    if (uploadFiles <= 0) setSendDisabled(true);
+
+  }
+  async function onUploadFile() {
+    let result = await DocumentPicker.getDocumentAsync({
+      multiple: true,
+    });
+
+    if (!result.canceled) {
+      let newUploadFiles = uploadFiles;
+      result.assets.map(asset => {
+        newUploadFiles.push(asset);
+      });
+      setUploadFiles([...newUploadFiles]);
+      if (uploadFiles.length > 0) setSendDisabled(false);
+    }
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -346,6 +406,18 @@ export default function ChatThreadChannel({ navigation, route }) {
         setMessages={setMessages}
       />
 
+      {!uploadFiles || uploadFiles.length <= 0 ? <></> : (
+        <>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ marginLeft: 10, color: 'grey', fontStyle: 'italic' }}>Upload files</Text>
+            <Divider style={{ flex: 1 }} bold />
+          </View>
+          <ScrollView style={{ maxHeight: 150 }}>
+            <RenderUploadImages />
+          </ScrollView>
+        </>
+      )}
+
       <ScrollView>
         <RichEditor
           editorStyle={{ backgroundColor: 'rgba(52, 52, 52, 0)' }}
@@ -362,6 +434,13 @@ export default function ChatThreadChannel({ navigation, route }) {
           actions={[actions.setBold, actions.setItalic,
           actions.setUnderline, actions.insertBulletsList, actions.insertOrderedList]}
         />
+
+        {!isEdit ? (
+          <TouchableOpacity style={{ alignSelf: 'flex-start', padding: 10 }} onPress={onUploadFile}>
+            <Icon name="link" size={23}></Icon>
+          </TouchableOpacity>
+        ) : <></>}
+
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
           <TouchableOpacity
             style={{

@@ -4,6 +4,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import { SvgUri } from "react-native-svg";
@@ -64,7 +65,7 @@ export default function Message({
         flexDirection: 'row', borderWidth: 0.5,
         borderRadius: 10, padding: 10,
         marginBottom: 10,
-				alignItems: 'center',
+        alignItems: 'center',
       }
     })
 
@@ -76,7 +77,6 @@ export default function Message({
             const typeFile = file.name.split(".")[1]
               ? file.name.split(".").pop().slice(0, 3).toUpperCase()
               : "";
-            console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
                 <TouchableOpacity key={index} onPress={() => openLink(file.url)} style={{ marginBottom: 10 }}>
@@ -132,7 +132,7 @@ export default function Message({
               )
 
             }
-            if (!file.url) {
+            if (file.url) {
               return (
                 <TouchableOpacity key={index}
                   style={fileStyles.container}
@@ -148,80 +148,99 @@ export default function Message({
       </>
     )
   }
+  const RenderMessage = () => (
+    <TouchableOpacity
+      style={styles.messageContainer}
+      delayLongPress={50}
+      onLongPress={() => {
+        if (isParent) setIsSelectParentMessage(true)
+        else setIsSelectParentMessage(false)
+        selectedUserRef.current = senderId;
+        setModalId(id);
+        setModalVisible({
+          message: true,
+          emoji: false,
+        })
+      }
+      }
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginBottom: 10,
+        }}
+      >
+        <Avatar.Image
+          size={40}
+          source={{
+            uri: senderAvatar,
+          }}
+        />
+        <View>
+          {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
+          <Text style={styles.usernameText}>{senderName}</Text>
+          <Text style={styles.timeText}>{time}</Text>
+        </View>
+        {isPined ? (<Icon name="pin" size={18}
+          color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
+        />
+        ) : <></>}
+      </View>
+      <RenderHtml contentWidth={width} source={{ html: content ? content : <p></p> }} />
+      <RenderFiles />
+      <View style={styles.emojiContainer}>
+        <View style={styles.emoji}>
+          <TouchableOpacity
+            style={{ flexDirection: "row" }}
+            onPress={() => {
+              if (isParent) setIsSelectParentMessage(true)
+              else setIsSelectParentMessage(false)
+              selectedUserRef.current = senderId;
+              setModalId(id);
+              setModalVisible({
+                message: false,
+                emoji: true,
+              })
+            }
+            }
+          >
+            <Image source={require('../../../assets/addemoji.png')} style={{ width: 25, height: 25 }} />
+          </TouchableOpacity>
+        </View>
+        <RenderEmoji />
+      </View>
+    </TouchableOpacity>
+  )
+  if (isParent)
+    return (
+      <>
+        {state == "deleted" ? (
+          <View style={styles.containerDelete}>
+            <Text style={styles.deleteMessage}>Message is Deleted</Text>
+          </View>) : (
+          <ScrollView style={styles.container}>
+            <RenderMessage />
+          </ScrollView>
+        )}
+      </>
+    );
   return (
     <>
       {state == "deleted" ? (
         <View style={styles.containerDelete}>
           <Text style={styles.deleteMessage}>Message is Deleted</Text>
         </View>) : (
-        <TouchableOpacity
-          style={styles.messageContainer}
-          delayLongPress={50}
-          onLongPress={() => {
-            if (isParent) setIsSelectParentMessage(true)
-            else setIsSelectParentMessage(false)
-            selectedUserRef.current = senderId;
-            setModalId(id);
-            setModalVisible({
-              message: true,
-              emoji: false,
-            })
-          }
-          }
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <Avatar.Image
-              size={40}
-              source={{
-                uri: senderAvatar,
-              }}
-            />
-            <View>
-              {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
-              <Text style={styles.usernameText}>{senderName}</Text>
-              <Text style={styles.timeText}>{time}</Text>
-            </View>
-            {isPined ? (<Icon name="pin" size={18}
-              color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
-            />
-            ) : <></>}
-          </View>
-          <RenderHtml contentWidth={width} source={{ html: content }} />
-          <RenderFiles />
-          <View style={styles.emojiContainer}>
-            <View style={styles.emoji}>
-              <TouchableOpacity
-                style={{ flexDirection: "row" }}
-                onPress={() => {
-                  if (isParent) setIsSelectParentMessage(true)
-                  else setIsSelectParentMessage(false)
-                  selectedUserRef.current = senderId;
-                  setModalId(id);
-                  setModalVisible({
-                    message: false,
-                    emoji: true,
-                  })
-                }
-                }
-              >
-                <Image source={require('../../../assets/addemoji.png')} style={{ width: 25, height: 25 }} />
-              </TouchableOpacity>
-            </View>
-            <RenderEmoji />
-          </View>
-        </TouchableOpacity>
+        <RenderMessage />
       )}
     </>
-
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    maxHeight: 200,
+  },
   messageContainer: {
     padding: 25,
     alignSelf: "flex-start",

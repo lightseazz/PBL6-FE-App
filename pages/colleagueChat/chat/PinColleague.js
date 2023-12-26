@@ -156,7 +156,6 @@ function PinMessage({
             const typeFile = file.name.split(".")[1]
               ? file.name.split(".").pop().slice(0, 3).toUpperCase()
               : "";
-            console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
                 <TouchableOpacity key={index} onPress={() => openLink(file.url)} style={{ marginBottom: 10 }}>
@@ -212,7 +211,7 @@ function PinMessage({
               )
 
             }
-            if (!file.url) {
+            if (file.url) {
               return (
                 <TouchableOpacity key={index}
                   style={fileStyles.container}

@@ -93,7 +93,6 @@ export default function Message({
             const typeFile = file.name.split(".")[1]
               ? file.name.split(".").pop().slice(0, 3).toUpperCase()
               : "";
-            console.log(typeFile);
             if (typeFile == "IMG" || typeFile == "PNG" || typeFile == "JPE" || typeFile == "JPG") {
               return (
                 <TouchableOpacity key={index} onPress={() => openLink(file.url)} style={{ marginBottom: 10 }}>
@@ -149,7 +148,7 @@ export default function Message({
               )
 
             }
-            if (!file.url) {
+            if (file.url) {
               return (
                 <TouchableOpacity key={index}
                   style={fileStyles.container}
@@ -190,6 +189,7 @@ export default function Message({
             style={{
               flexDirection: "row",
               alignItems: "center",
+              marginBottom: 10,
             }}
           >
             <Avatar.Image
@@ -208,7 +208,7 @@ export default function Message({
             />
             ) : <></>}
           </View>
-          <RenderHtml contentWidth={width} source={{ html: content }} />
+          <RenderHtml contentWidth={width} source={{ html: content ? content : "" }} />
           <RenderFiles />
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
