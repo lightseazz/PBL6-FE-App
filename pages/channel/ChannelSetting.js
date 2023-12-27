@@ -4,16 +4,20 @@ import ConfirmAlert from "../ConfirmAlert";
 import deleteChannelApi from "../../api/channelApi/deleteChannel.api";
 import { Alert } from "react-native";
 import { buttonColor } from "../../styles/colorScheme";
+import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
 
 export default function ChannelSetting({ route, navigation }) {
-  const { channelId, workspaceId } = route.params;
+  const { channelId, workspaceId, setChannels, setCurrentChannelId } = route.params;
   async function onPressDelete() {
     const response = await deleteChannelApi(workspaceId, channelId);
     if (response.status != 200) {
       Alert.alert("delete channel failed");
       return;
     }
-    navigation.goBack();
+    const allChannels = await getAllChannelApi(workspaceId);
+    setChannels([...allChannels]);
+    setCurrentChannelId(allChannels[0].id);
+		navigation.goBack();
   }
   return (
     <View
@@ -43,7 +47,7 @@ export default function ChannelSetting({ route, navigation }) {
           Channel Overview
         </Button>
         <Button
-					style={{marginTop: 20}}
+          style={{ marginTop: 20 }}
           {...buttonColor}
           mode="elevated"
           onPress={() =>

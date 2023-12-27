@@ -6,7 +6,11 @@ import { buttonColor } from "../../styles/colorScheme";
 import { WorkspaceIdContext } from "../../hook/WorkspaceContext";
 
 export default function RightDrawerContent({ navigation }) {
-  const { currentChannelId } = useContext(currentChannelIdContext);
+  const {
+    setCurrentChannelId,
+    currentChannelId,
+    setChannels,
+  } = useContext(currentChannelIdContext);
   const workspaceId = useContext(WorkspaceIdContext);
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -45,6 +49,8 @@ export default function RightDrawerContent({ navigation }) {
             navigation.navigate("ChannelSetting", {
               channelId: currentChannelId,
               workspaceId: workspaceId,
+              setChannels: setChannels,
+              setCurrentChannelId: setCurrentChannelId,
             })
           }
         >

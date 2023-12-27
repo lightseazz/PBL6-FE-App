@@ -56,7 +56,7 @@ export default function ChatChannel({ navigation, route }) {
       setMessages(initMessages);
     }
 
-    if (currentChannelId && isFocused) {
+    if (currentChannelId) {
       renderChannelName();
       getInitMessages();
     }

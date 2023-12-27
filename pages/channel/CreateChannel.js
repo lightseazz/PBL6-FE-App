@@ -10,6 +10,9 @@ import {
   cancelButtonColor,
 } from "../../styles/colorScheme";
 import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
+import * as SecureStore from "expo-secure-store";
+import * as signalR from "@microsoft/signalr";
+import { setConnectionChatChannel } from "../../globalVar/global";
 
 export default function CreateChannel({ navigation, route }) {
   const { workspaceId, channels, setChannels } = route.params;
@@ -42,7 +45,27 @@ export default function CreateChannel({ navigation, route }) {
       }
 
       const channels = await getAllChannelApi(workspaceId);
-			setChannels([...channels]);
+      setChannels([...channels]);
+
+      async function connectHub() {
+        let baseUrl = "https://api.firar.live";
+        const userToken = await SecureStore.getItemAsync("userToken");
+        let connection = new signalR.HubConnectionBuilder()
+          .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
+          .withAutomaticReconnect()
+          .build()
+
+        connection.on("Error", function (message) {
+          console.log("signalR Connection Error: ", message);
+        });
+        connection.start().then(function () {
+        })
+          .catch(function (err) {
+            return console.error(err.toString());
+          });
+        setConnectionChatChannel(connection);
+      }
+      connectHub();
 
       navigation.goBack();
       setClicked(false);
