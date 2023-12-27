@@ -1,4 +1,4 @@
-import { Modal, ScrollView } from "react-native";
+import Modal from "react-native-modal";
 import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
@@ -33,9 +33,15 @@ export default function EmojiModal({ modalVisible, setModalVisible, selectedMess
   }
   return (
     <Modal
-      animationType="fade"
+      onBackdropPress={() => setModalVisible({
+        message: false,
+        emoji: false,
+      })}
+      backdropColor="black"
+      hideModalContentWhileAnimating={true}
+      backdropTransitionOutTiming={0}
       transparent={true}
-      visible={modalVisible["emoji"]}
+      isVisible={modalVisible["emoji"]}
       onRequestClose={() =>
         setModalVisible({
           message: false,
@@ -43,22 +49,20 @@ export default function EmojiModal({ modalVisible, setModalVisible, selectedMess
         })
       }
     >
-      <View style={styles.bottomedView}>
-        <View style={styles.modalView}>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={() =>
-              setModalVisible({
-                message: false,
-                emoji: false,
-              })
-            }
-          >
-            <Icon size={30} name="minus-thick" style={styles.close} />
-          </Pressable>
-          <View style={styles.emojiContainer}>
-            <EmojiRenders />
-          </View>
+      <View style={styles.modalView}>
+        <Pressable
+          style={[styles.button, styles.buttonClose]}
+          onPress={() =>
+            setModalVisible({
+              message: false,
+              emoji: false,
+            })
+          }
+        >
+          <Icon size={30} name="minus-thick" style={styles.close} />
+        </Pressable>
+        <View style={styles.emojiContainer}>
+          <EmojiRenders />
         </View>
       </View>
     </Modal>
@@ -66,11 +70,6 @@ export default function EmojiModal({ modalVisible, setModalVisible, selectedMess
 }
 
 const styles = StyleSheet.create({
-  bottomedView: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    flexDirection: "column-reverse",
-    flex: 1,
-  },
   modalView: {
     backgroundColor: "white",
     borderRadius: 20,

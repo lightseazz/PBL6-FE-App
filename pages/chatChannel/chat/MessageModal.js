@@ -1,4 +1,4 @@
-import { Modal } from "react-native";
+import Modal from "react-native-modal";
 import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
@@ -62,10 +62,10 @@ export default function MessageModal(
   async function onCopyContent() {
     const copyMessage = messages.find(message => message.id == selectedMessageId);
     const copyContent = copyMessage.content;
-		console.log(copyContent);
+    console.log(copyContent);
     await Clipboard.setStringAsync(copyContent, {
-			inputFormat: Clipboard.StringFormat.HTML = "html",
-		});
+      inputFormat: Clipboard.StringFormat.HTML = "html",
+    });
     setModalVisible({
       message: false,
       emoji: false,
@@ -74,9 +74,15 @@ export default function MessageModal(
 
   return (
     <Modal
-      animationType="fade"
+      onBackdropPress={() => setModalVisible({
+        message: false,
+        emoji: false,
+      })}
+      backdropColor="black"
+      hideModalContentWhileAnimating={true}
+      backdropTransitionOutTiming={0}
       transparent={true}
-      visible={modalVisible["message"]}
+      isVisible={modalVisible["message"]}
       onRequestClose={() =>
         setModalVisible({
           message: false,
@@ -84,61 +90,47 @@ export default function MessageModal(
         })
       }
     >
-      <View style={styles.bottomedView}>
-        <View style={styles.modalView}>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={() =>
-              setModalVisible({
-                message: false,
-                emoji: false,
-              })
-            }
-          >
-            <Icon size={30} name="minus-thick" style={styles.close} />
-          </Pressable>
-          {selectedUserRef.current == userSignedIn.id ? (
-            <>
-              <TouchableOpacity style={styles.component} onPress={onEditMessage}>
-                <Icon size={24} name="pencil" style={styles.icon} />
-                <Text>Edit Message</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
-                <Icon size={24} name="delete" style={styles.icon} />
-                <Text>Delete Message</Text>
-              </TouchableOpacity>
-            </>
-          ) : <></>}
-          <TouchableOpacity style={styles.component} onPress={onCopyContent}>
-            <Icon size={24} name="content-copy" style={styles.icon} />
-            <Text>Copy Text</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.component} onPress={onPin}>
-            <Icon size={24} name="pin" style={styles.icon} />
-            <Text>Pin Message</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.modalView}>
+        <Pressable
+          style={[styles.button, styles.buttonClose]}
+          onPress={() =>
+            setModalVisible({
+              message: false,
+              emoji: false,
+            })
+          }
+        >
+          <Icon size={30} name="minus-thick" style={styles.close} />
+        </Pressable>
+        {selectedUserRef.current == userSignedIn.id ? (
+          <>
+            <TouchableOpacity style={styles.component} onPress={onEditMessage}>
+              <Icon size={24} name="pencil" style={styles.icon} />
+              <Text>Edit Message</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.component} onPress={onDeleteMessage}>
+              <Icon size={24} name="delete" style={styles.icon} />
+              <Text>Delete Message</Text>
+            </TouchableOpacity>
+          </>
+        ) : <></>}
+        <TouchableOpacity style={styles.component} onPress={onCopyContent}>
+          <Icon size={24} name="content-copy" style={styles.icon} />
+          <Text>Copy Text</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.component} onPress={onPin}>
+          <Icon size={24} name="pin" style={styles.icon} />
+          <Text>Pin Message</Text>
+        </TouchableOpacity>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  bottomedView: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    flexDirection: "column-reverse",
-    flex: 1,
-  },
   modalView: {
     backgroundColor: "white",
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
     elevation: 5,
   },
   component: {

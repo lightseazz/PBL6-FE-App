@@ -1,4 +1,4 @@
-import { Modal } from "react-native";
+import Modal from "react-native-modal";
 import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
@@ -72,9 +72,15 @@ export default function MessageModal(
 
   return (
     <Modal
-      animationType="fade"
+      onBackdropPress={() => setModalVisible({
+        message: false,
+        emoji: false,
+      })}
+      backdropColor="black"
+      hideModalContentWhileAnimating={true}
+      backdropTransitionOutTiming={0}
       transparent={true}
-      visible={modalVisible["message"]}
+      isVisible={modalVisible["message"]}
       onRequestClose={() =>
         setModalVisible({
           message: false,
@@ -82,7 +88,6 @@ export default function MessageModal(
         })
       }
     >
-      <View style={styles.bottomedView}>
         <View style={styles.modalView}>
           <Pressable
             style={[styles.button, styles.buttonClose]}
@@ -116,17 +121,11 @@ export default function MessageModal(
             <Text>Pin Message</Text>
           </TouchableOpacity>
         </View>
-      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  bottomedView: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    flexDirection: "column-reverse",
-    flex: 1,
-  },
   modalView: {
     backgroundColor: "white",
     borderRadius: 20,
