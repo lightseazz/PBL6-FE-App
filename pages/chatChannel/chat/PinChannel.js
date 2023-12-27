@@ -216,16 +216,21 @@ function PinMessage({
     try {
       const pinMessage = pinMessages.find(message => message.id == id);
       let response;
-      if (!pinMessage.parentId) response = await getMessageJumpApi(id);
-      if (pinMessage.parentId) response = await getMessageJumpApi(pinMessage.parentId);
-      response = response.sort(compareSendAt);
+      if (!pinMessage.parentId) {
+        response = await getMessageJumpApi(id);
+        response = response.sort(compareSendAt);
+        let indexJumpMsg = response.findIndex(item => item.id == id);
+        response = response.slice(indexJumpMsg);
+      }
+      if (pinMessage.parentId) {
+        response = await getMessageJumpApi(pinMessage.parentId)
+        response = response.sort(compareSendAt);
+        let indexJumpMsg = response.findIndex(item => item.id == pinMessage.parentId);
+        response = response.slice(indexJumpMsg);
+      };
       setMessages([...response]);
-      let index;
-      if (!pinMessage.parentId)
-        index = response.findIndex(item => item.id == id);
-      if (pinMessage.parentId)
-        index = response.findIndex(item => item.id == pinMessage.parentId);
-      flatListRef.current.scrollToIndex({ animated: true, index: index })
+
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
       navigation.goBack();
     } catch { }
   }

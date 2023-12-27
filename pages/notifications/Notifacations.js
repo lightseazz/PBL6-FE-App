@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Item from "./Item";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useRef, useState } from "react";
@@ -13,9 +13,11 @@ export default function Notifications({ navigation }) {
   const isFocus = useIsFocused();
   const [notis, setNotis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const listNotis = useRef();
   useEffect(function () {
     async function initNotifications() {
       const response = await getNotificationApi(0, 10);
+			countOffset.current = 11;
       if (!response || response.length <= 0) return;
       setNotis([...response]);
     }
@@ -23,12 +25,12 @@ export default function Notifications({ navigation }) {
   }, [isFocus])
   async function loadMore() {
     setIsLoading(true);
-    const response = await getNotificationApi(countOffset.current, 5);
+    const response = await getNotificationApi(countOffset.current, 10);
     let moreNotis = notis.concat(response);
-    countOffset.current += 5;
     setNotis([...moreNotis]);
-		console.log("hello");
+    listNotis.current.scrollToEnd({animated: true});
     setIsLoading(false);
+    countOffset.current += 10;
   }
 
   async function onChangeType(type) {
@@ -46,7 +48,8 @@ export default function Notifications({ navigation }) {
         <Picker.Item label="channel" value="channel" />
       </Picker>
       <FlashList
-        estimatedItemSize={200}
+        ref={listNotis}
+        estimatedItemSize={50}
         data={notis}
         renderItem={({ item }) => (
           <Item
@@ -61,13 +64,13 @@ export default function Notifications({ navigation }) {
           />
         )}
       />
+      {isLoading ? <ActivityIndicator size={25} color="black" /> : <></>}
       <Button
         mode="outlined"
         textColor="black"
         style={{ width: 150, alignSelf: 'center' }}
         onPress={loadMore}
       >Load More</Button>
-      {isLoading ? <ActivityIndicator size={25} color="black" /> : <></>}
     </View>
   );
 }
