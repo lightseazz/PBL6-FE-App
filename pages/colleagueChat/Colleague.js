@@ -3,6 +3,7 @@ import { TouchableOpacity, View, Text, StyleSheet, useWindowDimensions } from "r
 import { Directions } from "react-native-gesture-handler";
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { getShortDatetimeSendAt } from "../../utils/common";
 
 export default function Colleague({
   id,
@@ -54,7 +55,7 @@ export default function Colleague({
           </View>
         </View>
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{lastMessageTime ? new Date(lastMessageTime).toLocaleString() : ""}</Text>
+          <Text style={styles.timeText}>{lastMessageTime ? getShortDatetimeSendAt(lastMessageTime) : ""}</Text>
         </View>
       </View>
     </TouchableOpacity>

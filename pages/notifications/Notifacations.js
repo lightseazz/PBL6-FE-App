@@ -28,6 +28,10 @@ export default function Notifications({ navigation }) {
   async function loadMore() {
     setIsLoading(true);
     const response = await getNotisByType(nextOffset.current, LIMIT, selectedType);
+    if (response.length == 0) {
+			setIsLoading(false);
+			return;
+		};
     let moreNotis = notis.concat(response);
     setNotis([...moreNotis]);
     listNotis.current.scrollToEnd({ animated: true });
@@ -61,7 +65,7 @@ export default function Notifications({ navigation }) {
     const resetNotis = notis.filter(noti => noti.selected != true);
     setNotis([...resetNotis]);
     setResetList(resetList => !resetList);
-		setDeleteMode(false);
+    setDeleteMode(false);
   }
   function cancelDeleteMode() {
     clearAll();
@@ -103,7 +107,7 @@ export default function Notifications({ navigation }) {
             id={item.id}
             title={item.title}
             content={item.content}
-            createAt={item.createAt}
+            createdAt={item.createdAt}
             isRead={item.isRead}
             type={item.type}
             data={item.data}

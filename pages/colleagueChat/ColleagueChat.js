@@ -8,8 +8,6 @@ import * as SecureStore from "expo-secure-store"
 import * as signalR from "@microsoft/signalr"
 import { useIsFocused } from "@react-navigation/native";
 import { setConnectionChatColleague } from "../../globalVar/global";
-import { connectionChatChannel } from "../../globalVar/global";
-import getUserByIdApi from "../../api/userApi/getUserById.api";
 import getUsersConversationApi from "../../api/chatApi/getUsersConversation.api";
 import { FlashList } from "@shopify/flash-list";
 

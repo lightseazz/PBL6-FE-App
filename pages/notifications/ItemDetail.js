@@ -2,13 +2,14 @@ import { View, StyleSheet, Text, StatusBar, Alert } from "react-native";
 import { Avatar, Button, Divider } from "react-native-paper";
 import acceptWpApi from "../../api/workspaceApi/acceptWp.api";
 import declineWpApi from "../../api/workspaceApi/declineWp.api";
+import { getShortDatetimeSendAt } from "../../utils/common";
 
 const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
 
 
 export default function ItemDetail({ navigation, route }) {
-  const { id, title, content, createAt, isRead, type, data } = route.params;
+  const { id, title, content, createdAt, isRead, type, data } = route.params;
 	console.log(isRead);
   let dataJson = JSON.parse(data);
   let dataDetailJson = JSON.parse(dataJson.Detail);
@@ -77,7 +78,7 @@ export default function ItemDetail({ navigation, route }) {
           }}
         />
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{createAt}</Text>
+          <Text style={styles.timeText}>{getShortDatetimeSendAt(createdAt)}</Text>
         </View>
       </View>
       <Divider bold={true} style={styles.divider} />
@@ -86,12 +87,6 @@ export default function ItemDetail({ navigation, route }) {
         <>
           <AcceptWsp />
           <DeclineWsp />
-        </>
-      ) : <></>}
-      {type == 4 ? (
-        <>
-          <AcceptChannel />
-          <DeclineChannel />
         </>
       ) : <></>}
     </View>

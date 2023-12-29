@@ -3,6 +3,7 @@ import { Directions } from "react-native-gesture-handler";
 import { Avatar, Checkbox } from "react-native-paper";
 import putReadNotiApi from "../../api/notification/putReadNoti.api";
 import { useEffect, useState } from "react";
+import { getShortDatetimeSendAt } from "../../utils/common";
 
 const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png"
 
@@ -11,7 +12,7 @@ export default function Item({
   id,
   title,
   content,
-  createAt,
+  createdAt,
   isRead,
   type,
   data,
@@ -32,7 +33,7 @@ export default function Item({
       id,
       title,
       content,
-      createAt,
+      createdAt,
       isRead,
       type,
       data,
@@ -71,7 +72,7 @@ export default function Item({
     >
       <View style={styles.secondContainer}>
         <Avatar.Image
-          style={{ borderRadius: 10, backgroundColor: 'white' }}
+          style={{ borderRadius: 10, backgroundColor: 'white', alignSelf: 'center' }}
           size={30}
           source={{
             uri: icon,
@@ -79,11 +80,12 @@ export default function Item({
         />
         <View style={{ width: 300 }}>
           <View style={styles.leftContainer}>
-            <Text style={{ color: '#1a69a6', fontWeight: isRead ? "normal" : "bold" }}>{title}</Text>
-            <Text style={{ fontWeight: isRead ? "normal" : "bold" }}>{content}</Text>
-          </View>
-          <View style={styles.timeContainer}>
-            <Text style={styles.timeText}>{createAt}</Text>
+            <Text style={{ color: '#1a69a6', fontWeight: isRead ? "normal" : "bold", fontSize: 15 }}>{title}</Text>
+            <View style={styles.timeContainer}>
+              <Text style={{ fontWeight: isRead ? "normal" : "bold", fontStyle: 'italic', fontSize: 12 }}
+              >{getShortDatetimeSendAt(createdAt)}</Text>
+            </View>
+            <Text style={{ fontWeight: isRead ? "normal" : "bold", marginTop: 10 }}>{content}</Text>
           </View>
         </View>
         {deleteMode ?
@@ -105,7 +107,10 @@ function getTogleCheck(check) {
 }
 const styles = StyleSheet.create({
   container: {
-    padding: 13,
+		padding: 10,
+		marginBottom: 10,
+		borderRadius: 10,
+		backgroundColor: '#F6F6F6',
   },
   secondContainer: {
     flexDirection: "row",
@@ -118,5 +123,4 @@ const styles = StyleSheet.create({
   leftContainer: {
     marginLeft: 10,
   },
-  timeText: { fontSize: 12, alignSelf: "flex-end" },
 });

@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as Linking from 'expo-linking';
 import * as linkify from 'linkifyjs';
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
+import { getShortDatetimeSendAt } from "../../../utils/common";
 
 export default function Message({
   state,
@@ -34,7 +35,6 @@ export default function Message({
   files,
 }) {
   const { width } = useWindowDimensions();
-  let time = (new Date(sendAt)).toLocaleString();
   function RenderEmoji() {
     if (!reactionCount) return <></>;
     const emojis = Object.entries(reactionCount);
@@ -207,7 +207,7 @@ export default function Message({
         <View>
           {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
           <Text style={styles.usernameText}>{senderName}</Text>
-          <Text style={styles.timeText}>{time}</Text>
+          <Text style={styles.timeText}>{getShortDatetimeSendAt(sendAt)}</Text>
         </View>
         {isPined ? (<Icon name="pin" size={18}
           color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
