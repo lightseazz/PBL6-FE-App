@@ -84,6 +84,7 @@ export default function ColleagueChat({ navigation }) {
         )}
       />
       <AddModal
+				navigation={navigation}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         colleagues={colleagues}

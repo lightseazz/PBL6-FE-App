@@ -4,14 +4,8 @@ import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { connectionChatChannel } from "../../../globalVar/global";
+import { emojis } from "../../../utils/common";
 
-const emojis = [];
-for (i = 128512; i <= 128540; i++) {
-  emojis.push({
-    key: i,
-    code: i,
-  });
-}
 
 export default function EmojiModal({ modalVisible, setModalVisible, selectedMessageId, messages, setMessages }) {
   function EmojiRenders() {

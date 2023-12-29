@@ -68,7 +68,7 @@ export default function Item({
       style={styles.container}
       onPress={onPressNoti}
       onLongPress={turnOnDeleteMode}
-      delayLongPress={50}
+      delayLongPress={200}
     >
       <View style={styles.secondContainer}>
         <Avatar.Image

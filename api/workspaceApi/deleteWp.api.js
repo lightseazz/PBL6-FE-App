@@ -15,6 +15,7 @@ export default async (workspaceId) => {
         "workspace-id": workspaceId,
       },
     });
+		console.log(response.status);
     return response;
   } catch (error) {
     return error;

@@ -130,13 +130,36 @@ function checkIsToday(time) {
 function checkIsThisYear(time) {
   try {
     const now = new Date();
-		console.log(time.getFullYear())
     if (now.getFullYear() == time.getFullYear())
       return true;
     return false;
 
   } catch {
     return false;
-
   }
+}
+
+
+
+export const emojis = [{
+  key: 128405,
+  code: 128405,
+}];
+for (i = 128147; i <= 128150; i++) {
+  emojis.push({
+    key: i,
+    code: i,
+  });
+}
+for (i = 128077; i <= 128080; i++) {
+  emojis.push({
+    key: i,
+    code: i,
+  });
+}
+for (i = 128512; i <= 128530; i++) {
+  emojis.push({
+    key: i,
+    code: i,
+  });
 }

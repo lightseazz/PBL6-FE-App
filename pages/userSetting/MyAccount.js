@@ -17,6 +17,7 @@ import updateUserAvatarApi from "../../api/userApi/updateUserAvatar.api";
 
 export default function MyAccount() {
   const [image, setImage] = useState(null);
+	const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -56,18 +57,24 @@ export default function MyAccount() {
   }, [])
   async function onPressUpdateImage() {
     try {
+			setIsLoadingImage(true);
       const response = await updateUserAvatarApi(userId, image);
       if (response.status != 200) {
         Alert.alert("update image failed");
+				setIsLoadingImage(false);
         return;
       }
+			setIsLoadingImage(false);
       Alert.alert("update image success");
-    } catch { }
+    } catch {
+			setIsLoadingImage(false);
+		}
   }
 	async function saveInformation(){
 
 	}
   return (
+		<>
     <ScrollView style={styles.container}>
       <Text style={styles.headerText}>Change image profile</Text>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -86,6 +93,7 @@ export default function MyAccount() {
             mode="elevated"
             onPress={onPressUpdateImage}
             style={styles.saveImage}
+						loading={isLoadingImage}
           >
             Update
           </Button>
@@ -107,8 +115,9 @@ export default function MyAccount() {
       <Text style={styles.headerText}>LastName</Text>
       <TextInput style={{ backgroundColor: 'white' }} value={lastName} onChangeText={setLastName}/>
       <Button {...buttonColor} style={{ width: '30%', marginTop: 10 }} onPress={saveInformation}>Save</Button>
-
     </ScrollView>
+		</>
+
   );
 }
 

@@ -1,4 +1,5 @@
-import { Modal, View, StyleSheet, Pressable, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Pressable, Text, TouchableOpacity } from "react-native";
+import Modal from "react-native-modal";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Searchbar, Button } from "react-native-paper";
 import getUserByIdApi from "../../api/userApi/getUserById.api";
@@ -7,7 +8,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 
 
-export default function AddModal({ modalVisible, setModalVisible, colleagues, setColleagues }) {
+export default function AddModal({ modalVisible, setModalVisible, colleagues, setColleagues, navigation }) {
   const [users, setUsers] = useState([]);
   async function onChangeSearch(search) {
     const users = await getUserByEmailApi(search, 10);
@@ -21,13 +22,9 @@ export default function AddModal({ modalVisible, setModalVisible, colleagues, se
   }
   function Users({ id, avatar, email, name }) {
     function addUser() {
-      colleagues.push({
-        id,
-        avatar,
-        name,
-        lastMessage: "",
+      navigation.navigate("ChatColleague", {
+        colleagueId: id,
       })
-      setColleagues([...colleagues]);
       setModalVisible(false);
     }
     return (
@@ -40,49 +37,45 @@ export default function AddModal({ modalVisible, setModalVisible, colleagues, se
 
   return (
     <Modal
-      animationType="fade"
-      visible={modalVisible}
+      onBackdropPress={() => setModalVisible(false)}
+      backdropColor="black"
+      hideModalContentWhileAnimating={true}
+      backdropTransitionOutTiming={0}
       transparent={true}
+      isVisible={modalVisible}
       onRequestClose={() => setModalVisible(false)}
     >
-      <View style={styles.bottomedView}>
-        <View style={styles.modalView}>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={() => setModalVisible(false)}
-          >
-            <Icon size={30} name="minus-thick" style={styles.close} />
-          </Pressable>
-          <Searchbar
-            mode="bar"
-            style={styles.searchInput}
-            placeholder="please enter email or username"
-            onChangeText={onChangeSearch}
-          />
-          <FlashList
-            estimatedItemSize={200}
-            data={users}
-            renderItem={({ item }) => (
-              <Users
-                id={item.id}
-                avatar={item.picture}
-                name={item.firstName + " " + item.lastName}
-                email={item.email}
-              />
-            )}
-          />
-        </View>
+      <View style={styles.modalView}>
+        <Pressable
+          style={[styles.button, styles.buttonClose]}
+          onPress={() => setModalVisible(false)}
+        >
+          <Icon size={30} name="minus-thick" style={styles.close} />
+        </Pressable>
+        <Searchbar
+          mode="bar"
+          style={styles.searchInput}
+          placeholder="please enter email or username"
+          onChangeText={onChangeSearch}
+        />
+        <FlashList
+          estimatedItemSize={200}
+          data={users}
+          renderItem={({ item }) => (
+            <Users
+              id={item.id}
+              avatar={item.picture}
+              name={item.firstName + " " + item.lastName}
+              email={item.email}
+            />
+          )}
+        />
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  bottomedView: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    flexDirection: "column-reverse",
-    flex: 1,
-  },
   modalView: {
     backgroundColor: "white",
     borderRadius: 20,

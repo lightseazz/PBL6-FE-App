@@ -10,7 +10,7 @@ const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
 export default function ItemDetail({ navigation, route }) {
   const { id, title, content, createdAt, isRead, type, data } = route.params;
-	console.log(isRead);
+  console.log(isRead);
   let dataJson = JSON.parse(data);
   let dataDetailJson = JSON.parse(dataJson.Detail);
   console.log(dataDetailJson)
@@ -46,18 +46,18 @@ export default function ItemDetail({ navigation, route }) {
   async function acceptWsp() {
     console.log(dataDetailJson.GroupId);
     const response = await acceptWpApi(dataDetailJson.GroupId);
-		if(response.status == 400){
-			Alert.alert("you are in workspace");
-		}
-		else{
-			Alert.alert("you are successful");
-		}
+    if (response.status == 400) {
+      Alert.alert("you are in workspace");
+    }
+    else {
+      Alert.alert("you join successful");
+    }
   }
   async function declineWsp() {
     const response = await declineWpApi(dataDetailJson.GroupId);
-		if(response.status == 400){
-			Alert.alert("you have declined")
-		}
+    if (response.status == 400) {
+      Alert.alert("you have declined")
+    }
 
   }
   async function acceptChannel() {

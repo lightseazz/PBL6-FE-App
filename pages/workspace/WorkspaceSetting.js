@@ -10,16 +10,6 @@ import { useEffect, useRef, useState } from "react";
 
 export default function WorkspaceSetting({ route, navigation }) {
   const { workspaceId } = route.params;
-  const [isUserOwner, setIsUserOwner] = useState(false);
-  useEffect(function () {
-    async function getIsUserOwner() {
-      const response = await getWpbyIdApi(workspaceId);
-      setIsUserOwner(response.ownerId == userSignedIn.id);
-    }
-    getIsUserOwner();
-
-  }, [])
-  console.log("isUserOwner", isUserOwner);
   async function onPressDelete() {
     const response = await deleteWpApi(workspaceId);
     if (response.status != 200) {
@@ -71,9 +61,8 @@ export default function WorkspaceSetting({ route, navigation }) {
         }}
       >
         <Button
-          disabled={!isUserOwner}
           mode="contained"
-          style={{ backgroundColor: isUserOwner ? "#cc0000" : "grey" }}
+          style={{ backgroundColor: "#cc0000" }}
           onPress={ConfirmAlert({
             title: "Confirm Deletion",
             message: "are you sure want to delete this Workspace",
@@ -84,9 +73,8 @@ export default function WorkspaceSetting({ route, navigation }) {
           Delete Workspace
         </Button>
         <Button
-          disabled={isUserOwner}
           mode="contained"
-          style={{ backgroundColor: isUserOwner ? "grey" : "#cc0000", marginBottom: 20 }}
+          style={{ backgroundColor: "#cc0000", marginBottom: 20 }}
           onPress={ConfirmAlert({
             title: "Confirm Deletion",
             message: "are you sure want to delete this Workspace",
@@ -97,6 +85,6 @@ export default function WorkspaceSetting({ route, navigation }) {
           Leave
         </Button>
       </View>
-    </View>
+    </View >
   );
 }
