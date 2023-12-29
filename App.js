@@ -40,13 +40,13 @@ LogBox.ignoreLogs(['Non-serializable values were found in the navigation state',
 
 const Stack = createNativeStackNavigator();
 export default function App() {
-	// // onesignal
- //  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
- //  OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
-	// //
-	//
- //  // Also need enable notifications to complete OneSignal setup
- //  OneSignal.Notifications.requestPermission(true);
+  // // onesignal
+  //  OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+  //  OneSignal.initialize(Constants.expoConfig.extra.oneSignalAppId);
+  // //
+  //
+  //  // Also need enable notifications to complete OneSignal setup
+  //  OneSignal.Notifications.requestPermission(true);
 
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
 

@@ -16,15 +16,15 @@ export default function Colleague({
 }) {
   const { width } = useWindowDimensions();
   const HTMLMessage = useRef();
-	const [truncateLastMessage, setTruncateLastMessage] = useState("");
+  const [truncateLastMessage, setTruncateLastMessage] = useState("");
   useEffect(function () {
     if (typeof lastMessage != "string") return;
     let noHtmlContent = lastMessage.replace(/<[^>]+>/g, '');
-		if(noHtmlContent.length <= 10) {
-			setTruncateLastMessage(noHtmlContent);
-			return;
-		};
-		 setTruncateLastMessage(noHtmlContent.slice(0,10) + "...");
+    if (noHtmlContent.length <= 10) {
+      setTruncateLastMessage(noHtmlContent);
+      return;
+    };
+    setTruncateLastMessage(noHtmlContent.slice(0, 10) + "...");
   }, [])
 
   return (
@@ -54,7 +54,7 @@ export default function Colleague({
           </View>
         </View>
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{new Date(lastMessageTime).toLocaleString()}</Text>
+          <Text style={styles.timeText}>{lastMessageTime ? new Date(lastMessageTime).toLocaleString() : ""}</Text>
         </View>
       </View>
     </TouchableOpacity>

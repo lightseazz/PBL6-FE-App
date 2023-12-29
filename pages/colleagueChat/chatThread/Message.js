@@ -12,6 +12,8 @@ import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as Linking from 'expo-linking';
+import * as linkify from 'linkifyjs';
+import { LinkPreview } from "@flyerhq/react-native-link-preview";
 
 export default function Message({
   state,
@@ -148,6 +150,31 @@ export default function Message({
       </>
     )
   }
+  // preview links
+  let detechLinks = []
+  try {
+    detechLinks = linkify.find(content);
+  } catch {
+    detechLinks = [];
+  }
+  function RenderPreview() {
+    if (!detechLinks || detechLinks.length <= 0) return <></>;
+    return (
+      <>
+        {detechLinks.map((link, index) => {
+          return (
+            <LinkPreview
+              key={index}
+              containerStyle={{ backgroundColor: '#EAEAEA', borderRadius: 10, margin: 5 }}
+              text={link.href}
+              renderText={() => (<Text>{link.value}</Text>)}
+            />
+          )
+        })}
+      </>
+    )
+  }
+
   const RenderMessage = () => (
     <TouchableOpacity
       style={styles.messageContainer}
@@ -189,6 +216,7 @@ export default function Message({
       </View>
       <RenderHtml contentWidth={width} source={{ html: content ? content : <p></p> }} />
       <RenderFiles />
+      <RenderPreview />
       <View style={styles.emojiContainer}>
         <View style={styles.emoji}>
           <TouchableOpacity
@@ -245,6 +273,7 @@ const styles = StyleSheet.create({
     padding: 25,
     alignSelf: "flex-start",
     borderRadius: 5,
+    width: '100%',
   },
   containerDelete: {
     padding: 13,

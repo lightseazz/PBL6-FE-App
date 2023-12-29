@@ -155,7 +155,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           state: messageState.isSending,
         })
       )
-      setMessages(messagesAfterSending);
+      // setMessages(messagesAfterSending);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
       setUploadFiles([]);
@@ -187,7 +187,7 @@ export default function ChatThreadChannel({ navigation, route }) {
     tempMessages[0].id = response.id;
     tempMessages[0].state = "";
     tempMessages[0].files = response.files;
-    setMessages(tempMessages);
+    // setMessages(tempMessages);
     setIsLoadingSend(false);
     resetParentMessageRef.current.isChanging = true;
     setCurrentParentChildCount(currentParentChildCount + 1);

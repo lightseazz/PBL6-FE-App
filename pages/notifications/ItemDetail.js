@@ -9,6 +9,7 @@ const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
 export default function ItemDetail({ navigation, route }) {
   const { id, title, content, createAt, isRead, type, data } = route.params;
+	console.log(isRead);
   let dataJson = JSON.parse(data);
   let dataDetailJson = JSON.parse(dataJson.Detail);
   console.log(dataDetailJson)

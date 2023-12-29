@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 export default async (channelId) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
+		console.log(userToken, channelId);
     const response = await fetch(baseUrl + "Channel/" + channelId, {
       method: "GET",
       headers: {
@@ -11,6 +12,7 @@ export default async (channelId) => {
         "content-type": "application/json",
         accept: "application/json",
         authorization: "Bearer " + userToken,
+				"channel-id": channelId,
       },
     });
     if (response.ok) return response.json();

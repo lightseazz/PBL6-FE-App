@@ -13,6 +13,7 @@ export default async (workspaceId) => {
           "content-type": "application/json",
           accept: "application/json",
           authorization: "Bearer " + userToken,
+					"workspace-id": workspaceId,
         },
       }
     );

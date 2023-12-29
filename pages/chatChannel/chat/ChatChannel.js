@@ -92,9 +92,9 @@ export default function ChatChannel({ navigation, route }) {
         return;
       }
       const MessagesAfterReceived = [...messages];
-      message.state = message.isEdited ? messageState.isEdited : "",
-        MessagesAfterReceived.unshift(message);
-      setMessages(MessagesAfterReceived);
+      message.state = message.isEdited ? messageState.isEdited : "";
+      MessagesAfterReceived.unshift(message);
+      setMessages([...MessagesAfterReceived]);
     });
   }
   function receiveUpdate() {
@@ -152,7 +152,7 @@ export default function ChatChannel({ navigation, route }) {
           state: messageState.isSending,
         })
       )
-      setMessages(messagesAfterSending);
+      // setMessages([...messagesAfterSending]);
       flatListRef.current.scrollToOffset({ offset: 0 });
       richTextRef.current.setContentHTML("");
       setUploadFiles([]);
@@ -180,7 +180,7 @@ export default function ChatChannel({ navigation, route }) {
     tempMessages[0].id = response.id;
     tempMessages[0].state = "";
     tempMessages[0].files = response.files;
-    setMessages(tempMessages);
+    // setMessages([...tempMessages]);
     setIsLoadingSend(false);
   }
   async function updateMessageToServer() {
