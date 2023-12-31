@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 export default async (userId, imageUri) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
+		console.log(imageUri);
     const image = {
       uri: imageUri,
       name: "image.jpg",

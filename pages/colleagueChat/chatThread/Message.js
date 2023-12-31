@@ -178,7 +178,7 @@ export default function Message({
   const RenderMessage = () => (
     <TouchableOpacity
       style={styles.messageContainer}
-      delayLongPress={50}
+      delayLongPress={200}
       onLongPress={() => {
         if (isParent) setIsSelectParentMessage(true)
         else setIsSelectParentMessage(false)

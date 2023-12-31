@@ -203,7 +203,7 @@ export default function Message({
         </View>) : (
         <TouchableOpacity
           style={styles.messageContainer}
-          delayLongPress={50}
+          delayLongPress={200}
           onPress={onPressReply}
           onLongPress={() => {
             selectedUserRef.current = senderId;
