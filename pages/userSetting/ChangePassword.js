@@ -3,7 +3,7 @@ import { Button } from "react-native-paper";
 import { general } from "../../styles/styles";
 import { TextInput } from "react-native-paper";
 import { useState } from "react";
-import { checkCorrectPassword } from "../../utils/common";
+import { checkCorrectPassword, successStatusCodes } from "../../utils/common";
 import changePasswordApi from "../../api/authApi/changePassword.api";
 import getOtpApi from "../../api/authApi/getOtp.api";
 import {
@@ -12,73 +12,127 @@ import {
   textInputColor,
 } from "../../styles/colorScheme";
 import { userSignedIn } from "../../globalVar/global";
+import StatusSnackBar from "../../components/StatusSnackBar";
 
 export default function ChangePassword({ navigation, route }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordAgainError, setPasswordAgainError] = useState("");
   const [otp, setOtp] = useState("");
-  const [pressError, setPressError] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState([true, true]);
   const [clicked, setClicked] = useState(false);
-  const [otpText, setOtpText] = useState("");
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
 
   const onChangePassword = (text) => {
     setCurrentPassword(text);
-    setPasswordError(checkCorrectPassword(text).error);
   };
 
   const onChangePasswordAgain = (text) => {
     setNewPassword(text);
-    setPasswordAgainError(checkCorrectPassword(text).error);
   };
 
   async function onChangePass() {
-    setClicked(true);
-    if (
-      checkCorrectPassword(currentPassword).correct == false ||
-      checkCorrectPassword(newPassword).correct == false
-    ) {
-      {
+    try {
+      setClicked(true);
+      if (
+        checkCorrectPassword(currentPassword).correct == false ||
+        checkCorrectPassword(newPassword).correct == false
+      ) {
+        {
+          setSnackBar({ isVisible: true, message: "password format is not correct", type: "failed" });
+          setClicked(false);
+          return;
+        }
+      }
+      if (currentPassword == newPassword) {
+        setSnackBar({ isVisible: true, message: "password must not the same", type: "failed" });
         setClicked(false);
         return;
       }
-    }
-    if (currentPassword == newPassword) {
-			setPressError("password must not the same");
-      setClicked(false);
-      return;
-    }
 
-    console.log("hello");
-    const response = await changePasswordApi(currentPassword, newPassword, otp);
-    if (response.status != 200) {
+      const response = await changePasswordApi(currentPassword, newPassword, otp);
+      if (!successStatusCodes.includes(String(response.status))) {
+        setClicked(false);
+        setSnackBar({ isVisible: true, message: "failed: please check your current password or otp", type: "failed" });
+        return;
+      }
+      setSnackBar({ isVisible: true, message: "Successful change password", type: "success" });
       setClicked(false);
-      setPressError(response.title);
-      setClicked(true);
-      return;
+    } catch {
+
+      setSnackBar({ isVisible: true, message: "failed change password", type: "failed" });
     }
-    Alert.alert("Successful change password");
 
   }
 
   async function onGetOtp() {
-    const response = await getOtpApi(2, userSignedIn.email);
-    console.log(response.status);
-    if (response.status == 200) {
-      setOtpText("successful otp send to " + userSignedIn.email);
-    }
-    else {
-      setOtpText("failed send otp");
+    try {
+
+      const response = await getOtpApi(2, userSignedIn.email);
+      if (response.status == 200) {
+        setSnackBar({ isVisible: true, message: "Successful otp send to " + userSignedIn.email, type: "success" });
+        return;
+      }
+      if (response.status == 400) {
+        setSnackBar({ isVisible: true, message: response.title || "failed  send otp", type: "failed" });
+        return;
+      }
+    } catch {
+
     }
   }
 
   return (
-    <View style={general.centerView}>
-      <View style={styles.input}>
+    <>
+      <View style={general.centerView}>
+        <View style={styles.input}>
+          <TextInput
+            {...textInputColor}
+            style={{ backgroundColor: "white", marginBottom: 20 }}
+            secureTextEntry={secureTextEntry[0]}
+            label="Enter current password"
+            onChangeText={onChangePassword}
+            mode="outlined"
+            right={
+              <TextInput.Icon
+                icon="eye"
+                onPress={() => {
+                  setSecureTextEntry([!secureTextEntry[0], secureTextEntry[1]]);
+                  return false;
+                }}
+              />
+            }
+          />
+        </View>
+        <View style={styles.input}>
+          <TextInput
+            {...textInputColor}
+            style={{ backgroundColor: "white", marginBottom: 20 }}
+            secureTextEntry={secureTextEntry[1]}
+            label="Enter new password"
+            onChangeText={onChangePasswordAgain}
+            mode="outlined"
+            right={
+              <TextInput.Icon
+                icon="eye"
+                onPress={() => {
+                  setSecureTextEntry([secureTextEntry[0], !secureTextEntry[1]]);
+                  return false;
+                }}
+              />
+            }
+          />
+        </View>
+        <View style={styles.input}>
+          <TextInput
+            style={{ backgroundColor: "white", marginBottom: 10 }}
+            label="OTP"
+            mode="outlined"
+            onChangeText={setOtp}
+            {...textInputColor}
+          />
+        </View>
         <Button
-          style={{ width: "50%", }}
+          style={{ width: 100, alignSelf: 'flex-start', marginLeft: 40 }}
           mode="elevated"
           onPress={onGetOtp}
           disabled={clicked}
@@ -86,65 +140,19 @@ export default function ChangePassword({ navigation, route }) {
         >
           get Otp
         </Button>
-        <Text style={{ marginBottom: 50, }}>{otpText}</Text>
-        <TextInput
-          {...textInputColor}
-          style={{ backgroundColor: "white" }}
-          secureTextEntry={secureTextEntry[0]}
-          label="Enter current password"
-          onChangeText={onChangePassword}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon="eye"
-              onPress={() => {
-                setSecureTextEntry([!secureTextEntry[0], secureTextEntry[1]]);
-                return false;
-              }}
-            />
-          }
-        />
-        <Text style={styles.error}>{passwordError}</Text>
+        <Button
+          mode="elevated"
+          style={{ marginTop: 30 }}
+          onPress={onChangePass}
+          disabled={clicked}
+          loading={clicked}
+          {...buttonColor}
+        >
+          Change Password
+        </Button>
       </View>
-      <View style={styles.input}>
-        <TextInput
-          {...textInputColor}
-          style={{ backgroundColor: "white" }}
-          secureTextEntry={secureTextEntry[1]}
-          label="Enter new password"
-          onChangeText={onChangePasswordAgain}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon="eye"
-              onPress={() => {
-                setSecureTextEntry([secureTextEntry[0], !secureTextEntry[1]]);
-                return false;
-              }}
-            />
-          }
-        />
-        <Text style={styles.error}>{passwordAgainError}</Text>
-      </View>
-      <View style={styles.input}>
-        <TextInput
-          style={{ backgroundColor: "white" }}
-          label="OTP"
-          mode="outlined"
-          onChangeText={setOtp}
-          {...textInputColor}
-        />
-      </View>
-      <Text style={styles.error}>{pressError}</Text>
-      <Button
-        mode="elevated"
-        onPress={onChangePass}
-        disabled={clicked}
-        {...buttonColor}
-      >
-        Change Password
-      </Button>
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 const styles = StyleSheet.create({

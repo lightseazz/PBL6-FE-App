@@ -1,6 +1,6 @@
 import { View, FlatList, StyleSheet } from "react-native";
 import Colleague from "./Colleague";
-import { Button, Searchbar } from "react-native-paper";
+import { Button, FAB, Searchbar } from "react-native-paper";
 import { useEffect, useState } from "react";
 import AddModal from "./AddModal";
 import { buttonColor, textInputColor } from "../../styles/colorScheme";
@@ -36,10 +36,10 @@ export default function ColleagueChat({ navigation }) {
       setConnectionChatColleague(connection);
     }
     async function getInitColleagues() {
-      const colleagues = await getUsersConversationApi("", 0, 5);
+      const colleagues = await getUsersConversationApi("", 0, 20);
       setColleagues([...colleagues])
     }
-    
+
     if (isFocused == true)
       connectHub();
     getInitColleagues();
@@ -47,6 +47,21 @@ export default function ColleagueChat({ navigation }) {
 
   async function addColleagues() {
     setModalVisible(true);
+  }
+
+  async function findColleagues() {
+    try {
+      if (search == "") {
+        const colleagues = await getUsersConversationApi("", 0, 20);
+        setColleagues(colleagues);
+        return;
+      }
+      console.log(colleagues[0]);
+      const searchColleagues = colleagues.filter(colleague => colleague.name.includes(search));
+      setColleagues(searchColleagues);
+    } catch {
+
+    }
 
   }
   return (
@@ -60,12 +75,11 @@ export default function ColleagueChat({ navigation }) {
       />
       <Button
         {...buttonColor}
-        icon="plus"
         mode="contained-tonal"
         style={styles.addButton}
-        onPress={addColleagues}
+        onPress={findColleagues}
       >
-        Add
+        Find
       </Button>
       <FlashList
         estimatedItemSize={200}
@@ -79,18 +93,32 @@ export default function ColleagueChat({ navigation }) {
             lastMessage={item.lastMessage}
             lastMessageTime={item.lastMessageTime}
             lastMessageSender={item.lastMessageSender}
-						isOnline={item.isOnline}
+            isOnline={item.isOnline}
           />
         )}
       />
       <AddModal
-				navigation={navigation}
+        navigation={navigation}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         colleagues={colleagues}
         setColleagues={setColleagues}
       />
 
+
+      <FAB
+        color="white"
+        label="add Colleagues"
+        icon="plus"
+        style={{
+          position: "absolute",
+          margin: 16,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "black",
+        }}
+        onPress={addColleagues}
+      />
     </View>
   );
 }

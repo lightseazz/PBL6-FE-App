@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 		padding: 10,
 		marginBottom: 10,
 		borderRadius: 10,
-		backgroundColor: '#F6F6F6',
+		borderWidth: 0.5,
   },
   secondContainer: {
     flexDirection: "row",

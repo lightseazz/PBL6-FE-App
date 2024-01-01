@@ -18,7 +18,7 @@ export default function ItemDetail({ navigation, route }) {
   function AcceptWsp() {
     return (
       <Button mode="contained"
-        style={{ backgroundColor: 'green', width: '30%', marginBottom: 10 }}
+        style={{ backgroundColor: 'green', width: '30%' }}
         onPress={acceptWsp}
       >Accept</Button>
     )
@@ -32,7 +32,7 @@ export default function ItemDetail({ navigation, route }) {
   }
   function AcceptChannel() {
     return (
-      <Button mode="contained" style={{ backgroundColor: 'green', width: '30%', marginBottom: 10 }}
+      <Button mode="contained" style={{ backgroundColor: 'green', width: '30%' }}
         onPress={acceptChannel}
       >Accept</Button>
     )
@@ -87,10 +87,10 @@ export default function ItemDetail({ navigation, route }) {
         <Divider bold={true} style={styles.divider} />
         <Text style={styles.text}>{content}</Text>
         {type == 6 ? (
-          <>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
             <AcceptWsp />
             <DeclineWsp />
-          </>
+          </View>
         ) : <></>}
       </View>
       <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />

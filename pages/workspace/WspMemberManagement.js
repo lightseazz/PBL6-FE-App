@@ -39,12 +39,16 @@ export default function WspMemberManagement({ route }) {
     []
   );
   function findUsers() {
-    if (search == "") {
-      setUsers(allUsers);
-      return;
+    try {
+      if (search == "") {
+        setUsers(allUsers);
+        return;
+      }
+      const searchUsers = users.filter(user => user.email.includes(search))
+      setUsers(searchUsers);
+    } catch {
+
     }
-    const searchUsers = users.filter(user => user.email.includes(search))
-    setUsers(searchUsers);
   }
   function showAll() {
     setUsers(allUsers);

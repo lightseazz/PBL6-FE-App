@@ -1,24 +1,29 @@
-import { View, StyleSheet, Pressable, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Pressable, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import Modal from "react-native-modal";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { Searchbar, Button } from "react-native-paper";
+import { Searchbar, Button, Avatar } from "react-native-paper";
 import getUserByIdApi from "../../api/userApi/getUserById.api";
 import getUserByEmailApi from "../../api/userApi/getUserByEmail.api";
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
+import { buttonColor } from "../../styles/colorScheme";
 
 
 export default function AddModal({ modalVisible, setModalVisible, colleagues, setColleagues, navigation }) {
   const [users, setUsers] = useState([]);
-  async function onChangeSearch(search) {
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function findColleagues() {
+    setIsLoading(true);
     const users = await getUserByEmailApi(search, 10);
     if (!users.length) {
       setUsers([]);
+      setIsLoading(false);
       return;
     };
     setUsers([...users]);
-
-
+    setIsLoading(false);
   }
   function Users({ id, avatar, email, name }) {
     function addUser() {
@@ -29,8 +34,18 @@ export default function AddModal({ modalVisible, setModalVisible, colleagues, se
     }
     return (
       <TouchableOpacity style={styles.usersContainer} onPress={addUser}>
-        <Text style={styles.usersName}>{name}</Text>
-        <Text style={styles.usersEmail}>{email}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Avatar.Image
+            size={40}
+            source={{
+              uri: avatar,
+            }}
+          />
+          <View style={{ marginLeft: 20 }}>
+            <Text style={styles.usersName}>{name}</Text>
+            <Text style={styles.usersEmail}>{email}</Text>
+          </View>
+        </View>
       </TouchableOpacity>
     )
   }
@@ -56,8 +71,18 @@ export default function AddModal({ modalVisible, setModalVisible, colleagues, se
           mode="bar"
           style={styles.searchInput}
           placeholder="please enter email or username"
-          onChangeText={onChangeSearch}
+          onChangeText={setSearch}
         />
+        <Button
+          {...buttonColor}
+          mode="contained-tonal"
+          style={styles.addButton}
+          onPress={findColleagues}
+        >
+          Find
+        </Button>
+        {isLoading ? <ActivityIndicator size={25} color="black" />
+          : <></>}
         <FlashList
           estimatedItemSize={200}
           data={users}
@@ -65,7 +90,7 @@ export default function AddModal({ modalVisible, setModalVisible, colleagues, se
             <Users
               id={item.id}
               avatar={item.picture}
-              name={item.firstName + " " + item.lastName}
+              name={(item.firstName || "") + " " + (item.lastName || "")}
               email={item.email}
             />
           )}
@@ -89,6 +114,14 @@ const styles = StyleSheet.create({
     elevation: 5,
     minHeight: 350,
   },
+  addButton: {
+    width: 110,
+    borderRadius: 10,
+    marginTop: 15,
+    marginRight: 20,
+    alignSelf: "flex-end",
+  },
+
   close: {
     alignSelf: "center",
   },
@@ -101,8 +134,8 @@ const styles = StyleSheet.create({
   usersContainer: {
     padding: 10,
     margin: 10,
-    backgroundColor: '#E3E5E7',
     borderRadius: 10,
+    borderWidth: 0.4,
   },
   usersName: {
 
