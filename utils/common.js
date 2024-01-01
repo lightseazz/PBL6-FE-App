@@ -174,3 +174,6 @@ for (i = 128512; i <= 128530; i++) {
     code: i,
   });
 }
+
+
+export const successStatusCodes = ["200", "201", "202", "203", "204"];

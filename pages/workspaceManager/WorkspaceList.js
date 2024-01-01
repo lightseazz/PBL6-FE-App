@@ -8,15 +8,12 @@ import { setGlobalUser } from "../../globalVar/global";
 import { setConnectionChatChannel } from "../../globalVar/global";
 import * as SecureStore from "expo-secure-store";
 import * as signalR from "@microsoft/signalr";
+import StatusSnackBar from "../../components/StatusSnackBar";
 
-export default function WorkspaceList({ navigation }) {
+export default function WorkspaceList({ navigation, route }) {
   const [workspaceList, setWorkspaceList] = useState([]);
   const isFocused = useIsFocused();
-
-  // hub connection chat channel
-  useEffect(function () {
-
-  }, [isFocused])
+  const [snackBarWpList, setSnackBarWpList] = useState({ isVisible: false, message: "", type: "blank" });
 
   useEffect(
     function () {
@@ -58,43 +55,50 @@ export default function WorkspaceList({ navigation }) {
     [isFocused]
   );
   return (
-    <View style={general.containerWithOutStatusBar}>
-      <FlatList
-        data={workspaceList}
-        renderItem={({ item }) => (
-          <WorkspaceCard
-            id={item.id}
-            name={item.name}
-            avatarUrl={item.avatarUrl}
-            numberOfMembers={item.numberOfMembers}
-            navigation={navigation}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-      />
-      <FAB
-        color="white"
-        label="create Workspace"
-        icon="plus"
-        style={{
-          position: "absolute",
-          margin: 16,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "black",
-        }}
-        onPress={() => navigation.navigate("WorkspaceCreate")}
-      />
-    </View>
+    <>
+      <View style={general.containerWithOutStatusBar}>
+        <FlatList
+          data={workspaceList}
+          renderItem={({ item }) => (
+            <WorkspaceCard
+              id={item.id}
+              name={item.name}
+              avatarUrl={item.avatarUrl}
+              numberOfMembers={item.numberOfMembers}
+              navigation={navigation}
+              setSnackBarWpList={setSnackBarWpList}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+        <FAB
+          color="white"
+          label="create Workspace"
+          icon="plus"
+          style={{
+            position: "absolute",
+            margin: 16,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "black",
+          }}
+          onPress={() => navigation.navigate("WorkspaceCreate", {
+            setSnackBarWpList: setSnackBarWpList,
+          })}
+        />
+      </View>
+      <StatusSnackBar snackBar={snackBarWpList} setSnackBar={setSnackBarWpList} />
+    </>
   );
 }
 
-function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers }) {
+function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers, setSnackBarWpList }) {
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("LeftDrawerScreen", {
           workspaceId: id,
+					setSnackBarWpList: setSnackBarWpList,
         })
       }
     >

@@ -2,7 +2,9 @@ import { View, StyleSheet, Text, StatusBar, Alert } from "react-native";
 import { Avatar, Button, Divider } from "react-native-paper";
 import acceptWpApi from "../../api/workspaceApi/acceptWp.api";
 import declineWpApi from "../../api/workspaceApi/declineWp.api";
-import { getShortDatetimeSendAt } from "../../utils/common";
+import { getShortDatetimeSendAt, successStatusCodes } from "../../utils/common";
+import { useState } from "react";
+import StatusSnackBar from "../../components/StatusSnackBar";
 
 const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
@@ -10,10 +12,9 @@ const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
 export default function ItemDetail({ navigation, route }) {
   const { id, title, content, createdAt, isRead, type, data } = route.params;
-  console.log(isRead);
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
   let dataJson = JSON.parse(data);
   let dataDetailJson = JSON.parse(dataJson.Detail);
-  console.log(dataDetailJson)
   function AcceptWsp() {
     return (
       <Button mode="contained"
@@ -44,21 +45,22 @@ export default function ItemDetail({ navigation, route }) {
     )
   }
   async function acceptWsp() {
-    console.log(dataDetailJson.GroupId);
     const response = await acceptWpApi(dataDetailJson.GroupId);
-    if (response.status == 400) {
-      Alert.alert("you are in workspace");
+    if (successStatusCodes.includes(String(response.status))) {
+      setSnackBar({ isVisible: true, message: "you join this workspace successfully", type: "success" })
     }
     else {
-      Alert.alert("you join successful");
+      setSnackBar({ isVisible: true, message: "you've joined this workspace", type: "failed" });
     }
   }
   async function declineWsp() {
     const response = await declineWpApi(dataDetailJson.GroupId);
-    if (response.status == 400) {
-      Alert.alert("you have declined")
+    if (successStatusCodes.includes(String(response.status))) {
+      setSnackBar({ isVisible: true, message: "you decline this workspace", type: "success" })
     }
-
+    else {
+      setSnackBar({ isVisible: true, message: "you had declined this workspace", type: "failed" })
+    }
   }
   async function acceptChannel() {
 
@@ -67,29 +69,32 @@ export default function ItemDetail({ navigation, route }) {
 
   }
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.secondContainer}>
-        <Avatar.Image
-          style={{ borderRadius: 10, backgroundColor: "white" }}
-          size={40}
-          source={{
-            uri: icon,
-          }}
-        />
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{getShortDatetimeSendAt(createdAt)}</Text>
+    <>
+      <View style={styles.container}>
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.secondContainer}>
+          <Avatar.Image
+            style={{ borderRadius: 10, backgroundColor: "white" }}
+            size={40}
+            source={{
+              uri: icon,
+            }}
+          />
+          <View style={styles.timeContainer}>
+            <Text style={styles.timeText}>{getShortDatetimeSendAt(createdAt)}</Text>
+          </View>
         </View>
+        <Divider bold={true} style={styles.divider} />
+        <Text style={styles.text}>{content}</Text>
+        {type == 6 ? (
+          <>
+            <AcceptWsp />
+            <DeclineWsp />
+          </>
+        ) : <></>}
       </View>
-      <Divider bold={true} style={styles.divider} />
-      <Text style={styles.text}>{content}</Text>
-      {type == 6 ? (
-        <>
-          <AcceptWsp />
-          <DeclineWsp />
-        </>
-      ) : <></>}
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 

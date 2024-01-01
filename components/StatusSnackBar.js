@@ -17,7 +17,7 @@ const colorTheme = {
 }
 
 
-export default function StatusBar({ snackBar, setSnackBar }) {
+export default function StatusSnackBar({ snackBar, setSnackBar }) {
   try {
     function RenderIcon() {
       if (snackBar.type == "success")

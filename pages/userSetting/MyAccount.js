@@ -14,7 +14,7 @@ import { buttonColor } from "../../styles/colorScheme";
 import * as SecureStore from "expo-secure-store"
 import getUserByIdApi from "../../api/userApi/getUserById.api";
 import updateUserAvatarApi from "../../api/userApi/updateUserAvatar.api";
-import StatusBar from "../../components/StatusBar";
+import StatusSnackBar from "../../components/StatusSnackBar";
 import updateUserInformApi from "../../api/userApi/updateUserInform.api";
 import { setGlobalUser } from "../../globalVar/global";
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -207,7 +207,7 @@ export default function MyAccount() {
           style={{ width: '30%', margin: 10 }}
           onPress={saveInformation}>Save</Button>
       </ScrollView>
-      <StatusBar snackBar={snackBar} setSnackBar={setSnackBar} />
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
     </>
   );
 }

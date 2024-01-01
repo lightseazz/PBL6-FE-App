@@ -9,7 +9,7 @@ import getWpbyIdAPi from "../../api/workspaceApi/getWpbyId.api";
 import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
 import { buttonColor } from "../../styles/colorScheme";
 
-export default function LeftDrawerContent({ navigation }) {
+export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
   const workspaceId = useContext(WorkspaceIdContext);
   const {
     currentChannelId,
@@ -108,6 +108,7 @@ export default function LeftDrawerContent({ navigation }) {
           onPress={() =>
             navigation.navigate("WorkspaceSetting", {
               workspaceId: workspaceId,
+							setSnackBarWpList: setSnackBarWpList,
             })
           }
         >
