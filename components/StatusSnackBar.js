@@ -38,7 +38,7 @@ export default function StatusSnackBar({ snackBar, setSnackBar }) {
           onDismiss={closeSnackBar}
         >
           <View style={{ flexDirection: 'row', flex: 1 }}>
-            <View style={{ flex: 8, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 8, flexDirection: 'row', alignItems: 'center', marginLeft: 3 }}>
               <RenderIcon />
               <Text style={{ color: colorTheme.textColor[snackBar.type], marginLeft: 10 }}>{snackBar.message}</Text>
             </View>

@@ -130,7 +130,7 @@ export default function App() {
                 <Stack.Screen
                   name="ChannelInvite"
                   component={ChannelInvite}
-                  options={header({ title: "Invite members" })}
+                  options={header({ title: "Add members" })}
                 />
                 <Stack.Screen
                   name="CreateChannel"

@@ -10,26 +10,25 @@ export default function RightDrawerContent({ navigation }) {
     setCurrentChannelId,
     currentChannelId,
     setChannels,
+    setSnackBarChannel,
   } = useContext(currentChannelIdContext);
   const workspaceId = useContext(WorkspaceIdContext);
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <View style={{ flex: 7, marginTop: 50, width: "80%" }}>
         <Button
-          mode="contained"
-          icon="pin"
-          style={{ marginBottom: 20 }}
           {...buttonColor}
-        >
-          Pin Message
-        </Button>
-        <Button
           mode="contained"
-          icon="file"
+          icon="cog-outline"
           style={{ marginBottom: 20 }}
-          {...buttonColor}
+          onPress={() =>
+            navigation.navigate("ChannelInvite", {
+              channelId: currentChannelId,
+              workspaceId: workspaceId,
+            })
+          }
         >
-          media
+          add member channel
         </Button>
       </View>
       <View
@@ -51,25 +50,13 @@ export default function RightDrawerContent({ navigation }) {
               workspaceId: workspaceId,
               setChannels: setChannels,
               setCurrentChannelId: setCurrentChannelId,
+              setSnackBarChannel: setSnackBarChannel,
             })
           }
         >
           Channel Setting
         </Button>
-        <Button
-          {...buttonColor}
-          mode="contained"
-          icon="cog-outline"
-          style={{ marginBottom: 20 }}
-          onPress={() =>
-            navigation.navigate("ChannelInvite", {
-              channelId: currentChannelId,
-              workspaceId: workspaceId,
-            })
-          }
-        >
-          invite to channel
-        </Button>
+
       </View>
     </View>
   );

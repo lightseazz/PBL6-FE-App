@@ -12,14 +12,15 @@ import {
   textInputColor,
   cancelButtonColor,
 } from "../../styles/colorScheme";
+import StatusSnackBar from "../../components/StatusSnackBar";
+import { successStatusCodes } from "../../utils/common";
 
 export default function ChannelOverview({ navigation, route }) {
   const { channelId, workspaceId } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [error, SetError] = useState("");
-  const [successText, setSuccessText] = useState("");
   const [clicked, setClicked] = useState(false);
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
 
   useEffect(function () {
     try {
@@ -30,7 +31,7 @@ export default function ChannelOverview({ navigation, route }) {
       };
       getWorkspace();
     } catch (error) {
-      Alert.alert("get existed workspace data failed");
+      Alert.alert("get existed channel data failed");
     }
   }, []);
   const onChangeName = (text) => {
@@ -42,12 +43,10 @@ export default function ChannelOverview({ navigation, route }) {
   };
 
   async function onPressUpdate() {
-    setSuccessText("");
-    SetError("");
     try {
       setClicked(true);
       if (name == "") {
-        SetError("Channel name is empty");
+        setSnackBar({ isVisible: true, message: "channel name is empty", type: "failed" });
         setClicked(false);
         return;
       }
@@ -57,74 +56,75 @@ export default function ChannelOverview({ navigation, route }) {
         name,
         description
       );
-      if (response.status != 200) {
-        SetError("update failed");
+      if (!successStatusCodes.includes(String(response.status))) {
+        setSnackBar({ isVisible: true, message: "you are not authorized to update this channel", type: "failed" });
         setClicked(false);
         return;
       }
-      setSuccessText("Channel successful updated");
+      setSnackBar({ isVisible: true, message: "update this channel successfully", type: "success" });
       setClicked(false);
     } catch (error) {
-      SetError("update failed");
+      setSnackBar({ isVisible: true, message: "update this channel failed", type: "failed" });
       setClicked(false);
     }
   }
 
   return (
-    <View style={general.centerView}>
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <View style={{ flex: 1, alignItems: "center" }}></View>
-      </View>
-      <TextInput
-        {...textInputColor}
-        label="channel name"
-        mode="outlined"
-        style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
-        onChangeText={onChangeName}
-        value={name}
-      />
-      <TextInput
-        {...textInputColor}
-        label="description"
-        mode="outlined"
-        style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
-        multiline={true}
-        numberOfLines={8}
-        onChangeText={onChangeDescription}
-        value={description}
-      />
-      <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
-      <Text style={{ color: "green", marginBottom: 20 }}>{successText}</Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignSelf: "flex-end",
-          marginRight: 40,
-        }}
-      >
-        <Button
-          {...cancelButtonColor}
-          mode="contained"
-          style={{ width: "30" }}
-          onPress={() => navigation.goBack()}
-          disabled={clicked}
+    <>
+      <View style={general.centerView}>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
         >
-          Cancel
-        </Button>
-        <Button
-          {...buttonColor}
-          mode="contained"
-          style={{ marginLeft: 20, marginRight: 10, width: "30" }}
-          onPress={onPressUpdate}
-          disabled={clicked}
-          loading={clicked}
+          <View style={{ flex: 1, alignItems: "center" }}></View>
+        </View>
+        <TextInput
+          {...textInputColor}
+          label="channel name"
+          mode="outlined"
+          style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
+          onChangeText={onChangeName}
+          value={name}
+        />
+        <TextInput
+          {...textInputColor}
+          label="description"
+          mode="outlined"
+          style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
+          multiline={true}
+          numberOfLines={8}
+          onChangeText={onChangeDescription}
+          value={description}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-end",
+            marginRight: 40,
+          }}
         >
-          Ok
-        </Button>
+          <Button
+            {...cancelButtonColor}
+            mode="contained"
+            style={{ width: "30" }}
+            onPress={() => navigation.goBack()}
+            disabled={clicked}
+          >
+            Cancel
+          </Button>
+          <Button
+            {...buttonColor}
+            mode="contained"
+            style={{ marginLeft: 20, marginRight: 10, width: "30" }}
+            onPress={onPressUpdate}
+            disabled={clicked}
+            loading={clicked}
+          >
+            Ok
+          </Button>
+        </View>
       </View>
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 

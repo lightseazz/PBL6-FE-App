@@ -21,15 +21,16 @@ import {
   cancelButtonColor,
   textInputColor,
 } from "../../styles/colorScheme";
+import StatusSnackBar from "../../components/StatusSnackBar";
 
 export default function WorkspaceOverview({ navigation, route }) {
   const { workspaceId } = route.params;
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [error, SetError] = useState("");
-  const [successText, setSuccessText] = useState("");
   const [clicked, setClicked] = useState(false);
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
+
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -47,7 +48,6 @@ export default function WorkspaceOverview({ navigation, route }) {
     try {
       const getWorkspace = async () => {
         const workspace = await getWpbyIdApi(workspaceId);
-				console.log(workspace);
         setImage(workspace.avatarUrl);
         setName(workspace.name);
         setDescription(workspace.description);
@@ -66,93 +66,92 @@ export default function WorkspaceOverview({ navigation, route }) {
   };
 
   async function onPressUpdate() {
-    setSuccessText("");
-    SetError("");
     try {
       setClicked(true);
       if (name == "") {
-        SetError("Workspace name is empty");
+        setSnackBar({ isVisible: true, message: "workspace name is empty", type: "failed" });
         setClicked(false);
         return;
       }
       const responseNotImg = await updateWpApi(workspaceId, name, description);
       const responseImg = await updateWpAvatarApi(workspaceId, image);
       if (responseImg.status != 200 && responseNotImg != 200) {
-        SetError("update failed");
+        setSnackBar({ isVisible: true, message: "you are not authorized to update this workspace", type: "failed" });
         setClicked(false);
         return;
       }
-      setSuccessText("Workspace successful updated");
+      setSnackBar({ isVisible: true, message: "update this workspace successfully", type: "success" });
       setClicked(false);
     } catch (error) {
-      SetError("update failed");
+      setSnackBar({ isVisible: true, message: "failed this workspace", type: "failed" });
       setClicked(false);
     }
   }
 
   return (
-    <View style={general.centerView}>
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
-          <Image
-            source={
-              image ? { uri: image } : require("../../assets/imageholder.png")
-            }
-            style={{ width: 150, height: 150 }}
-          />
-        </TouchableOpacity>
-        <View style={{ flex: 1, alignItems: "center" }}></View>
-      </View>
-      <TextInput
-        {...textInputColor}
-        label="workspace name"
-        mode="outlined"
-        style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
-        onChangeText={onChangeName}
-        value={name}
-      />
-      <TextInput
-        {...textInputColor}
-        label="description"
-        mode="outlined"
-        style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
-        multiline={true}
-        numberOfLines={8}
-        onChangeText={onChangeDescription}
-        value={description}
-      />
-      <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
-      <Text style={{ color: "green", marginBottom: 20 }}>{successText}</Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignSelf: "flex-end",
-          marginRight: 40,
-        }}
-      >
-        <Button
-          {...cancelButtonColor}
-          mode="contained"
-          style={{ width: "30" }}
-          onPress={() => navigation.goBack()}
-          disabled={clicked}
+    <>
+      <View style={general.centerView}>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
         >
-          Cancel
-        </Button>
-        <Button
-          {...buttonColor}
-          mode="contained"
-          style={{ marginLeft: 20, marginRight: 10, width: "30" }}
-          onPress={onPressUpdate}
-          disabled={clicked}
-          loading={clicked}
+          <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
+            <Image
+              source={
+                image ? { uri: image } : require("../../assets/imageholder.png")
+              }
+              style={{ width: 150, height: 150 }}
+            />
+          </TouchableOpacity>
+          <View style={{ flex: 1, alignItems: "center" }}></View>
+        </View>
+        <TextInput
+          {...textInputColor}
+          label="workspace name"
+          mode="outlined"
+          style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
+          onChangeText={onChangeName}
+          value={name}
+        />
+        <TextInput
+          {...textInputColor}
+          label="description"
+          mode="outlined"
+          style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
+          multiline={true}
+          numberOfLines={8}
+          onChangeText={onChangeDescription}
+          value={description}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-end",
+            marginRight: 40,
+          }}
         >
-          Ok
-        </Button>
+          <Button
+            {...cancelButtonColor}
+            mode="contained"
+            style={{ width: "30" }}
+            onPress={() => navigation.goBack()}
+            disabled={clicked}
+          >
+            Cancel
+          </Button>
+          <Button
+            {...buttonColor}
+            mode="contained"
+            style={{ marginLeft: 20, marginRight: 10, width: "30" }}
+            onPress={onPressUpdate}
+            disabled={clicked}
+            loading={clicked}
+          >
+            Ok
+          </Button>
+        </View>
       </View>
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 

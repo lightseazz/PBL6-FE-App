@@ -13,13 +13,15 @@ import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
 import * as SecureStore from "expo-secure-store";
 import * as signalR from "@microsoft/signalr";
 import { setConnectionChatChannel } from "../../globalVar/global";
+import StatusSnackBar from "../../components/StatusSnackBar";
+import { successStatusCodes } from "../../utils/common";
 
 export default function CreateChannel({ navigation, route }) {
-  const { workspaceId, channels, setChannels } = route.params;
+  const { workspaceId, channels, setChannels, setSnackBarChannel } = route.params;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
   const [clicked, setClicked] = useState(false);
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
 
   const onChangeName = (text) => {
     setName(text);
@@ -33,13 +35,13 @@ export default function CreateChannel({ navigation, route }) {
     try {
       setClicked(true);
       if (name == "") {
-        setError("Channel name is empty");
+        setSnackBar({ isVisible: true, message: "channel name is empty", type: "failed" });
         setClicked(false);
         return;
       }
       const response = await createChannelApi(name, description, workspaceId);
-      if (response.status != 200) {
-        setError("create channel failed");
+      if (!successStatusCodes.includes(String(response.status))) {
+        setSnackBar({ isVisible: true, message: "you are not authorized to create channel", type: "failed" });
         setClicked(false);
         return;
       }
@@ -68,63 +70,66 @@ export default function CreateChannel({ navigation, route }) {
       connectHub();
 
       navigation.goBack();
+      setSnackBarChannel({ isVisible: true, message: "create new channel success", type: "success" });
       setClicked(false);
     } catch (error) {
       console.log(error);
-      setError("create channel failed");
+      setSnackBar({ isVisible: true, message: "create channel failed", type: "failed" });
     }
   }
 
   return (
-    <View style={general.centerView}>
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      ></View>
-      <TextInput
-        {...textInputColor}
-        label="Channel name"
-        mode="outlined"
-        style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
-        onChangeText={onChangeName}
-      />
-      <TextInput
-        {...textInputColor}
-        label="description"
-        mode="outlined"
-        style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
-        multiline={true}
-        numberOfLines={8}
-        onChangeText={onChangeDescription}
-      />
-      <Text style={{ color: "red", marginBottom: 20 }}>{error}</Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignSelf: "flex-end",
-          marginRight: 40,
-        }}
-      >
-        <Button
-          {...cancelButtonColor}
-          mode="contained"
-          style={{ width: "30" }}
-          onPress={() => navigation.goBack()}
-          disabled={clicked}
+    <>
+      <View style={general.centerView}>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
+        ></View>
+        <TextInput
+          {...textInputColor}
+          label="Channel name"
+          mode="outlined"
+          style={{ marginBottom: 30, width: "80%", backgroundColor: "white" }}
+          onChangeText={onChangeName}
+        />
+        <TextInput
+          {...textInputColor}
+          label="description"
+          mode="outlined"
+          style={{ marginBottom: 20, width: "80%", backgroundColor: "white" }}
+          multiline={true}
+          numberOfLines={8}
+          onChangeText={onChangeDescription}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-end",
+            marginRight: 40,
+          }}
         >
-          Cancel
-        </Button>
-        <Button
-          {...buttonColor}
-          mode="contained"
-          style={{ marginLeft: 20, marginRight: 10, width: "30" }}
-          onPress={onPressCreate}
-          disabled={clicked}
-          loading={clicked}
-        >
-          Ok
-        </Button>
+          <Button
+            {...cancelButtonColor}
+            mode="contained"
+            style={{ width: "30" }}
+            onPress={() => navigation.goBack()}
+            disabled={clicked}
+          >
+            Cancel
+          </Button>
+          <Button
+            {...buttonColor}
+            mode="contained"
+            style={{ marginLeft: 20, marginRight: 10, width: "30" }}
+            onPress={onPressCreate}
+            disabled={clicked}
+            loading={clicked}
+          >
+            Ok
+          </Button>
+        </View>
       </View>
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 

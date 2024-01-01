@@ -15,7 +15,7 @@ export default async (workspaceId, userIds) => {
 			},
       body: JSON.stringify(userIds),
 		});
-		return response.json();
+		return response;
 	} catch (error) {
 		return error;
 	}

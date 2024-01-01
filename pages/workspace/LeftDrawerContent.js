@@ -16,6 +16,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
     setCurrentChannelId,
     channels,
     setChannels,
+    setSnackBarChannel,
   } = useContext(currentChannelIdContext);
   const [workspaceName, setWorkspaceName] = useState("");
   useEffect(
@@ -72,6 +73,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
             navigation.navigate("CreateChannel", {
               workspaceId: workspaceId,
               setChannels: setChannels,
+							setSnackBarChannel: setSnackBarChannel,
             })
           }
         >
@@ -108,7 +110,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
           onPress={() =>
             navigation.navigate("WorkspaceSetting", {
               workspaceId: workspaceId,
-							setSnackBarWpList: setSnackBarWpList,
+              setSnackBarWpList: setSnackBarWpList,
             })
           }
         >

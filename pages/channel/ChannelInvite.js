@@ -4,23 +4,27 @@ import { buttonColor } from "../../styles/colorScheme"
 import { useEffect, useState } from "react";
 import addMembersChannelApi from "../../api/channelApi/addMembersChannel.api";
 import getUserNotInChannelApi from "../../api/channelApi/getUserNotInChannel.api";
+import StatusSnackBar from "../../components/StatusSnackBar";
+import { successStatusCodes } from "../../utils/common";
 
 export default function ChannelInvite({ route }) {
   const { workspaceId, channelId } = route.params;
+	console.log(channelId);
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [search, setSearch] = useState("");
+
+  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
   useEffect(
     function () {
       try {
         const findUsers = async () => {
           const response = await getUserNotInChannelApi(workspaceId, channelId);
-          console.log("Channel", response);
           const allUsers = response.map(user => (
             {
               id: user.id,
               email: user.email,
-              username: user.firstName + user.lastName,
+              username: (user.firstName || "") + " " + (user.lastName || ""),
               avatar: user.picture,
               // selected: user.selected ? user.selected : false,
               selected: false,
@@ -37,18 +41,15 @@ export default function ChannelInvite({ route }) {
   async function addUsers() {
     try {
       const selectedUserIds = users.filter(user => user.selected == true).map(user => user.id)
-      console.log(selectedUserIds);
       const response = await addMembersChannelApi(channelId, selectedUserIds);
-      console.log(response);
-      console.log(response);
-      if (response.status == 500) {
-        Alert.alert(response.title)
+      if (!successStatusCodes.includes(String(response.status))) {
+        setSnackBar({ isVisible: true, message: "you are not authorized to add member", type: "failed" });
         return;
       }
-      Alert.alert("Success add members")
+      setSnackBar({ isVisible: true, message: "add member successfully", type: "success" });
 
     } catch {
-
+      setSnackBar({ isVisible: true, message: "failed add member", type: "failed" });
     }
   }
   function findUsers() {
@@ -63,31 +64,34 @@ export default function ChannelInvite({ route }) {
     setUsers(allUsers);
   }
   return (
-    <View style={styles.container}>
-      <Searchbar style={styles.searchBar} placeholder="Search" onChangeText={setSearch} />
-      <View style={{ flexDirection: 'row-reverse', width: '100%', marginTop: 15 }}>
-        <Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
-        <Button {...buttonColor} style={styles.butShowAll} onPress={showAll}>show All</Button>
+    <>
+      <View style={styles.container}>
+        <Searchbar style={styles.searchBar} placeholder="Search" onChangeText={setSearch} />
+        <View style={{ flexDirection: 'row-reverse', width: '100%', marginTop: 15 }}>
+          <Button {...buttonColor} style={styles.buttonFind} onPress={findUsers}>find</Button>
+          <Button {...buttonColor} style={styles.butShowAll} onPress={showAll}>show All</Button>
+        </View>
+        <View style={{ flex: 6, width: '100%' }}>
+          <FlatList
+            data={users}
+            renderItem={({ item, index }) => (
+              <User
+                id={item.id}
+                username={item.username}
+                email={item.email}
+                avatar={item.avatar}
+                setUsers={setUsers}
+                users={users}
+                index={index}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
+        <Button {...buttonColor} style={styles.buttonAdd} onPress={addUsers}>add</Button>
       </View>
-      <View style={{ flex: 6, width: '100%' }}>
-        <FlatList
-          data={users}
-          renderItem={({ item, index }) => (
-            <User
-              id={item.id}
-              username={item.username}
-              email={item.email}
-              avatar={item.avatar}
-              setUsers={setUsers}
-              users={users}
-              index={index}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
-      <Button {...buttonColor} style={styles.buttonAdd} onPress={addUsers}>add</Button>
-    </View>
+      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+    </>
   );
 }
 
