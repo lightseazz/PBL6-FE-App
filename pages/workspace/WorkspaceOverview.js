@@ -54,7 +54,7 @@ export default function WorkspaceOverview({ navigation, route }) {
       };
       getWorkspace();
     } catch (error) {
-      Alert.alert("get existed workspace data failed");
+      setSnackBar({ isVisible: true, message: "get workspace failed", type: "failed" });
     }
   }, []);
   const onChangeName = (text) => {

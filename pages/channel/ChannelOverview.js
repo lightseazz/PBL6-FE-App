@@ -31,7 +31,7 @@ export default function ChannelOverview({ navigation, route }) {
       };
       getWorkspace();
     } catch (error) {
-      Alert.alert("get existed channel data failed");
+      setSnackBar({ isVisible: true, message: "get channel failed", type: "failed" });
     }
   }, []);
   const onChangeName = (text) => {
