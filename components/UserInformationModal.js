@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import getUserByIdApi from "../api/userApi/getUserById.api";
 import { Avatar } from "react-native-paper";
 import { getShortDatetimeSendAt } from "../utils/common";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
-export default function UserInformationModal({ isUserModalVisible, setIsUserModalVisible, userId, isChannel }) {
+export default function UserInformationModal({ isUserModalVisible, setIsUserModalVisible,
+  userId, isChannel, navigation }) {
   try {
     const [name, setName] = useState("");
     const [picture, setPicture] = useState();
@@ -27,6 +29,13 @@ export default function UserInformationModal({ isUserModalVisible, setIsUserModa
       getInitInforms();
 
     }, [isUserModalVisible, userId])
+
+    function messageTo() {
+			setIsUserModalVisible(false);
+      navigation.navigate("ChatColleague", {
+        colleagueId: userId
+      })
+    }
     return (
       <Modal
         onBackdropPress={() => setIsUserModalVisible(false)}
@@ -84,10 +93,22 @@ export default function UserInformationModal({ isUserModalVisible, setIsUserModa
                 <Text>{gender ? "male" : "female"}</Text>
               </View>
             </View>
-
           </View>
+          {isChannel ? (
+            <TouchableOpacity
+							onPress={messageTo}
+              style={{
+                flexDirection: "row",
+                alignSelf: 'center', alignItems: 'center',
+                borderWidth: 0.4, padding: 10, borderRadius: 10,
+              }}>
+              <Icon name="chat-outline" size={30} />
+              <Text style={{ marginLeft: 5 }}>Message</Text>
+            </TouchableOpacity>
+
+          ) : <></>}
         </View>
-      </Modal>
+      </Modal >
 
     )
   } catch {

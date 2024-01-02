@@ -325,6 +325,7 @@ export default function ChatThreadChannel({ navigation, route }) {
         </TouchableOpacity>
         {/* Parent Message  */}
         <Message
+					navigation={navigation}
           isParent={true}
           setIsSelectParentMessage={setIsSelectParentMessage}
           senderId={parentSenderId}
@@ -365,6 +366,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
+							navigation={navigation}
               isParent={false}
               setIsSelectParentMessage={setIsSelectParentMessage}
               senderId={item.senderId}

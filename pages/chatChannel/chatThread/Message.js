@@ -19,6 +19,7 @@ import UserInformationModal from "../../../components/UserInformationModal";
 import { useState } from "react";
 
 export default function Message({
+  navigation,
   state,
   reactionCount,
   parentState,
@@ -255,6 +256,7 @@ export default function Message({
         setIsUserModalVisible={setIsUserModalVisible}
         userId={senderId}
         isChannel={true}
+				navigation={navigation}
       />
     </TouchableOpacity>
   )

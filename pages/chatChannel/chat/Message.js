@@ -277,6 +277,7 @@ export default function Message({
         </TouchableOpacity>
       )}
       <UserInformationModal
+				navigation={navigation}
         isUserModalVisible={isUserModalVisible}
         setIsUserModalVisible={setIsUserModalVisible}
         userId={senderId}
