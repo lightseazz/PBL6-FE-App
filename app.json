@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "PBL6_slock_AppMobile",
+    "name": "FIRA",
     "slug": "PBL6_slock_AppMobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/firaIcon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

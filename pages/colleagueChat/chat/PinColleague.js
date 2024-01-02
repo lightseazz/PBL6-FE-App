@@ -14,7 +14,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useEffect, useState } from "react";
 import getMessagePinUserApi from "../../../api/chatApi/getMessagePinUser.api";
 import getMessageJumpApi from "../../../api/chatApi/getMessageJump.api";
-import { connectionChatColleague } from "../../../globalVar/global";
+import { connectionChatChannel } from "../../../globalVar/global";
 import { compareSendAt } from "../../../utils/common";
 import * as Linking from 'expo-linking';
 
@@ -99,7 +99,7 @@ function PinMessage({
     )
   }
   async function onPin() {
-    const response = await connectionChatColleague.invoke("PinMessage", id, false)
+    const response = await connectionChatChannel.invoke("PinMessage", id, false)
       .catch(function (err) {
         return console.error(err.toString());
       });

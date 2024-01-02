@@ -294,7 +294,7 @@ export default function ChatChannel({ navigation, route }) {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View
         style={{
           height: 60,

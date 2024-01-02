@@ -5,7 +5,7 @@ import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { messageState } from "../../../utils/messageState";
 import { userSignedIn } from "../../../globalVar/global";
-import { connectionChatColleague } from "../../../globalVar/global";
+import { connectionChatChannel } from "../../../globalVar/global";
 import * as Clipboard from 'expo-clipboard';
 
 export default function MessageModal(
@@ -14,7 +14,7 @@ export default function MessageModal(
 ) {
 
   async function onDeleteMessage() {
-    const response = await connectionChatColleague.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
+    const response = await connectionChatChannel.invoke("DeleteMessageAsync", selectedMessageId, true).catch(function (err) {
       return console.error(err.toString());
     });
     if (typeof response == "string") {
@@ -50,7 +50,7 @@ export default function MessageModal(
       emoji: false,
     });
     const pinMessage = messages.find(message => message.id == selectedMessageId);
-    const response = await connectionChatColleague.invoke("PinMessage", selectedMessageId, !pinMessage.isPined)
+    const response = await connectionChatChannel.invoke("PinMessage", selectedMessageId, !pinMessage.isPined)
       .catch(function (err) {
         return console.error(err.toString());
       });

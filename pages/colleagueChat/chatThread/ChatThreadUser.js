@@ -14,7 +14,7 @@ import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
-import { connectionChatColleague } from "../../../globalVar/global";
+import { connectionChatChannel } from "../../../globalVar/global";
 import * as DocumentPicker from 'expo-document-picker';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
 
@@ -78,8 +78,8 @@ export default function ChatThreadUser({ navigation, route }) {
   }, [])
 
   function receiveMessage() {
-    connectionChatColleague.off("receive_message");
-    connectionChatColleague.on("receive_message", function (message) {
+    connectionChatChannel.off("receive_message");
+    connectionChatChannel.on("receive_message", function (message) {
       if (message.isChannel) return;
       if (message.parentId != parentMessageId) return;
       const MessagesAfterReceived = [...messages];
@@ -91,8 +91,8 @@ export default function ChatThreadUser({ navigation, route }) {
     })
   };
   function receiveDelete() {
-    connectionChatColleague.off("delete_message");
-    connectionChatColleague.on("delete_message", function (message) {
+    connectionChatChannel.off("delete_message");
+    connectionChatChannel.on("delete_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
       const deleteMessage = messages.find(msg => msg.id == message.id);
@@ -103,8 +103,8 @@ export default function ChatThreadUser({ navigation, route }) {
     })
   }
   function reiceiveUpdate() {
-    connectionChatColleague.off("update_message");
-    connectionChatColleague.on("update_message", function (message) {
+    connectionChatChannel.off("update_message");
+    connectionChatChannel.on("update_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
       if (message.id == parentMessageId) {
@@ -133,7 +133,7 @@ export default function ChatThreadUser({ navigation, route }) {
 
   async function sendMessage() {
     if (isEdit == false) {
-			setIsLoadingSend(true);
+      setIsLoadingSend(true);
       let tempId = Date.now();
       let currentTime = new Date()
       let content = richTextRef.text;
@@ -170,7 +170,7 @@ export default function ChatThreadUser({ navigation, route }) {
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending, toUploadFiles) {
-    const response = await connectionChatColleague.invoke("SendMessageAsync", {
+    const response = await connectionChatChannel.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       ReplyTo: parentMessageId,
       Content: content,
@@ -187,12 +187,12 @@ export default function ChatThreadUser({ navigation, route }) {
     tempMessages[0].state = "";
     tempMessages[0].files = response.files;
     setMessages(tempMessages);
-		setIsLoadingSend(false);
+    setIsLoadingSend(false);
     resetParentMessageRef.current.isChanging = true;
     setCurrentParentChildCount(currentParentChildCount + 1);
   }
   async function updateMessageToServer() {
-    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
+    const response = await connectionChatChannel.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
@@ -203,7 +203,7 @@ export default function ChatThreadUser({ navigation, route }) {
     setSendDisabled(true);
   }
   async function updateParentMessageToServer() {
-    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
+    const response = await connectionChatChannel.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
@@ -305,7 +305,7 @@ export default function ChatThreadUser({ navigation, route }) {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View
         style={{
           marginTop: StatusBar.currentHeight,
@@ -445,7 +445,7 @@ export default function ChatThreadUser({ navigation, route }) {
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
 
           {isLoadingSend ? (
-            <ActivityIndicator color="black" style={{marginRight: 15}} />
+            <ActivityIndicator color="black" style={{ marginRight: 15 }} />
           ) : (
             <TouchableOpacity
               style={{

@@ -133,7 +133,7 @@ export default function ChangePassword({ navigation, route }) {
         </View>
         <Button
           style={{ width: 100, alignSelf: 'flex-start', marginLeft: 40 }}
-          mode="elevated"
+          mode="contained"
           onPress={onGetOtp}
           disabled={clicked}
           {...buttonColor}

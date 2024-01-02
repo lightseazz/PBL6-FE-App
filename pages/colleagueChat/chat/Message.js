@@ -14,6 +14,8 @@ import * as Linking from 'expo-linking';
 import * as linkify from 'linkifyjs';
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
 import { getShortDatetimeSendAt } from "../../../utils/common";
+import UserInformationModal from "../../../components/UserInformationModal";
+import { useState } from "react";
 
 export default function Message({
   resetParentMessageRef,
@@ -35,6 +37,12 @@ export default function Message({
   sendAt,
 }) {
   const { width } = useWindowDimensions();
+
+  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+
+  function showUserInform() {
+    setIsUserModalVisible(true);
+  }
   function onPressReply() {
     navigation.navigate("ChatThreadUser", {
       resetParentMessageRef: resetParentMessageRef,
@@ -219,12 +227,14 @@ export default function Message({
               marginBottom: 10,
             }}
           >
-            <Avatar.Image
-              size={40}
-              source={{
-                uri: senderAvatar,
-              }}
-            />
+            <TouchableOpacity onPress={showUserInform}>
+              <Avatar.Image
+                size={40}
+                source={{
+                  uri: senderAvatar,
+                }}
+              />
+            </TouchableOpacity>
             <View>
               {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
               <Text style={styles.usernameText}>{senderName}</Text>
@@ -262,6 +272,12 @@ export default function Message({
               <Icon name="arrow-right-thin" size={23} color="#2463B8" style={{ marginLeft: 8 }}></Icon>
             </TouchableOpacity>
           ) : <></>}
+          <UserInformationModal
+            isUserModalVisible={isUserModalVisible}
+            setIsUserModalVisible={setIsUserModalVisible}
+            userId={senderId}
+            isChannel={false}
+          />
         </TouchableOpacity>
       )}
     </>

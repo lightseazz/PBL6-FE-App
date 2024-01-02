@@ -14,7 +14,7 @@ import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
 import { FlashList } from "@shopify/flash-list";
 import { userSignedIn } from "../../../globalVar/global";
-import { connectionChatColleague } from "../../../globalVar/global";
+import { connectionChatChannel } from "../../../globalVar/global";
 import { useIsFocused } from "@react-navigation/native";
 import * as DocumentPicker from 'expo-document-picker';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
@@ -43,7 +43,7 @@ export default function ChatColleague({ navigation, route }) {
   useEffect(function () {
     async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
-      setColleagueName(colleague.firstName + " " + colleague.lastName)
+      setColleagueName((colleague.firstName || "") + " " + (colleague.lastName || ""))
     }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
@@ -78,8 +78,8 @@ export default function ChatColleague({ navigation, route }) {
   }
 
   function receiveMessage() {
-    connectionChatColleague.off("receive_message");
-    connectionChatColleague.on("receive_message", function (message) {
+    connectionChatChannel.off("receive_message");
+    connectionChatChannel.on("receive_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId) return;
       if (message.parentId) {
@@ -95,8 +95,8 @@ export default function ChatColleague({ navigation, route }) {
     });
   }
   function receiveUpdate() {
-    connectionChatColleague.off("update_message");
-    connectionChatColleague.on("update_message", function (message) {
+    connectionChatChannel.off("update_message");
+    connectionChatChannel.on("update_message", function (message) {
       if (message.isChannel) return;
       if (message.senderId != colleagueId && message.receiverId != colleagueId) return;
       const updateMessage = messages.find(msg => msg.id == message.id);
@@ -110,8 +110,8 @@ export default function ChatColleague({ navigation, route }) {
     })
   }
   function receiveDelete() {
-    connectionChatColleague.off("delete_message");
-    connectionChatColleague.on("delete_message", function (message) {
+    connectionChatChannel.off("delete_message");
+    connectionChatChannel.on("delete_message", function (message) {
       if (message.isChannel) return;
       if (message.parentId) {
         const updateChildCountMessage = messages.find(msg => msg.id == message.parentId)
@@ -162,7 +162,7 @@ export default function ChatColleague({ navigation, route }) {
     setIsEdit(false);
   }
   async function sendMessageToServer(content, messagesAfterSending, toUploadFiles) {
-    const response = await connectionChatColleague.invoke("SendMessageAsync", {
+    const response = await connectionChatChannel.invoke("SendMessageAsync", {
       ReceiverId: colleagueId,
       Content: content,
       IsChannel: false,
@@ -181,7 +181,7 @@ export default function ChatColleague({ navigation, route }) {
     setIsLoadingSend(false);
   }
   async function updateMessageToServer() {
-    const response = await connectionChatColleague.invoke("UpdateMessageAsync", {
+    const response = await connectionChatChannel.invoke("UpdateMessageAsync", {
       Id: selectedMessageId,
       Content: richTextRef.text,
       IsChannel: false,
@@ -294,7 +294,7 @@ export default function ChatColleague({ navigation, route }) {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View
         style={{
           height: 60,
@@ -427,7 +427,7 @@ export default function ChatColleague({ navigation, route }) {
         <View style={{ flex: 1, flexDirection: 'row-reverse' }}>
 
           {isLoadingSend ? (
-            <ActivityIndicator color="black" style={{marginRight: 15}} />
+            <ActivityIndicator color="black" style={{ marginRight: 15 }} />
           ) : (
             <TouchableOpacity
               style={{

@@ -5,19 +5,23 @@ import declineWpApi from "../../api/workspaceApi/declineWp.api";
 import { getShortDatetimeSendAt, successStatusCodes } from "../../utils/common";
 import { useState } from "react";
 import StatusSnackBar from "../../components/StatusSnackBar";
+import deleteNotiApi from "../../api/notification/deleteNoti.api";
 
 const icon = "https://cdn-icons-png.flaticon.com/512/3119/3119338.png";
 
 
 
 export default function ItemDetail({ navigation, route }) {
-  const { id, title, content, createdAt, isRead, type, data } = route.params;
-  const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
+  const { id, title, content, createdAt, isRead, type, data, setSnackBar, setNotis } = route.params;
+  const [isLoading, setIsLoading] = useState(false);
   let dataJson = JSON.parse(data);
   let dataDetailJson = JSON.parse(dataJson.Detail);
   function AcceptWsp() {
     return (
-      <Button mode="contained"
+      <Button
+        loading={isLoading}
+        disabled={isLoading}
+        mode="contained"
         style={{ backgroundColor: 'green', width: '30%' }}
         onPress={acceptWsp}
       >Accept</Button>
@@ -25,81 +29,99 @@ export default function ItemDetail({ navigation, route }) {
   }
   function DeclineWsp() {
     return (
-      <Button mode="contained" style={{ backgroundColor: 'red', width: '30%' }}
+      <Button
+        loading={isLoading}
+        disabled={isLoading}
+        mode="contained"
+        style={{ backgroundColor: 'red', width: '30%' }}
         onPress={declineWsp}
       >Decline</Button>
     )
   }
-  function AcceptChannel() {
-    return (
-      <Button mode="contained" style={{ backgroundColor: 'green', width: '30%' }}
-        onPress={acceptChannel}
-      >Accept</Button>
-    )
-  }
-  function DeclineChannel() {
-    return (
-      <Button mode="contained" style={{ backgroundColor: 'red', width: '30%' }}
-        onPress={declineChannel}
-      >Decline</Button>
-    )
-  }
-  async function acceptWsp() {
-    const response = await acceptWpApi(dataDetailJson.GroupId);
-    if (successStatusCodes.includes(String(response.status))) {
-      setSnackBar({ isVisible: true, message: "you join this workspace successfully", type: "success" })
+
+  async function deleteNoti() {
+    try {
+      const response = await deleteNotiApi([id]);
+      setNotis(notis => {
+        const resetNotis = notis.filter(noti => noti.id != id);
+        return [...resetNotis];
+      });
+    } catch {
+
     }
-    else {
-      setSnackBar({ isVisible: true, message: "you've joined this workspace", type: "failed" });
+
+  }
+
+  async function acceptWsp() {
+    try {
+      setIsLoading(true);
+      const response = await acceptWpApi(dataDetailJson.GroupId);
+      if (successStatusCodes.includes(String(response.status))) {
+        deleteNoti();
+        navigation.goBack();
+        setSnackBar({ isVisible: true, message: "you join this workspace successfully", type: "success" });
+        setIsLoading(false);
+      }
+      else {
+        deleteNoti();
+        navigation.goBack();
+        setSnackBar({ isVisible: true, message: "you've joined this workspace", type: "failed" });
+        setIsLoading(false);
+      }
+    } catch {
+      setIsLoading(false);
     }
   }
   async function declineWsp() {
-    const response = await declineWpApi(dataDetailJson.GroupId);
-    if (successStatusCodes.includes(String(response.status))) {
-      setSnackBar({ isVisible: true, message: "you decline this workspace", type: "success" })
+    try {
+      setIsLoading(true);
+      const response = await declineWpApi(dataDetailJson.GroupId);
+      if (successStatusCodes.includes(String(response.status))) {
+        deleteNoti();
+        navigation.goBack();
+        setSnackBar({ isVisible: true, message: "you decline this workspace", type: "success" });
+        setIsLoading(false);
+      }
+      else {
+        deleteNoti();
+        navigation.goBack();
+        setSnackBar({ isVisible: true, message: "you had declined this workspace", type: "failed" })
+        setIsLoading(false);
+      }
+    } catch {
+      setIsLoading(false);
     }
-    else {
-      setSnackBar({ isVisible: true, message: "you had declined this workspace", type: "failed" })
-    }
-  }
-  async function acceptChannel() {
-
-  }
-  async function declineChannel() {
-
   }
   return (
-    <>
-      <View style={styles.container}>
-        <Text style={styles.title}>{title}</Text>
-        <View style={styles.secondContainer}>
-          <Avatar.Image
-            style={{ borderRadius: 10, backgroundColor: "white" }}
-            size={40}
-            source={{
-              uri: icon,
-            }}
-          />
-          <View style={styles.timeContainer}>
-            <Text style={styles.timeText}>{getShortDatetimeSendAt(createdAt)}</Text>
-          </View>
+    <View style={styles.container}>
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.secondContainer}>
+        <Avatar.Image
+          style={{ borderRadius: 10, backgroundColor: "white" }}
+          size={40}
+          source={{
+            uri: icon,
+          }}
+        />
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText}>{getShortDatetimeSendAt(createdAt)}</Text>
         </View>
-        <Divider bold={true} style={styles.divider} />
-        <Text style={styles.text}>{content}</Text>
-        {type == 6 ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
-            <AcceptWsp />
-            <DeclineWsp />
-          </View>
-        ) : <></>}
       </View>
-      <StatusSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
-    </>
+      <Divider bold={true} style={styles.divider} />
+      <Text style={styles.text}>{content}</Text>
+      {type == 6 ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+          <AcceptWsp />
+          <DeclineWsp />
+        </View>
+      ) : <></>}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "white",
     flex: 1,
     paddingTop: StatusBar.currentHeight,
     padding: "5%",

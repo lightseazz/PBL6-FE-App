@@ -7,7 +7,6 @@ import { buttonColor, textInputColor } from "../../styles/colorScheme";
 import * as SecureStore from "expo-secure-store"
 import * as signalR from "@microsoft/signalr"
 import { useIsFocused } from "@react-navigation/native";
-import { setConnectionChatColleague } from "../../globalVar/global";
 import getUsersConversationApi from "../../api/chatApi/getUsersConversation.api";
 import { FlashList } from "@shopify/flash-list";
 
@@ -17,32 +16,13 @@ export default function ColleagueChat({ navigation }) {
   const [search, setSearch] = useState("");
   const isFocused = useIsFocused();
   useEffect(function () {
-    async function connectHub() {
-      let baseUrl = "https://api.firar.live";
-      const userToken = await SecureStore.getItemAsync("userToken");
-      let connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${baseUrl}/chatHub?access_token=${userToken}`)
-        .withAutomaticReconnect()
-        .build()
-
-      connection.on("Error", function (message) {
-        console.log("signalR Connection Error: ", message);
-      });
-      connection.start().then(function () {
-      })
-        .catch(function (err) {
-          return console.error(err.toString());
-        });
-      setConnectionChatColleague(connection);
-    }
     async function getInitColleagues() {
       const colleagues = await getUsersConversationApi("", 0, 20);
       setColleagues([...colleagues])
     }
 
     if (isFocused == true)
-      connectHub();
-    getInitColleagues();
+      getInitColleagues();
   }, [isFocused])
 
   async function addColleagues() {
@@ -56,7 +36,6 @@ export default function ColleagueChat({ navigation }) {
         setColleagues(colleagues);
         return;
       }
-      console.log(colleagues[0]);
       const searchColleagues = colleagues.filter(colleague => colleague.name.includes(search));
       setColleagues(searchColleagues);
     } catch {

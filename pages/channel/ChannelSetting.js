@@ -36,8 +36,8 @@ export default function ChannelSetting({ route, navigation }) {
     try {
       const response = await leaveChannelApi(workspaceId, channelId);
       if (!successStatusCodes.includes(String(response.status))) {
-				console.log(response.status);
-        setSnackBar({ isVisible: true, message: "you are owner of this channel cannot leave", type: "failed" });
+        console.log(response.status);
+        setSnackBar({ isVisible: true, message: "you cannot leave this channel", type: "failed" });
         return;
       }
       const allChannels = await getAllChannelApi(workspaceId);

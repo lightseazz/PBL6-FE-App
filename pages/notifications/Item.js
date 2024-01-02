@@ -22,6 +22,7 @@ export default function Item({
   deleteMode,
   setDeleteMode,
   index,
+	setSnackBar,
 }) {
   // const [checked, setChecked] = useState(notis[index].selected == true ? true : false);
   const checked = notis[index].selected == true ? true : false;
@@ -37,6 +38,8 @@ export default function Item({
       isRead,
       type,
       data,
+			setSnackBar,
+			setNotis,
     })
     if (isRead == false) {
       const response = await putReadNotiApi(id);
@@ -78,7 +81,7 @@ export default function Item({
             uri: icon,
           }}
         />
-        <View style={{ width: 300 }}>
+        <View style={{ width: deleteMode ? '80%': '100%' }}>
           <View style={styles.leftContainer}>
             <Text style={{ color: '#1a69a6', fontWeight: isRead ? "normal" : "bold", fontSize: 15 }}>{title}</Text>
             <View style={styles.timeContainer}>

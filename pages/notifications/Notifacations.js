@@ -17,6 +17,7 @@ export default function Notifications({ navigation }) {
   const [selectedType, setSelectedType] = useState("all");
   const [notis, setNotis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [resetList, setResetList] = useState(false);
   const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
@@ -25,9 +26,9 @@ export default function Notifications({ navigation }) {
     async function initNotifications() {
       onChangeType("all");
     }
-    if (isFocus)
-      initNotifications();
-  }, [isFocus])
+
+    initNotifications();
+  }, [])
   async function loadMore() {
     setIsLoading(true);
     const response = await getNotisByType(nextOffset.current, LIMIT, selectedType);
@@ -47,6 +48,10 @@ export default function Notifications({ navigation }) {
     nextOffset.current = LIMIT;
     setNotis([...notis]);
   }
+  function refreshNoti() {
+    onChangeType("all");
+
+  }
   function clearAll() {
     notis.forEach(noti => noti.selected = false);
     setNotis([...notis]);
@@ -59,11 +64,13 @@ export default function Notifications({ navigation }) {
   }
   async function deleteNotis() {
     try {
+      setIsLoadingDelete(true);
       const deleteNotis = notis.filter(noti => noti.selected == true).map(noti => noti.id);
       const response = await deleteNotiApi(deleteNotis);
       if (!successStatusCodes.includes(String(response.status))) {
         setSnackBar({ isVisible: true, message: "delete notifcation failed", type: "failed" });
         clearAll();
+        setIsLoadingDelete(false);
         return;
       }
       const resetNotis = notis.filter(noti => noti.selected != true);
@@ -71,8 +78,10 @@ export default function Notifications({ navigation }) {
       setResetList(resetList => !resetList);
       setDeleteMode(false);
       setSnackBar({ isVisible: true, message: "delete notificaiton success", type: "success" });
+      setIsLoadingDelete(false);
     } catch {
       setSnackBar({ isVisible: true, message: "delete notifcation failed", type: "failed" });
+      setIsLoadingDelete(false);
     }
   }
   function cancelDeleteMode() {
@@ -112,11 +121,14 @@ export default function Notifications({ navigation }) {
           estimatedItemSize={50}
           data={notis}
           extraData={[deleteMode, resetList]}
+          refreshing={false}
+          onRefresh={refreshNoti}
           renderItem={({ item, index }) => (
             <Item
               navigation={navigation}
               notis={notis}
               setNotis={setNotis}
+              setSnackBar={setSnackBar}
               deleteMode={deleteMode}
               setDeleteMode={setDeleteMode}
               id={item.id}
@@ -142,7 +154,10 @@ export default function Notifications({ navigation }) {
         {deleteMode ? (
           <>
             <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 10 }}>
-              <Button mode="contained" textColor="white" onPress={deleteNotis} style={styles.deleteButton}>delete</Button>
+              <Button
+                loading={isLoadingDelete}
+                mode="contained" textColor="white" onPress={deleteNotis}
+                style={styles.deleteButton}>delete</Button>
               <Button mode="contained" onPress={cancelDeleteMode} style={styles.cancelButton} >cancel</Button>
             </View>
           </>

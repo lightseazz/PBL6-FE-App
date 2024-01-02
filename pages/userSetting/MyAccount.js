@@ -37,6 +37,7 @@ export default function MyAccount() {
 
   const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
 
+
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -185,7 +186,7 @@ export default function MyAccount() {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text>Male</Text>
             <RadioButton
-							color="black"
+              color="black"
               label="male"
               status={gender === false ? 'checked' : 'unchecked'}
               onPress={() => setGender(false)}
@@ -194,7 +195,7 @@ export default function MyAccount() {
           <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 30 }} >
             <Text>Female</Text>
             <RadioButton
-							color="black"
+              color="black"
               value="female"
               status={gender === true ? 'checked' : 'unchecked'}
               onPress={() => setGender(true)}

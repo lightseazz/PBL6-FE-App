@@ -26,7 +26,7 @@ export default function Colleague({
       return;
     };
     setTruncateLastMessage(noHtmlContent.slice(0, 10) + "...");
-  }, [])
+  }, [lastMessage])
 
   return (
     <TouchableOpacity

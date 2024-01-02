@@ -3,7 +3,7 @@ import { Text, View, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { connectionChatColleague } from "../../../globalVar/global";
+import { connectionChatChannel } from "../../../globalVar/global";
 import { emojis } from "../../../utils/common";
 
 
@@ -88,10 +88,10 @@ const styles = StyleSheet.create({
 });
 
 async function sendEmojiToServer(messageId, emoji) {
-  if (!connectionChatColleague) {
+  if (!connectionChatChannel) {
     console.log("hub is not connection");
   }
-  const response = await connectionChatColleague.invoke("ReactMessageAsync", {
+  const response = await connectionChatChannel.invoke("ReactMessageAsync", {
     MessageId: messageId,
     Emoji: String.fromCodePoint(emoji),
   });

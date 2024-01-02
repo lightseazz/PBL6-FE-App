@@ -13,8 +13,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as Linking from 'expo-linking';
 import * as linkify from 'linkifyjs';
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getShortDatetimeSendAt } from "../../../utils/common";
+import UserInformationModal from "../../../components/UserInformationModal";
 
 export default function Message({
   currentChannelId,
@@ -36,6 +37,11 @@ export default function Message({
   files,
 }) {
   const { width } = useWindowDimensions();
+  const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+
+  function showUserInform() {
+    setIsUserModalVisible(true);
+  }
 
   function onPressReply() {
     navigation.navigate("ChatThreadChannel", {
@@ -195,6 +201,7 @@ export default function Message({
     )
   }
 
+
   return (
     <>
       {state == "deleted" ? (
@@ -222,12 +229,14 @@ export default function Message({
               marginBottom: 10,
             }}
           >
-            <Avatar.Image
-              size={40}
-              source={{
-                uri: senderAvatar,
-              }}
-            />
+            <TouchableOpacity onPress={showUserInform}>
+              <Avatar.Image
+                size={40}
+                source={{
+                  uri: senderAvatar,
+                }}
+              />
+            </TouchableOpacity>
             <View>
               {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
               <Text style={styles.usernameText}>{senderName}</Text>
@@ -267,6 +276,12 @@ export default function Message({
           ) : <></>}
         </TouchableOpacity>
       )}
+      <UserInformationModal
+        isUserModalVisible={isUserModalVisible}
+        setIsUserModalVisible={setIsUserModalVisible}
+        userId={senderId}
+				isChannel={true}
+      />
     </>
 
   );
