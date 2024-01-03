@@ -14,7 +14,7 @@ import * as Linking from 'expo-linking';
 import * as linkify from 'linkifyjs';
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
 import { useEffect, useState } from "react";
-import { getShortDatetimeSendAt } from "../../../utils/common";
+import { getShortDatetimeSendAt, truncString } from "../../../utils/common";
 import UserInformationModal from "../../../components/UserInformationModal";
 
 export default function Message({
@@ -193,7 +193,7 @@ export default function Message({
               key={index}
               containerStyle={{ backgroundColor: '#EAEAEA', borderRadius: 10, margin: 5 }}
               text={link.href}
-              renderText={() => (<Text>{link.value}</Text>)}
+              renderText={() => (<Text>{truncString(link.value)}</Text>)}
             />
           )
         })}
@@ -277,11 +277,11 @@ export default function Message({
         </TouchableOpacity>
       )}
       <UserInformationModal
-				navigation={navigation}
+        navigation={navigation}
         isUserModalVisible={isUserModalVisible}
         setIsUserModalVisible={setIsUserModalVisible}
         userId={senderId}
-				isChannel={true}
+        isChannel={true}
       />
     </>
 

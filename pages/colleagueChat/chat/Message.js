@@ -13,7 +13,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as Linking from 'expo-linking';
 import * as linkify from 'linkifyjs';
 import { LinkPreview } from "@flyerhq/react-native-link-preview";
-import { getShortDatetimeSendAt } from "../../../utils/common";
+import { getShortDatetimeSendAt, truncString } from "../../../utils/common";
 import UserInformationModal from "../../../components/UserInformationModal";
 import { useState } from "react";
 
@@ -192,7 +192,7 @@ export default function Message({
               key={index}
               containerStyle={{ backgroundColor: '#EAEAEA', borderRadius: 10, margin: 5 }}
               text={link.href}
-              renderText={() => (<Text>{link.value}</Text>)}
+              renderText={() => (<Text>{truncString(link.value)}</Text>)}
             />
           )
         })}

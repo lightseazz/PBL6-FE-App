@@ -65,7 +65,7 @@ export default function ItemDetail({ navigation, route }) {
       else {
         deleteNoti();
         navigation.goBack();
-        setSnackBar({ isVisible: true, message: "you've joined this workspace", type: "failed" });
+        setSnackBar({ isVisible: true, message: "failed to accept this workspace", type: "failed" });
         setIsLoading(false);
       }
     } catch {
@@ -85,7 +85,7 @@ export default function ItemDetail({ navigation, route }) {
       else {
         deleteNoti();
         navigation.goBack();
-        setSnackBar({ isVisible: true, message: "you had declined this workspace", type: "failed" })
+        setSnackBar({ isVisible: true, message: "failed to declined this workspace", type: "failed" })
         setIsLoading(false);
       }
     } catch {

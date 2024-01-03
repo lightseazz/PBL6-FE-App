@@ -93,18 +93,20 @@ export default function Notifications({ navigation }) {
       <View style={styles.container}>
         {deleteMode ? <></> :
           (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Text>Type: </Text>
-              <Picker
-                style={{ backgroundColor: '#EEEEEE', margin: 10, width: 300 }}
-                selectedValue={selectedType}
-                onValueChange={onChangeType}>
-                <Picker.Item label="all" value="all" />
-                <Picker.Item label="general" value="general" />
-                <Picker.Item label="message" value="message" />
-                <Picker.Item label="workspace" value="workspace" />
-                <Picker.Item label="channel" value="channel" />
-              </Picker>
+              <View style={{borderWidth: 0.4, borderRadius: 20, padding: 5 }}>
+                <Picker
+                  style={{ backgroundColor: "white", width: 300 }}
+                  selectedValue={selectedType}
+                  onValueChange={onChangeType}>
+                  <Picker.Item label="all" value="all" />
+                  <Picker.Item label="general" value="general" />
+                  <Picker.Item label="message" value="message" />
+                  <Picker.Item label="workspace" value="workspace" />
+                  <Picker.Item label="channel" value="channel" />
+                </Picker>
+              </View>
             </View>
           )}
 

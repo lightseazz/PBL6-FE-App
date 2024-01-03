@@ -121,6 +121,7 @@ export function getShortDate(date) {
     let dayFormat = time.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
       .split('/').reverse().join('/');
     dayFormat = dayFormat + "/" + time.getFullYear();
+    if (dayFormat.includes("Invalid")) return "";
     return dayFormat;
   } catch {
     return "";
@@ -177,3 +178,15 @@ for (i = 128512; i <= 128530; i++) {
 
 
 export const successStatusCodes = ["200", "201", "202", "203", "204"];
+
+export function truncString(str) {
+  const LIMIT = 35;
+  try {
+    if (str.length > LIMIT) return str.slice(0, LIMIT) + "...";
+    return str;
+
+  } catch {
+    return str;
+  }
+
+}

@@ -1,4 +1,4 @@
-import { StatusBar, View, Text, TouchableOpacity, ScrollView, PlatformColor } from "react-native";
+import { StatusBar, View, Text, TouchableOpacity, ScrollView, PlatformColor, Image } from "react-native";
 import { useCallback, useRef, useState } from "react";
 import { RichToolbar, RichEditor, actions } from "react-native-pell-rich-editor";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -8,7 +8,7 @@ import * as signalR from "@microsoft/signalr";
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator, Divider } from "react-native-paper";
+import { ActivityIndicator, Avatar, Divider } from "react-native-paper";
 import getMessageUserApi from "../../../api/chatApi/getMessageUser.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
@@ -25,6 +25,7 @@ export default function ChatColleague({ navigation, route }) {
   const { colleagueId } = route.params;
 
   const [colleagueName, setColleagueName] = useState("");
+  const [colleagueAvatar, setColleagueAvatar] = useState();
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -43,7 +44,8 @@ export default function ChatColleague({ navigation, route }) {
   useEffect(function () {
     async function getColleague() {
       const colleague = await getUserByIdApi(colleagueId);
-      setColleagueName((colleague.firstName || "") + " " + (colleague.lastName || ""))
+      setColleagueName((colleague.firstName || "") + " " + (colleague.lastName || ""));
+      setColleagueAvatar(colleague.picture);
     }
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
@@ -311,7 +313,14 @@ export default function ChatColleague({ navigation, route }) {
         >
           <Icon name="arrow-left" size={28} />
         </TouchableOpacity>
-        <Text style={{ marginLeft: 30, fontSize: 20 }}>{colleagueName}</Text>
+        <Avatar.Image
+          size={40}
+          source={{
+            uri: colleagueAvatar,
+          }}
+					style={{marginLeft: 10}}
+        />
+        <Text style={{ fontSize: 20, marginLeft: 10 }}>{colleagueName}</Text>
         <View
           style={{
             flexDirection: "row-reverse",

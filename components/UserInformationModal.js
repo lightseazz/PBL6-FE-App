@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 import getUserByIdApi from "../api/userApi/getUserById.api";
 import { Avatar } from "react-native-paper";
-import { getShortDatetimeSendAt } from "../utils/common";
+import { getShortDate } from "../utils/common";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 export default function UserInformationModal({ isUserModalVisible, setIsUserModalVisible,
@@ -81,7 +81,7 @@ export default function UserInformationModal({ isUserModalVisible, setIsUserModa
                 <Text>Birth Day: </Text>
               </View>
               <View style={{ flex: 2 }}>
-                <Text>{getShortDatetimeSendAt(birthDay)}</Text>
+                <Text>{getShortDate(birthDay)}</Text>
               </View>
             </View>
 

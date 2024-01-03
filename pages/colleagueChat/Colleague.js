@@ -22,10 +22,16 @@ export default function Colleague({
     if (typeof lastMessage != "string") return;
     let noHtmlContent = lastMessage.replace(/<[^>]+>/g, '');
     if (noHtmlContent.length <= 10) {
-      setTruncateLastMessage(noHtmlContent);
+      if (lastMessageSender == "You")
+        setTruncateLastMessage("You: " + noHtmlContent);
+      else
+        setTruncateLastMessage(noHtmlContent);
       return;
     };
-    setTruncateLastMessage(noHtmlContent.slice(0, 10) + "...");
+    if (lastMessageSender == "You")
+      setTruncateLastMessage("You: " + noHtmlContent.slice(0, 10) + "...");
+    else
+      setTruncateLastMessage(noHtmlContent.slice(0, 10) + "...");
   }, [lastMessage])
 
   return (
