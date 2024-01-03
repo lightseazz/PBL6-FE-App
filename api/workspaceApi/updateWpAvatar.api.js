@@ -4,13 +4,13 @@ import * as SecureStore from "expo-secure-store";
 export default async (workspaceId, imageUri) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-    const image = {
-      uri: imageUri,
-      name: "image.jpg",
-      type: "image/jpeg",
-    };
+    const fileName = imageUri.split('/').pop();
     let formData = new FormData();
-    formData.append("Avatar", image);
+    formData.append("Avatar", {
+      uri: imageUri,
+      name: fileName || "default.jpg",
+      type: "image/jpeg",
+    });
     const response = await fetch(
       baseUrl + "Workspace/" + workspaceId + "/avatar",
       {

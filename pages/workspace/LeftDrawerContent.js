@@ -29,12 +29,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
           };
           const renderChannels = async () => {
             const response = await getAllChannelApi(workspaceId);
-            setChannels(
-              response.map((channel) => ({
-                id: channel.id,
-                name: channel.name,
-              }))
-            );
+            setChannels([...response]);
             if (response.length > 0) {
               setCurrentChannelId(response[0].id);
             }
@@ -73,7 +68,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
             navigation.navigate("CreateChannel", {
               workspaceId: workspaceId,
               setChannels: setChannels,
-							setSnackBarChannel: setSnackBarChannel,
+              setSnackBarChannel: setSnackBarChannel,
             })
           }
         >
@@ -86,6 +81,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
               <Channel
                 id={item.id}
                 name={item.name}
+                category={item.category}
                 currentChannelId={currentChannelId}
                 setCurrentChannelId={setCurrentChannelId}
               />
@@ -134,13 +130,15 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
   );
 }
 
-function Channel({ id, name, currentChannelId, setCurrentChannelId }) {
+function Channel({ id, name, category, currentChannelId, setCurrentChannelId }) {
+  let iconName = "pound";
+  if (category == "4") iconName = "video-outline";
   return (
     <Button
       textColor="black"
       buttonColor={id == currentChannelId ? "#D0D0D0" : "white"}
       mode={id == currentChannelId ? "contained-tonal" : "text"}
-      icon="pound"
+      icon={iconName}
       style={{ marginBottom: 20 }}
       contentStyle={{ justifyContent: "flex-start" }}
       onPress={() => setCurrentChannelId(id)}

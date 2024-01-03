@@ -98,7 +98,7 @@ function WorkspaceCard({ id, name, avatarUrl, navigation, numberOfMembers, setSn
       onPress={() =>
         navigation.navigate("LeftDrawerScreen", {
           workspaceId: id,
-					setSnackBarWpList: setSnackBarWpList,
+          setSnackBarWpList: setSnackBarWpList,
         })
       }
     >

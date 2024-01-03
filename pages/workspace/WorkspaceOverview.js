@@ -68,8 +68,8 @@ export default function WorkspaceOverview({ navigation, route }) {
   async function onPressUpdate() {
     try {
       setClicked(true);
-      if (name == "") {
-        setSnackBar({ isVisible: true, message: "workspace name is empty", type: "failed" });
+      if (name == "" || name.length < 8) {
+        setSnackBar({ isVisible: true, message: "Workspace name cannot less than 8 characters", type: "failed" });
         setClicked(false);
         return;
       }

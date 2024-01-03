@@ -18,6 +18,7 @@ import { connectionChatChannel } from "../../../globalVar/global";
 import { useIsFocused } from "@react-navigation/native";
 import * as DocumentPicker from 'expo-document-picker';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
+import { getShorterFileName } from "../../../utils/common";
 
 export default function ChatColleague({ navigation, route }) {
 
@@ -258,7 +259,7 @@ export default function ChatColleague({ navigation, route }) {
               flexDirection: 'row', margin: 10, borderWidth: 0.5, padding: 3, borderRadius: 15
             }}>
               <Icon name="file" size={23}></Icon>
-              <Text>{file.name}</Text>
+              <Text>{getShorterFileName(file.name)}</Text>
               <TouchableOpacity onPress={() => cancelUploadFile(file)}>
                 <Icon name="close" size={20}></Icon>
               </TouchableOpacity>
@@ -318,7 +319,7 @@ export default function ChatColleague({ navigation, route }) {
           source={{
             uri: colleagueAvatar,
           }}
-					style={{marginLeft: 10}}
+          style={{ marginLeft: 10 }}
         />
         <Text style={{ fontSize: 20, marginLeft: 10 }}>{colleagueName}</Text>
         <View

@@ -17,6 +17,7 @@ import { userSignedIn } from "../../../globalVar/global";
 import { connectionChatChannel } from "../../../globalVar/global";
 import * as DocumentPicker from 'expo-document-picker';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
+import { getShorterFileName } from "../../../utils/common";
 
 export default function ChatThreadChannel({ navigation, route }) {
   const
@@ -271,7 +272,7 @@ export default function ChatThreadChannel({ navigation, route }) {
               flexDirection: 'row', margin: 10, borderWidth: 0.5, padding: 3, borderRadius: 15
             }}>
               <Icon name="file" size={23}></Icon>
-              <Text>{file.name}</Text>
+              <Text>{getShorterFileName(file.name)}</Text>
               <TouchableOpacity onPress={() => cancelUploadFile(file)}>
                 <Icon name="close" size={20}></Icon>
               </TouchableOpacity>
@@ -325,7 +326,7 @@ export default function ChatThreadChannel({ navigation, route }) {
         </TouchableOpacity>
         {/* Parent Message  */}
         <Message
-					navigation={navigation}
+          navigation={navigation}
           isParent={true}
           setIsSelectParentMessage={setIsSelectParentMessage}
           senderId={parentSenderId}
@@ -366,7 +367,7 @@ export default function ChatThreadChannel({ navigation, route }) {
           data={messages}
           renderItem={({ item }) => (
             <Message
-							navigation={navigation}
+              navigation={navigation}
               isParent={false}
               setIsSelectParentMessage={setIsSelectParentMessage}
               senderId={item.senderId}

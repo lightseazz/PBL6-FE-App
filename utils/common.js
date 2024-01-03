@@ -190,3 +190,34 @@ export function truncString(str) {
   }
 
 }
+
+
+export function getIconChannel(category) {
+  if (category == "4") return "video-outline";
+  return "pound";
+}
+
+export function validatePhoneNumber(phoneNumber) {
+  var phoneRegex = /^\d{6,}$/;
+
+  if (phoneRegex.test(phoneNumber)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function getShorterFileName(fileName) {
+  try {
+    const LIMIT = 20;
+    const split = fileName.split(".");
+    let name = split[0];
+    let extension = split[1];
+    if (name.length > LIMIT) {
+      return name.slice(0, LIMIT) + "..." + extension;
+    }
+    return fileName;
+  } catch {
+    return fileName;
+  }
+}

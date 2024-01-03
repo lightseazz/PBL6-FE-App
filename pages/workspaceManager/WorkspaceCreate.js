@@ -53,8 +53,8 @@ export default function WorkspaceCreate({ navigation, route }) {
   async function onPressCreate() {
     try {
       setClicked(true);
-      if (name == "") {
-        setSnackBar({ isVisible: true, message: "Workspace name is Empty", type: "failed" });
+      if (name == "" || name.length < 8) {
+        setSnackBar({ isVisible: true, message: "Workspace name cannot less than 8 characters", type: "failed" });
         setClicked(false);
         return;
       }

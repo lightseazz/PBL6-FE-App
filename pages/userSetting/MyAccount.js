@@ -18,7 +18,7 @@ import StatusSnackBar from "../../components/StatusSnackBar";
 import updateUserInformApi from "../../api/userApi/updateUserInform.api";
 import { setGlobalUser } from "../../globalVar/global";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getShortDate } from "../../utils/common";
+import { getShortDate, validatePhoneNumber } from "../../utils/common";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 
 export default function MyAccount() {
@@ -100,8 +100,16 @@ export default function MyAccount() {
   async function saveInformation() {
     try {
       setIsLoadingInform(true);
+
+      if (!validatePhoneNumber(phone)) {
+        setSnackBar({ isVisible: true, message: "phone number format is incorrect", type: "failed" })
+        setIsLoadingInform(false);
+        return;
+      }
+
       const response = await updateUserInformApi(userId, firstName, lastName,
         gender, phone, email, new Date(birthDay).toISOString());
+
       if (response.status != 200) {
         setSnackBar({ isVisible: true, message: "failed update user information", type: "failed" })
         setIsLoadingInform(false);

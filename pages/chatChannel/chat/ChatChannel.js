@@ -19,11 +19,13 @@ import { connectionChatChannel } from "../../../globalVar/global";
 import getChannelByIdApi from "../../../api/channelApi/getChannelById.api";
 import * as DocumentPicker from 'expo-document-picker';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
+import { getIconChannel, getShorterFileName } from "../../../utils/common";
 
 export default function ChatChannel({ navigation, route }) {
   const isFocused = useIsFocused();
   const { currentChannelId } = useContext(currentChannelIdContext);
   const [nameChannel, setNameChannel] = useState("");
+  const [categoryChannel, setCategoryChannel] = useState("1");
   const [colleagueName, setColleagueName] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendDisabled, setSendDisabled] = useState(true);
@@ -43,6 +45,7 @@ export default function ChatChannel({ navigation, route }) {
     async function renderChannelName() {
       const channel = await getChannelByIdApi(currentChannelId);
       setNameChannel(channel.name);
+      setCategoryChannel(channel.category);
     };
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
@@ -258,7 +261,7 @@ export default function ChatChannel({ navigation, route }) {
               flexDirection: 'row', margin: 10, borderWidth: 0.5, padding: 3, borderRadius: 15
             }}>
               <Icon name="file" size={23}></Icon>
-              <Text>{file.name}</Text>
+              <Text>{getShorterFileName(file.name)}</Text>
               <TouchableOpacity onPress={() => cancelUploadFile(file)}>
                 <Icon name="close" size={20}></Icon>
               </TouchableOpacity>
@@ -311,7 +314,8 @@ export default function ChatChannel({ navigation, route }) {
         >
           <Icon name="menu" size={28} />
         </TouchableOpacity>
-        <Text style={{ marginLeft: 30, fontSize: 20 }}># {nameChannel}</Text>
+        <Icon style={{ marginLeft: 30 }} name={getIconChannel(categoryChannel)} size={20} />
+        <Text style={{ marginLeft: 10, fontSize: 20 }}>{nameChannel}</Text>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -478,3 +482,4 @@ function buildMessage({ id, childCount, isPined, isEdited, reactionCount, sender
     state,
   }
 }
+
