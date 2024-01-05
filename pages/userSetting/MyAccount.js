@@ -70,6 +70,7 @@ export default function MyAccount() {
       getUserInformation();
     } catch { }
   }, [])
+
   const onChangeBirthDay = (event, selectedDate) => {
     if (event.type == "set") {
       const currentDate = selectedDate;
@@ -78,9 +79,9 @@ export default function MyAccount() {
     }
     else {
       setShowDatePicker(false);
-
     }
   };
+
   async function onPressUpdateImage() {
     try {
       setIsLoadingImage(true);
@@ -131,7 +132,7 @@ export default function MyAccount() {
           <TouchableOpacity onPress={pickImage} style={styles.imageTouchable}>
             <Image
               source={
-                image ? { uri: image } : require("../../assets/imageholder.png")
+                image ? { uri: image + "?" + new Date(), cache: 'reload' } : require("../../assets/imageholder.png")
               }
               style={{ width: 150, height: 150 }}
             />

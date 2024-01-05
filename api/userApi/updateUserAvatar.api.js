@@ -4,10 +4,9 @@ import * as SecureStore from "expo-secure-store";
 export default async (userId, imageUri) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-		console.log(imageUri);
     const image = {
       uri: imageUri,
-      name: "image.jpg",
+      name: "image" + new Date() + ".jpg",
       type: "image/jpeg",
     };
     let formData = new FormData();
@@ -21,7 +20,7 @@ export default async (userId, imageUri) => {
           "content-type": "multipart/form-data",
           accept: "application/json",
           authorization: "Bearer " + userToken,
-					"userId": userId,
+          "userId": userId,
         },
         body: formData,
       }

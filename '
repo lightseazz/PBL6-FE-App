@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Avatar, Button } from "react-native-paper";
+import { Avatar } from "react-native-paper";
 import { SvgUri } from "react-native-svg";
 import RenderHtml from "react-native-render-html";
 import { StyleSheet } from "react-native";
@@ -16,7 +16,6 @@ import { LinkPreview } from "@flyerhq/react-native-link-preview";
 import { useEffect, useState } from "react";
 import { getShortDatetimeSendAt, truncString } from "../../../utils/common";
 import UserInformationModal from "../../../components/UserInformationModal";
-import MeetingInfoModal from "../../../components/MeetingInfoModal";
 
 export default function Message({
   currentChannelId,
@@ -37,13 +36,10 @@ export default function Message({
   sendAt,
   files,
   type,
-  data,
-  meetingId,
-  setMeetingId,
-
 }) {
   const { width } = useWindowDimensions();
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
+  console.log(type);
 
   function showUserInform() {
     setIsUserModalVisible(true);
@@ -103,6 +99,20 @@ export default function Message({
     })
     if (!files || files.length <= 0) return;
 
+    function RenderJoinButton() {
+      return (
+        <TouchableOpacity style={{ padding: 5, borderWidth: 0.5, flexDirection: 'row', borderRadius: 10 }}>
+          <Avatar.Image
+            size={30}
+            source={{
+              uri: senderAvatar,
+            }}
+          />
+					<Text style={{marginLeft: 10, fontWeight: "bold"}}> Join Meeting</Text>
+
+        </TouchableOpacity>
+      )
+    }
     return (
       <>
         {
@@ -208,67 +218,6 @@ export default function Message({
     )
   }
 
-  useEffect(function () {
-    try {
-      let jsonMeetingData = JSON.parse(data);
-      if (typeof jsonMeetingData == "string") jsonMeetingData = JSON.parse(data);
-      setMeetingId(jsonMeetingData.Id);
-    } catch {
-
-    }
-  }, [data])
-
-  function RenderMeetingHeader() {
-    try {
-      return (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 10,
-          }}
-        >
-          <View style={{ padding: 7, backgroundColor: 'green', borderRadius: 10 }}>
-            <Icon name="video-outline" size={25} color="white" />
-          </View>
-          <View>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={styles.usernameText}>A meeting has been created</Text>
-            </View>
-            <Text style={styles.timeText}>{getShortDatetimeSendAt(sendAt)}</Text>
-          </View>
-          {isPined ? (<Icon name="pin" size={18}
-            color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
-          />
-          ) : <></>}
-        </View>
-      )
-    } catch {
-      return <></>;
-
-    }
-  }
-
-  async function joinMeeting() {
-
-  }
-
-  function showMeetingInfo() {
-    try {
-      setIsMeetingInfoVisible(true);
-    } catch {
-
-    }
-
-  }
-
-  if (type == "2") {
-    return (
-      <View style={{ alignSelf: 'center', marginBottom: 10 }}>
-        <Text style={{ fontStyle: 'italic' }}> {content}</Text>
-      </View>
-    );
-  }
 
   return (
     <>
@@ -290,36 +239,31 @@ export default function Message({
           }
           }
         >
-          {type == 1 ? (
-            <RenderMeetingHeader />
-          ) : (
-
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 10,
-              }}
-            >
-              <TouchableOpacity onPress={showUserInform}>
-                <Avatar.Image
-                  size={40}
-                  source={{
-                    uri: senderAvatar,
-                  }}
-                />
-              </TouchableOpacity>
-              <View>
-                {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
-                <Text style={styles.usernameText}>{senderName}</Text>
-                <Text style={styles.timeText}>{getShortDatetimeSendAt(sendAt)}</Text>
-              </View>
-              {isPined ? (<Icon name="pin" size={18}
-                color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginBottom: 10,
+            }}
+          >
+            <TouchableOpacity onPress={showUserInform}>
+              <Avatar.Image
+                size={40}
+                source={{
+                  uri: senderAvatar,
+                }}
               />
-              ) : <></>}
+            </TouchableOpacity>
+            <View>
+              {state != "" && state != "deleted" ? <Text style={styles.isSending}>{state}</Text> : <></>}
+              <Text style={styles.usernameText}>{senderName}</Text>
+              <Text style={styles.timeText}>{getShortDatetimeSendAt(sendAt)}</Text>
             </View>
-          )}
+            {isPined ? (<Icon name="pin" size={18}
+              color={"#A79E00"} style={{ marginLeft: 10, transform: [{ rotateZ: '30deg' }] }}
+            />
+            ) : <></>}
+          </View>
           <RenderHtml contentWidth={width} source={{ html: content ? content : "" }} />
           <RenderFiles />
           <RenderPreview />

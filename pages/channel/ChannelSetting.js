@@ -5,14 +5,31 @@ import deleteChannelApi from "../../api/channelApi/deleteChannel.api";
 import { Alert } from "react-native";
 import { buttonColor } from "../../styles/colorScheme";
 import getAllChannelApi from "../../api/channelApi/getAllChannel.api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StatusSnackBar from "../../components/StatusSnackBar";
 import { successStatusCodes } from "../../utils/common";
 import leaveChannelApi from "../../api/channelApi/leaveChannel.api";
+import getChannelByIdApi from "../../api/channelApi/getChannelById.api";
 
 export default function ChannelSetting({ route, navigation }) {
   const { channelId, workspaceId, setChannels, setCurrentChannelId, setSnackBarChannel } = route.params;
+  const [channelData, setChannelData] = useState();
   const [snackBar, setSnackBar] = useState({ isVisible: false, message: "", type: "blank" });
+
+  useEffect(function () {
+    async function getChannelData() {
+      const response = await getChannelByIdApi(channelId);
+      setChannelData(response);
+    }
+
+    try {
+
+      getChannelData();
+    } catch {
+
+    }
+
+  }, [channelId])
 
   async function onPressDelete() {
     try {
@@ -50,6 +67,19 @@ export default function ChannelSetting({ route, navigation }) {
       setSnackBar({ isVisible: true, message: "failed leave this channel", type: "failed" });
     }
   }
+
+  function navigateToUpdatePage() {
+    // if (channelData.category == "4") {
+    //   navigation.navigate("ChannelOverview", {
+    //     channelId: channelId,
+    //     workspaceId: workspaceId,
+    //   })
+    // }
+    navigation.navigate("ChannelOverview", {
+      channelId: channelId,
+      workspaceId: workspaceId,
+    })
+  }
   return (
     <>
       <View
@@ -69,12 +99,7 @@ export default function ChannelSetting({ route, navigation }) {
           <Button
             {...buttonColor}
             mode="elevated"
-            onPress={() =>
-              navigation.navigate("ChannelOverview", {
-                channelId: channelId,
-                workspaceId: workspaceId,
-              })
-            }
+            onPress={navigateToUpdatePage}
           >
             Channel Overview
           </Button>

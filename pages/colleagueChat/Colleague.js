@@ -19,19 +19,22 @@ export default function Colleague({
   const HTMLMessage = useRef();
   const [truncateLastMessage, setTruncateLastMessage] = useState("");
   useEffect(function () {
-    if (typeof lastMessage != "string") return;
-    let noHtmlContent = lastMessage.replace(/<[^>]+>/g, '');
-    if (noHtmlContent.length <= 10) {
-      if (lastMessageSender == "You")
-        setTruncateLastMessage("You: " + noHtmlContent);
-      else
-        setTruncateLastMessage(noHtmlContent);
-      return;
-    };
-    if (lastMessageSender == "You")
-      setTruncateLastMessage("You: " + noHtmlContent.slice(0, 10) + "...");
-    else
-      setTruncateLastMessage(noHtmlContent.slice(0, 10) + "...");
+    try {
+      let truncateSenderName = lastMessageSender;
+      if (lastMessageSender != "You") truncateSenderName = name;
+      if (truncateSenderName.length > 10)
+        truncateSenderName = truncateSenderName.slice(0, 10) + "...";
+
+      if (typeof lastMessage != "string") return;
+      let noHtmlContent = lastMessage.replace(/<[^>]+>/g, '');
+      if (noHtmlContent.length <= 10) {
+        setTruncateLastMessage(truncateSenderName + ": " + noHtmlContent);
+        return;
+      };
+      setTruncateLastMessage(truncateSenderName + ": " + noHtmlContent.slice(0, 10) + "...");
+    } catch {
+
+    }
   }, [lastMessage])
 
   return (
@@ -56,7 +59,7 @@ export default function Colleague({
         ></Icon>
         <View ref={HTMLMessage} style={styles.leftContainer}>
           <Text style={styles.usernameText}>{name}</Text>
-          <View style={{ maxHeight: 50, maxWidth: 100 }}>
+          <View style={{ maxHeight: 50, maxWidth: 200 }}>
             <Text>{truncateLastMessage}</Text>
           </View>
         </View>

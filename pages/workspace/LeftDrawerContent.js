@@ -59,6 +59,7 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
           </TouchableOpacity>
           <Text style={{ marginLeft: 10, fontSize: 20 }}>{workspaceName}</Text>
         </View>
+
         <Button
           {...buttonColor}
           mode="contained"
@@ -74,6 +75,22 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
         >
           Create new channel
         </Button>
+        <Button
+          {...buttonColor}
+          mode="contained"
+          icon="plus"
+          style={{ marginBottom: 20 }}
+          onPress={() =>
+            navigation.navigate("CreateMeeting", {
+              workspaceId: workspaceId,
+              setChannels: setChannels,
+              setSnackBarChannel: setSnackBarChannel,
+            })
+          }
+        >
+          Create new meeting
+        </Button>
+
         <View style={{ flex: 1 }}>
           <FlatList
             data={channels}
@@ -98,11 +115,11 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
           width: "80%",
         }}
       >
+
         <Button
           {...buttonColor}
           mode="contained"
           icon="cog-outline"
-          style={{ marginBottom: 20 }}
           onPress={() =>
             navigation.navigate("WorkspaceSetting", {
               workspaceId: workspaceId,
@@ -125,6 +142,20 @@ export default function LeftDrawerContent({ navigation, setSnackBarWpList }) {
         >
           invite people
         </Button>
+        <Button
+          {...buttonColor}
+          mode="contained"
+          icon="video-outline"
+          style={{ marginBottom: 20 }}
+          onPress={() =>
+            navigation.navigate("MeetingListWp", {
+              workspaceId: workspaceId,
+            })
+          }
+        >
+          Meeting
+        </Button>
+
       </View>
     </View>
   );

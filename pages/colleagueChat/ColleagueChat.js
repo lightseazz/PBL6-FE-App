@@ -1,4 +1,4 @@
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import Colleague from "./Colleague";
 import { Button, FAB, Searchbar } from "react-native-paper";
 import { useEffect, useState } from "react";
@@ -14,11 +14,15 @@ export default function ColleagueChat({ navigation }) {
   const [colleagues, setColleagues] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const isFocused = useIsFocused();
   useEffect(function () {
     async function getInitColleagues() {
+      setIsLoading(true);
       const colleagues = await getUsersConversationApi("", 0, 20);
       setColleagues([...colleagues])
+      setIsLoading(false);
     }
 
     if (isFocused == true)
@@ -60,6 +64,8 @@ export default function ColleagueChat({ navigation }) {
       >
         Find
       </Button>
+      {isLoading ? (<ActivityIndicator color="black" size={40} />
+      ) : (<></>)}
       <FlashList
         estimatedItemSize={200}
         data={colleagues}

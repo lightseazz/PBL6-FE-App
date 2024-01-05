@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Message from "./Message";
 import MessageModal from "./MessageModal";
 import EmojiModal from "./EmojiModal";
-import { ActivityIndicator, Divider } from "react-native-paper";
+import { ActivityIndicator, Button, Divider } from "react-native-paper";
 import getMessageChannelApi from "../../../api/chatApi/getMessageChannel.api";
 import getUserByIdApi from "../../../api/userApi/getUserById.api";
 import { messageState } from "../../../utils/messageState";
@@ -18,11 +18,16 @@ import { setConnectionChatChannel } from "../../../globalVar/global";
 import { connectionChatChannel } from "../../../globalVar/global";
 import getChannelByIdApi from "../../../api/channelApi/getChannelById.api";
 import * as DocumentPicker from 'expo-document-picker';
+import * as Linking from 'expo-linking';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
-import { getIconChannel, getShorterFileName } from "../../../utils/common";
+import { MEETING_COLOR, MEETING_STATUS, getIconChannel, getShorterFileName } from "../../../utils/common";
+import getMeetingByIdApi from "../../../api/meetingApi/getMeetingById.api";
+import MeetingInfoModal from "../../../components/MeetingInfoModal";
+import { WorkspaceIdContext } from "../../../hook/WorkspaceContext";
 
 export default function ChatChannel({ navigation, route }) {
   const isFocused = useIsFocused();
+  const workspaceId = useContext(WorkspaceIdContext);
   const { currentChannelId } = useContext(currentChannelIdContext);
   const [nameChannel, setNameChannel] = useState("");
   const [categoryChannel, setCategoryChannel] = useState("1");
@@ -34,6 +39,10 @@ export default function ChatChannel({ navigation, route }) {
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [isEdit, setIsEdit] = useState(false);
   const [isLoadingSend, setIsLoadingSend] = useState(false);
+  const [meetingId, setMeetingId] = useState("");
+  const [meetingData, setMeetingData] = useState();
+  const [isMeetingInfoVisible, setIsMeetingInfoVisible] = useState(false);
+
   const richTextRef = useRef();
   const flatListRef = useRef();
   const selectedUserRef = useRef("");
@@ -41,6 +50,8 @@ export default function ChatChannel({ navigation, route }) {
     isChanging: false, whatChange: "", id: 0,
     content: "", state: "", childCount: 0, reactionCount: null,
   });
+
+
   useEffect(function () {
     async function renderChannelName() {
       const channel = await getChannelByIdApi(currentChannelId);
@@ -62,8 +73,21 @@ export default function ChatChannel({ navigation, route }) {
     if (currentChannelId) {
       renderChannelName();
       getInitMessages();
+      setMeetingId("");
     }
   }, [currentChannelId])
+
+  useEffect(function () {
+    async function getMeetingData() {
+      const response = await getMeetingByIdApi(meetingId);
+      setMeetingData(response);
+
+    }
+    try {
+      if (meetingId) getMeetingData();
+    } catch {
+    }
+  }, [meetingId])
 
   useEffect(function () {
     if (resetParentMessageRef.current.isChanging == true) {
@@ -296,6 +320,58 @@ export default function ChatChannel({ navigation, route }) {
     }
   }
 
+  function RenderJoinButton() {
+    try {
+      if (!meetingId) return <></>;
+      return (
+        <>
+          <View style={{
+            marginLeft: 20, backgroundColor: MEETING_COLOR[meetingData.status], borderRadius: 20,
+            paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5,
+          }}>
+            <Text style={{ color: "white" }}>{MEETING_STATUS[meetingData.status]}</Text>
+          </View>
+          {(meetingData.status == 0 || meetingData.status == 1) ? (
+            <TouchableOpacity
+              onPress={joinMeeting}
+              style={{
+                padding: 10, borderWidth: 0.8,
+                flexDirection: 'row', borderRadius: 10,
+                alignItems: 'center',
+                backgroundColor: '#7CBAFF', marginLeft: 10
+              }}>
+              <Icon name="video-outline" size={18} color="white" />
+            </TouchableOpacity>
+
+          ) : (<></>)}
+        </>
+      )
+    } catch {
+      return <></>;
+
+    }
+
+  }
+
+  function showInfoMeeting() {
+    if (!meetingId) return;
+    setIsMeetingInfoVisible(true);
+
+  }
+
+  function joinMeeting() {
+    try {
+      if (!meetingData || !meetingId) return;
+      let link = "https://web.firar.live/Workspace/" + workspaceId + "/Meeting/";
+      link = link + meetingId + "/room";
+      Linking.openURL(link);
+
+    } catch {
+
+    }
+
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View
@@ -314,8 +390,13 @@ export default function ChatChannel({ navigation, route }) {
         >
           <Icon name="menu" size={28} />
         </TouchableOpacity>
-        <Icon style={{ marginLeft: 30 }} name={getIconChannel(categoryChannel)} size={20} />
-        <Text style={{ marginLeft: 10, fontSize: 20 }}>{nameChannel}</Text>
+        <TouchableOpacity onPress={showInfoMeeting}>
+          <Icon style={{ marginLeft: 10 }} name={getIconChannel(categoryChannel)} size={20} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={showInfoMeeting}>
+          <Text style={{ marginLeft: 10, fontSize: 20 }}>{nameChannel}</Text>
+        </TouchableOpacity>
+        <RenderJoinButton />
         <View
           style={{
             flexDirection: "row-reverse",
@@ -364,6 +445,8 @@ export default function ChatChannel({ navigation, route }) {
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
               setModalId={setSelectedMessageId}
+              meetingId={meetingId}
+              setMeetingId={setMeetingId}
               id={item.id}
               childCount={item.childCount}
               senderId={item.senderId}
@@ -375,6 +458,8 @@ export default function ChatChannel({ navigation, route }) {
               isPined={item.isPined}
               state={item.state}
               files={item.files}
+              type={item.type}
+              data={item.data}
             />
           )}
         />
@@ -389,6 +474,7 @@ export default function ChatChannel({ navigation, route }) {
         setIsEdit={setIsEdit}
         setSendDisabled={setSendDisabled}
         selectedMessageId={selectedMessageId}
+        meetingId={meetingId}
       />
       <EmojiModal
         modalVisible={modalVisible}
@@ -462,6 +548,12 @@ export default function ChatChannel({ navigation, route }) {
           ) : <></>}
         </View>
       </View>
+      <MeetingInfoModal
+        setIsMeetingInfoVisible={setIsMeetingInfoVisible}
+        isMeetingInfoVisible={isMeetingInfoVisible}
+        data={meetingData}
+      />
+
     </View>
   );
 }

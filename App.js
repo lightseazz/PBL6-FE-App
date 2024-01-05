@@ -11,6 +11,9 @@ import WorkspaceOverview from "./pages/workspace/WorkspaceOverview";
 import WorkspaceInvite from "./pages/workspace/WorkspaceInvite"
 import WspMemberManagement from "./pages/workspace/WspMemberManagement";
 import CreateChannel from "./pages/channel/CreateChannel";
+import CreateMeeting from "./pages/meeting/CreateMeeting";
+import UpdateMeeting from "./pages/meeting/UpdateMeeting";
+import MeetingListWp from "./pages/meeting/MeetingListWp";
 import ChannelSetting from "./pages/channel/ChannelSetting";
 import ChannelOverview from "./pages/channel/ChannelOverview";
 import ChannelInvite from "./pages/channel/ChannelInvite";
@@ -137,6 +140,22 @@ export default function App() {
                   component={CreateChannel}
                   options={header({ title: "Create Channel" })}
                 />
+                <Stack.Screen
+                  name="CreateMeeting"
+                  component={CreateMeeting}
+                  options={header({ title: "Create Meeting" })}
+                />
+                <Stack.Screen
+                  name="UpdateMeeting"
+                  component={UpdateMeeting}
+                  options={header({ title: "Update Meeting" })}
+                />
+                <Stack.Screen
+                  name="MeetingListWp"
+                  component={MeetingListWp}
+                  options={header({ title: "Workspace Meetings" })}
+                />
+
                 <Stack.Screen
                   name="ChannelSetting"
                   component={ChannelSetting}

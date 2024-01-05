@@ -10,7 +10,7 @@ import * as Clipboard from 'expo-clipboard';
 
 export default function MessageModal(
   { selectedMessageId, modalVisible, setModalVisible, messages, setMessages,
-    richTextRef, selectedUserRef, setSendDisabled, setIsEdit }
+    richTextRef, selectedUserRef, setSendDisabled, setIsEdit, meetingId }
 ) {
 
   async function onDeleteMessage() {
@@ -102,7 +102,7 @@ export default function MessageModal(
         >
           <Icon size={30} name="minus-thick" style={styles.close} />
         </Pressable>
-        {selectedUserRef.current == userSignedIn.id ? (
+        {selectedUserRef.current == userSignedIn.id && !meetingId ? (
           <>
             <TouchableOpacity style={styles.component} onPress={onEditMessage}>
               <Icon size={24} name="pencil" style={styles.icon} />

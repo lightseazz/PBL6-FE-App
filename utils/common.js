@@ -100,6 +100,29 @@ export function compareSendAt(msg1, msg2) {
   return 0;
 }
 
+export function getShortTime(sendAt) {
+  try {
+    let time = new Date(sendAt);
+    const timeFormat = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    return timeFormat;
+  } catch {
+    return "";
+  }
+}
+
+export function getShortDatetime(sendAt) {
+  try {
+    let time = new Date(sendAt);
+    const timeFormat = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    let dayFormat = time.toLocaleDateString([], { day: '2-digit', month: '2-digit' })
+      .split('/').reverse().join('/');
+    dayFormat = dayFormat + "/" + time.getFullYear();
+    return dayFormat + " " + timeFormat;
+  } catch {
+    return "";
+  }
+}
+
 export function getShortDatetimeSendAt(sendAt) {
   try {
     let time = new Date(sendAt);
@@ -150,6 +173,7 @@ function checkIsThisYear(time) {
     return false;
   }
 }
+
 
 
 
@@ -221,3 +245,20 @@ export function getShorterFileName(fileName) {
     return fileName;
   }
 }
+
+export function checkDateRange(date, timeStart, timeEnd) {
+  const dateObject = new Date(date);
+  const startObject = new Date(timeStart);
+  const endObject = new Date(timeEnd);
+
+  if (dateObject < startObject) {
+    return -1;
+  } else if (dateObject >= startObject && dateObject <= endObject) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+export const MEETING_STATUS = ["Scheduled", "Active", "Ended", "Canceled"];
+export const MEETING_COLOR = ["blue", "green", "red", "red"];

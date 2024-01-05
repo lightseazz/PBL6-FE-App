@@ -20,7 +20,10 @@ export default function LeftDrawerScreen({ route }) {
     <>
       <WorkspaceIdContext.Provider value={workspaceId}>
         <currentChannelIdContext.Provider
-          value={{ currentChannelId, setCurrentChannelId, channels, setChannels, setSnackBarChannel }}
+          value={{
+            currentChannelId, setCurrentChannelId,
+            channels, setChannels, setSnackBarChannel,
+          }}
         >
           <LeftDrawer.Navigator
             id="LeftDrawer"
