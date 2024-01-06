@@ -9,7 +9,6 @@ import { successStatusCodes } from "../../utils/common";
 
 export default function ChannelInvite({ route }) {
   const { workspaceId, channelId } = route.params;
-	console.log(channelId);
   const [users, setUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [search, setSearch] = useState("");
@@ -20,6 +19,7 @@ export default function ChannelInvite({ route }) {
       try {
         const findUsers = async () => {
           const response = await getUserNotInChannelApi(workspaceId, channelId);
+					response.map(user => console.log(user.isInvited));
           const allUsers = response.map(user => (
             {
               id: user.id,

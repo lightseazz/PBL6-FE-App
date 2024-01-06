@@ -2,15 +2,17 @@ import { View, FlatList, Image, TouchableOpacity } from "react-native";
 import { FAB, Text } from "react-native-paper";
 import { general } from "../../styles/styles";
 import getAllWpApi from "../../api/workspaceApi/getAllWp.api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { setGlobalUser } from "../../globalVar/global";
 import { setConnectionChatChannel } from "../../globalVar/global";
 import * as SecureStore from "expo-secure-store";
 import * as signalR from "@microsoft/signalr";
 import StatusSnackBar from "../../components/StatusSnackBar";
+import { AuthContext } from "../../hook/AuthContext";
 
 export default function WorkspaceList({ navigation, route }) {
+  const { signOut } = useContext(AuthContext);
   const [workspaceList, setWorkspaceList] = useState([]);
   const isFocused = useIsFocused();
   const [snackBarWpList, setSnackBarWpList] = useState({ isVisible: false, message: "", type: "blank" });
@@ -38,6 +40,7 @@ export default function WorkspaceList({ navigation, route }) {
         }
         async function renderWorkspaceList() {
           const response = await getAllWpApi();
+					if(response.status == 401) signOut();
           setWorkspaceList(
             response.map((workspace) => ({
               id: workspace.id,
@@ -47,9 +50,13 @@ export default function WorkspaceList({ navigation, route }) {
             }))
           );
         }
-        renderWorkspaceList();
-        setGlobalUser();
-        connectHub();
+        try {
+          renderWorkspaceList();
+          setGlobalUser();
+          connectHub();
+        } catch {
+
+        }
       }
     },
     [isFocused]

@@ -1,5 +1,5 @@
 import { View, FlatList, Image, TouchableOpacity } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, FAB, Text } from "react-native-paper";
 import { general } from "../../styles/styles";
 import { useEffect, useState } from "react";
 import { useIsFocused } from "@react-navigation/native";
@@ -8,6 +8,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 import { MEETING_COLOR, MEETING_STATUS, getShortDatetime } from "../../utils/common";
 import { buttonColor } from "../../styles/colorScheme";
 import * as Linking from 'expo-linking';
+import *  as SecureStore from "expo-secure-store"
 
 export default function MeetingListWp({ navigation, route }) {
   const { workspaceId } = route.params;
@@ -48,6 +49,21 @@ export default function MeetingListWp({ navigation, route }) {
           )}
           keyExtractor={(item) => item.id}
         />
+        <FAB
+          color="white"
+          label="Join By Password"
+          style={{
+            position: "absolute",
+            margin: 16,
+            left: 0,
+            bottom: 0,
+            backgroundColor: "black",
+          }}
+          onPress={() => navigation.navigate("JoinMeeting", {
+            workspaceId: workspaceId,
+          })}
+        />
+
       </View>
     </>
   );
@@ -55,11 +71,15 @@ export default function MeetingListWp({ navigation, route }) {
 
 
 function MeetingCard({ id, navigation, meeting, workspaceId, setMeetingList }) {
-  function joinMeeting() {
+  async function joinMeeting() {
     try {
-      let link = "https://web.firar.live/Workspace/" + workspaceId + "/Meeting/";
-      link = link + meeting.id + "/room";
+      const userId = await SecureStore.getItemAsync("userId");
+      let userToken = await SecureStore.getItemAsync("userToken");
+      let link = "https://web.firar.live/mobilemeeting";
+      link += `?token=${userToken}&userId=${userId}&workspaceId=${workspaceId}&meetingId=${meeting.id}`
       Linking.openURL(link);
+      console.log(link);
+
     } catch {
 
     }

@@ -14,6 +14,7 @@ import CreateChannel from "./pages/channel/CreateChannel";
 import CreateMeeting from "./pages/meeting/CreateMeeting";
 import UpdateMeeting from "./pages/meeting/UpdateMeeting";
 import MeetingListWp from "./pages/meeting/MeetingListWp";
+import JoinMeeting from "./pages/meeting/JoinMeeting";
 import ChannelSetting from "./pages/channel/ChannelSetting";
 import ChannelOverview from "./pages/channel/ChannelOverview";
 import ChannelInvite from "./pages/channel/ChannelInvite";
@@ -156,6 +157,11 @@ export default function App() {
                   options={header({ title: "Workspace Meetings" })}
                 />
 
+                <Stack.Screen
+                  name="JoinMeeting"
+                  component={JoinMeeting}
+                  options={header({ title: "Join Meeting" })}
+                />
                 <Stack.Screen
                   name="ChannelSetting"
                   component={ChannelSetting}

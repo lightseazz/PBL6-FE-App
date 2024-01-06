@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image } from "react-native";
 import { general } from "../../styles/styles";
 import { Button, TextInput } from "react-native-paper";
 import { AuthContext } from "../../hook/AuthContext";
@@ -55,11 +55,12 @@ export default function Login({ navigation }) {
   return (
     <View style={general.centerView}>
       <View style={{ width: "80%" }}>
+        <Image source={require("../../assets/appIcon.png")} style={{ width: 150, height: 150, alignSelf: 'center' }} />
         <Text
           style={{
             fontWeight: "bold",
             fontSize: 22,
-            alignSelf: "flex-start",
+            alignSelf: 'center',
             marginBottom: 20,
           }}
         >
@@ -117,14 +118,6 @@ export default function Login({ navigation }) {
           Sign Up
         </Button>
       </View>
-      <Button
-        {...buttonColor}
-        mode="contained"
-        icon="google"
-        style={{ marginTop: 30, width: "80%" }}
-      >
-        Sign In with Google
-      </Button>
     </View>
   );
 }

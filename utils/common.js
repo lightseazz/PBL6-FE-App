@@ -212,8 +212,18 @@ export function truncString(str) {
   } catch {
     return str;
   }
-
 }
+
+export function truncChannelName(str, LIMIT) {
+  try {
+    if (str.length > LIMIT) return str.slice(0, LIMIT) + "...";
+    return str;
+
+  } catch {
+    return str;
+  }
+}
+
 
 
 export function getIconChannel(category) {
@@ -260,5 +270,7 @@ export function checkDateRange(date, timeStart, timeEnd) {
   }
 }
 
-export const MEETING_STATUS = ["Scheduled", "Active", "Ended", "Canceled"];
-export const MEETING_COLOR = ["blue", "green", "red", "red"];
+export const MEETING_STATUS = ["Scheduled", "Happening", "Ended", "Canceled"];
+export const MEETING_COLOR = ["#699AD1", "green", "red", "red"];
+
+

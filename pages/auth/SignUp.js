@@ -19,9 +19,12 @@ export default function SignUp({ navigation }) {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [nameError, setnameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordAgainError, setPasswordAgainError] = useState("");
   const [signUpError, setSignUpError] = useState("");
@@ -36,6 +39,7 @@ export default function SignUp({ navigation }) {
     setUsername(text);
     setUsernameError(checkCorrectUsername(text).error);
   };
+
 
   const onChangePassword = (text) => {
     setPassword(text);
@@ -66,7 +70,20 @@ export default function SignUp({ navigation }) {
       setSignUpError("please type the same password");
       return;
     }
-    const response = await signUpApi(email, username, password);
+    if (firstName == "" || lastName == "") {
+      setClicked(false);
+      setnameError("firstName/lastName cannot be empty");
+			return;
+
+    }
+
+    if (firstName.length > 10 || lastName.length > 10) {
+      setClicked(false);
+      setnameError("firstName/lastName cannot be more than 10 character");
+			return;
+
+    }
+    const response = await signUpApi(email, username, firstName, lastName, password);
     if (!response.token) {
       setSignUpError(response.title);
       setClicked(false);
@@ -101,6 +118,29 @@ export default function SignUp({ navigation }) {
         />
         <Text style={styles.error}>{usernameError}</Text>
       </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '80%' }}>
+        <View style={{ width: "47%" }}>
+          <TextInput
+            {...textInputColor}
+            label="firstName"
+            mode="outlined"
+            style={styles.input}
+            onChangeText={setFirstName}
+          />
+          <Text style={styles.error}>{nameError}</Text>
+        </View>
+        <View style={{ width: "47%" }}>
+          <TextInput
+            {...textInputColor}
+            label="lastName"
+            mode="outlined"
+            style={styles.input}
+            onChangeText={setLastName}
+          />
+          <Text style={styles.error}>{nameError}</Text>
+        </View>
+      </View>
+
       <View style={{ width: "80%" }}>
         <TextInput
           {...textInputColor}
@@ -160,19 +200,6 @@ export default function SignUp({ navigation }) {
           Login
         </Button>
       </View>
-      <Button
-        {...buttonColor}
-        mode="contained"
-        icon="google"
-        style={{ marginTop: 30, width: "80%" }}
-        onPress={() => {
-          navigation.navigate("SuccessPage", {
-            text: "You Sign Up successfully, Now you can Sign In",
-          });
-        }}
-      >
-        Sign Up with Google
-      </Button>
     </View>
   );
 }

@@ -1,23 +1,25 @@
 import { apiKey, baseUrl } from "../constant.api";
 import * as SecureStore from "expo-secure-store";
-import refreshTokenApi from "../authApi/refreshToken.api";
 
-export default async (workspaceId) => {
+export default async (workspaceId, sessionId, password) => {
   try {
     const userToken = await SecureStore.getItemAsync("userToken");
-
-    const response = await fetch(baseUrl + "Meeting/getMeetings?workspaceId=" + workspaceId, {
-      method: "GET",
+    const response = await fetch(baseUrl + "Meeting/join" , {
+      method: "POST",
       headers: {
         "x-apikey": apiKey,
         "content-type": "application/json",
         accept: "application/json",
         authorization: "Bearer " + userToken,
+        // "workspaceid": workspaceId,
         "workspace-id": workspaceId,
       },
+      body: JSON.stringify({
+        sessionId: sessionId,
+        password: password,
+      }),
     });
-    if (response.ok) return response.json();
-    return response;
+    return response.json();
   } catch (error) {
     return error;
   }

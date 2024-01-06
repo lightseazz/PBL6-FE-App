@@ -19,7 +19,7 @@ export default function RightDrawerContent({ navigation }) {
         <Button
           {...buttonColor}
           mode="contained"
-          icon="cog-outline"
+          icon="plus"
           style={{ marginBottom: 20 }}
           onPress={() =>
             navigation.navigate("ChannelInvite", {

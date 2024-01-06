@@ -1,7 +1,7 @@
 import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
 import Colleague from "./Colleague";
 import { Button, FAB, Searchbar } from "react-native-paper";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AddModal from "./AddModal";
 import { buttonColor, textInputColor } from "../../styles/colorScheme";
 import * as SecureStore from "expo-secure-store"
@@ -9,8 +9,10 @@ import * as signalR from "@microsoft/signalr"
 import { useIsFocused } from "@react-navigation/native";
 import getUsersConversationApi from "../../api/chatApi/getUsersConversation.api";
 import { FlashList } from "@shopify/flash-list";
+import { AuthContext } from "../../hook/AuthContext";
 
 export default function ColleagueChat({ navigation }) {
+  const { signOut } = useContext(AuthContext);
   const [colleagues, setColleagues] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [search, setSearch] = useState("");
@@ -21,12 +23,17 @@ export default function ColleagueChat({ navigation }) {
     async function getInitColleagues() {
       setIsLoading(true);
       const colleagues = await getUsersConversationApi("", 0, 20);
+      if (colleagues.status == 401) signOut();
       setColleagues([...colleagues])
       setIsLoading(false);
     }
 
-    if (isFocused == true)
-      getInitColleagues();
+    try {
+      if (isFocused == true)
+        getInitColleagues();
+    } catch {
+
+    }
   }, [isFocused])
 
   async function addColleagues() {
@@ -64,7 +71,7 @@ export default function ColleagueChat({ navigation }) {
       >
         Find
       </Button>
-      {isLoading ? (<ActivityIndicator color="black" size={40} />
+      {isLoading ? (<ActivityIndicator color="black" size={30} />
       ) : (<></>)}
       <FlashList
         estimatedItemSize={200}

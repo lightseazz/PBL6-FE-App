@@ -20,10 +20,11 @@ import getChannelByIdApi from "../../../api/channelApi/getChannelById.api";
 import * as DocumentPicker from 'expo-document-picker';
 import * as Linking from 'expo-linking';
 import uploadFilesApi from "../../../api/chatApi/uploadFiles.api";
-import { MEETING_COLOR, MEETING_STATUS, getIconChannel, getShorterFileName } from "../../../utils/common";
+import { MEETING_COLOR, MEETING_STATUS, getIconChannel, getShorterFileName, truncChannelName } from "../../../utils/common";
 import getMeetingByIdApi from "../../../api/meetingApi/getMeetingById.api";
 import MeetingInfoModal from "../../../components/MeetingInfoModal";
 import { WorkspaceIdContext } from "../../../hook/WorkspaceContext";
+import *  as SecureStore from "expo-secure-store"
 
 export default function ChatChannel({ navigation, route }) {
   const isFocused = useIsFocused();
@@ -60,7 +61,7 @@ export default function ChatChannel({ navigation, route }) {
     };
     async function getInitMessages() {
       let currentTime = (new Date()).toLocaleString();
-      const messagesResponse = await getMessageChannelApi(currentTime, 7, currentChannelId);
+      const messagesResponse = await getMessageChannelApi(currentTime, 10, currentChannelId);
       const initMessages = [];
       messagesResponse.map(message => {
         message.state = message.isEdited ? messageState.isEdited : "",
@@ -326,7 +327,7 @@ export default function ChatChannel({ navigation, route }) {
       return (
         <>
           <View style={{
-            marginLeft: 20, backgroundColor: MEETING_COLOR[meetingData.status], borderRadius: 20,
+            marginLeft: 3, backgroundColor: MEETING_COLOR[meetingData.status], borderRadius: 20,
             paddingLeft: 12, paddingRight: 12, paddingTop: 5, paddingBottom: 5,
           }}>
             <Text style={{ color: "white" }}>{MEETING_STATUS[meetingData.status]}</Text>
@@ -338,7 +339,7 @@ export default function ChatChannel({ navigation, route }) {
                 padding: 10, borderWidth: 0.8,
                 flexDirection: 'row', borderRadius: 10,
                 alignItems: 'center',
-                backgroundColor: '#7CBAFF', marginLeft: 10
+                backgroundColor: 'green', marginLeft: 10
               }}>
               <Icon name="video-outline" size={18} color="white" />
             </TouchableOpacity>
@@ -353,17 +354,33 @@ export default function ChatChannel({ navigation, route }) {
 
   }
 
+  function RenderChannelName() {
+    if (!meetingId) return (
+      < TouchableOpacity onPress={showInfoMeeting} >
+        <Text style={{ marginLeft: 10, fontSize: 20 }}>{truncChannelName(nameChannel, 10)}</Text>
+      </TouchableOpacity >
+    )
+    return (
+      < TouchableOpacity onPress={showInfoMeeting} >
+        <Text style={{ marginLeft: 10, fontSize: 20 }}>{truncChannelName(nameChannel, 5)}</Text>
+      </TouchableOpacity >
+    )
+
+  }
+
   function showInfoMeeting() {
     if (!meetingId) return;
     setIsMeetingInfoVisible(true);
 
   }
 
-  function joinMeeting() {
+  async function joinMeeting() {
     try {
       if (!meetingData || !meetingId) return;
-      let link = "https://web.firar.live/Workspace/" + workspaceId + "/Meeting/";
-      link = link + meetingId + "/room";
+      const userId = await SecureStore.getItemAsync("userId");
+      const userToken = await SecureStore.getItemAsync("userToken");
+      let link = "https://web.firar.live/mobilemeeting";
+			link += `?token=${userToken}&userId=${userId}&workspaceId=${workspaceId}&meetingId=${meetingId}`
       Linking.openURL(link);
 
     } catch {
@@ -393,9 +410,7 @@ export default function ChatChannel({ navigation, route }) {
         <TouchableOpacity onPress={showInfoMeeting}>
           <Icon style={{ marginLeft: 10 }} name={getIconChannel(categoryChannel)} size={20} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={showInfoMeeting}>
-          <Text style={{ marginLeft: 10, fontSize: 20 }}>{nameChannel}</Text>
-        </TouchableOpacity>
+        <RenderChannelName />
         <RenderJoinButton />
         <View
           style={{

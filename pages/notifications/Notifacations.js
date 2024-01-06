@@ -1,7 +1,7 @@
 import { View, StyleSheet, ActivityIndicator, Alert, Text } from "react-native";
 import Item from "./Item";
 import { FlashList } from "@shopify/flash-list";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import getNotificationApi from "../../api/notification/getNotification.api";
 import { useIsFocused } from "@react-navigation/native";
 import { Button, Divider } from "react-native-paper";
@@ -9,9 +9,11 @@ import { Picker } from '@react-native-picker/picker';
 import deleteNotiApi from "../../api/notification/deleteNoti.api";
 import StatusSnackBar from "../../components/StatusSnackBar";
 import { successStatusCodes } from "../../utils/common";
+import { AuthContext } from "../../hook/AuthContext";
 const LIMIT = 8;
 
 export default function Notifications({ navigation }) {
+  const { signOut } = useContext(AuthContext);
   const nextOffset = useRef(LIMIT);
   const isFocus = useIsFocused();
   const [selectedType, setSelectedType] = useState("all");
@@ -43,10 +45,15 @@ export default function Notifications({ navigation }) {
     nextOffset.current += LIMIT;
   }
   async function onChangeType(type) {
-    setSelectedType(type);
-    const notis = await getNotisByType(0, LIMIT, type);
-    nextOffset.current = LIMIT;
-    setNotis([...notis]);
+    try {
+      setSelectedType(type);
+      const notis = await getNotisByType(0, LIMIT, type);
+			if(notis.status == 401) signOut();
+      nextOffset.current = LIMIT;
+      setNotis([...notis]);
+    } catch {
+
+    }
   }
   function refreshNoti() {
     onChangeType("all");
@@ -95,7 +102,7 @@ export default function Notifications({ navigation }) {
           (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
               <Text>Type: </Text>
-              <View style={{borderWidth: 0.4, borderRadius: 20, padding: 5 }}>
+              <View style={{ borderWidth: 0.4, borderRadius: 20, padding: 5 }}>
                 <Picker
                   style={{ backgroundColor: "white", width: 300 }}
                   selectedValue={selectedType}
